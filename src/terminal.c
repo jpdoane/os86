@@ -58,9 +58,21 @@ void terminal_movecursor(struct terminal* term, size_t x, size_t y)
  
 void terminal_putchar(struct terminal* term, char c) 
 {
+	if(c == '\n')
+	{
+		terminal_newline(term);
+		return;
+	}
+
 	terminal_putentryat(term, c, term->color, term->column, term->row);
 	if (++term->column == VGA_WIDTH)
 		terminal_newline(term);
+}
+
+void terminal_putcharn(struct terminal* term, char c, size_t repeat) 
+{
+	for (size_t i = 0; i < repeat; i++)
+		terminal_putchar(term, c);
 }
 
 void terminal_newline(struct terminal* term)
@@ -91,12 +103,7 @@ void terminal_clearline(struct terminal* term)
 void terminal_write(struct terminal* term, const char* data, size_t size) 
 {
 	for (size_t i = 0; i < size; i++)
-    {
-        if(data[i]=='\n')
-    		terminal_newline(term);
-        else
-    		terminal_putchar(term, data[i]);
-    }
+		terminal_putchar(term, data[i]);
 }
  
 void terminal_writestring(struct terminal* term, const char* data) 

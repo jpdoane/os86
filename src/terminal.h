@@ -53,6 +53,7 @@ void terminal_initialize(struct terminal* term);
 void terminal_setcolor(struct terminal* term, uint8_t color);
 void terminal_putentryat(struct terminal* term, char c, uint8_t color, size_t x, size_t y);
 void terminal_putchar(struct terminal* term, char c);
+void terminal_putcharn(struct terminal* term, char c, size_t repeat);
 void terminal_newline(struct terminal* term);
 void terminal_write(struct terminal* term, const char* data, size_t size);
 void terminal_writestring(struct terminal* term, const char* data);

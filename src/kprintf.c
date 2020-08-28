@@ -13,13 +13,92 @@ struct format_flags
 //num_digits is always >= 1
 unsigned int numdigits_uint(unsigned int value, unsigned int base);
 
-int format_int(int value, char* str, unsigned int base, unsigned int min_width, int precision, struct format_flags flags);
+int format_uint(unsigned int value, char* str, unsigned int base, int precision, int cap);
 
-int kprint(const char* str, size_t size)
+int kprint(const char* str)
 {
-    terminal_write(&stdout, str, size);
-    return size;
+    terminal_writestring(&stdout, str);
+    return strlen(str);
 }
+
+int kprintn(const char* str, size_t len)
+{
+    terminal_write(&stdout, str, len);
+    return len;
+}
+
+int kprint_char(char c)
+{
+    terminal_putchar(&stdout, c); 
+    return 1;
+}
+
+int kprintn_char(char c, size_t rpt)
+{
+    terminal_putcharn(&stdout, c, rpt); 
+    return rpt;
+}
+
+
+
+
+
+//     if(base == 10)
+//     {
+//         if(value < 0)
+//         {
+//             v = -value;
+//             sign_char = '-';
+//         }
+//         else
+//         {
+//             v = value;
+//             if(sign < 0)
+//                 sign_char = ' ';
+//             else if(sign>0)
+//                 sign_char = '+';
+//             //if sign==0 then positive number has no sign character
+//         }
+//     }
+//     else
+//         v = (unsigned int) value; //all non-decimal numbers are treated as unsigned
+
+
+//     // find number of digits
+//     int digits = numdigits_uint(v, base);
+//     int num_digits = digits>precision ? digits : precision;
+//     int num_digits_signed = sign_char == '\0' ? num_digits : num_digits + 1;
+
+//     //write formatted number out in reverse order
+//     char* s = str + num_digits_signed;
+
+//     *(s--) = '\0'; //null termination
+
+//     //compute each digit from lowest to highest.
+//     unsigned int d;
+//     for(int nn=0;nn<num_digits; nn++)
+//     {
+//         d = v % base;
+//         v /= base;
+
+//         //write digit into string and decrement pointer
+//         if(d < 10)
+//             *(s--) = d + '0';
+//         else if(radix_cap == 0)
+//             *(s--) = d - 10 + 'a';
+//         else
+//             *(s--) = d - 10 + 'A';
+//     }
+
+//     if(sign_char != '\0')
+//         *s = sign_char;
+
+//     return num_digits_signed;
+// }
+
+
+
+
 
 int kprintf(const char* format, ...)
 {
@@ -35,7 +114,7 @@ int kprintf(const char* format, ...)
         if(f[0] == '\\' && f[1] == '%')
         {
             //write escaped "%%" as '%'
-            kprint("%",1);
+            kprint_char('%');
             nchar++;
             f += 2;
         }
@@ -80,6 +159,8 @@ int kprintf(const char* format, ...)
                         check_flags = 0;
                 }
             }
+
+            if(flags.left) flags.zero = 0; //If the 0 and - flags both appear, the 0 flag is ignored
 
             // parse field width
             int field_width=0;
@@ -151,11 +232,11 @@ int kprintf(const char* format, ...)
                     length_mod = DEFAULT;
             }
 
-            //parse type
-            char str_buf[512];
-            char* val_str = str_buf;
-            int len_val_str = 0;
-            unsigned int base = 10;
+            //parse field
+            char val_buf[512]; //assuming here that numberical values cannot exceed 512 chars 
+            if(field_width>511)
+                return -1;
+
             switch(*f)
             {
                 case 'i':
@@ -167,17 +248,62 @@ int kprintf(const char* format, ...)
                         case(SHORTINT):
                         case(LONGINT):
                         case(DEFAULT):
-                            len_val_str = format_int(va_arg(valist, int), val_str, 10, field_width, field_prec, flags);
-                            if(len_val_str<0) return len_val_str; //conversion error
+                            {
+
+                                int i_value = va_arg(valist, int);
+                                char sign_char = 0; //sign character or 0 if none
+                                unsigned int ui_value; //unsigned value (abs value)
+                                if(i_value<0)
+                                {
+                                    ui_value = -i_value;
+                                    sign_char = '-';
+                                }
+                                else
+                                {
+                                    ui_value = i_value;
+                                    if(flags.sign)
+                                        sign_char = '+';
+                                    else if(flags.space)
+                                        sign_char = ' ';
+                                    
+                                    //else positive number has no sign character
+                                }
+
+                                //convert value into string
+                                int len = format_uint(ui_value, val_buf, 10, field_prec, 0);
+                                //amount of padding required to meet requested width
+                                int lenpad = field_width - len; 
+
+                                if(sign_char)
+                                {
+                                    lenpad--; //remove one char of padding to account for sign
+                                    if(flags.zero)
+                                        nchar += kprint_char(sign_char); //if zero padding, sign is at beginning
+                                }
+
+                                if(!flags.left && lenpad>0)
+                                {
+                                    if(flags.zero)
+                                        nchar += kprintn_char('0', lenpad);
+                                    else
+                                        nchar += kprintn_char(' ', lenpad);
+                                }
+
+                                if(!flags.zero && sign_char)
+                                    nchar += kprint_char(sign_char); //if not zero padding, write sign here
+
+                                nchar += kprint(val_buf);
+
+                                if(flags.left && lenpad>0)
+                                    nchar += kprintn_char(' ', lenpad);
+
+                            }
                             break;
                         case(LONGLONGINT):
                             return -1; //long long not supported
                         default:
                             return -1; //invalid length mod
                     }
-
-                    kprint(val_str,len_val_str);
-                    nchar += len_val_str;
                     break;
 
                 case 'o':
@@ -185,25 +311,83 @@ int kprintf(const char* format, ...)
                 case 'x':
                 case 'X':
                 case 'p':
-                    //signed int
+                    //unsigned int
                     switch(length_mod)
                     {
                         case(CHARINT):
                         case(SHORTINT):
                         case(LONGINT):
                         case(DEFAULT):
-                            if(*f == 'o')
-                                base = 8;
-                            else if(*f == 'x' || *f == 'X')
-                                base = 16;
-                            else if(*f == 'p')
                             {
-                                //print as hex with 0x prefix
-                                base = 16;
-                                flags.alt = 1; 
+                                unsigned int base = 10;
+                                int ui_value = va_arg(valist, unsigned int);
+
+                                if(*f == 'o')
+                                    base = 8;
+                                else if(*f == 'x' || *f == 'X')
+                                    base = 16;
+                                else if(*f == 'p')
+                                {
+                                    //print as hex with 0x prefix
+                                    base = 16;
+                                    flags.alt = 1; 
+                                }
+                                else
+                                    flags.alt = 0;
+                                
+                                int cap = (*f == 'X') ? 1 : 0;
+
+                                //convert value into string
+                                int len = format_uint(ui_value, val_buf, base, field_prec, cap);
+                                //amount of padding required to meet requested width
+                                int lenpad = field_width - len; 
+
+
+                                //format radix prefix for oct and hex with alt flag
+                                char radix[3]="";
+                                if(flags.alt)
+                                {
+                                    if(base==16)
+                                    {
+                                        lenpad -= 2;
+                                        radix[0] = '0';
+                                        radix[1] = cap ? 'X' : 'x';
+                                        radix[2] = 0;
+                                    }
+                                    else if(base==8 && val_buf[0] != '0')
+                                    {
+                                        lenpad -= 1;
+                                        radix[0] = '0';
+                                        radix[1] = 0;
+                                    }
+
+                                    //if zero padding, radix is printed first
+                                    if(flags.zero)
+                                        nchar += kprint(radix);
+                                }
+
+
+                                //print leading padding, if any
+                                if(!flags.left && lenpad>0)
+                                {
+                                    if(flags.zero)
+                                        nchar += kprintn_char('0', lenpad);
+                                    else
+                                        nchar += kprintn_char(' ', lenpad);
+                                }
+
+                                //print radix prefix if valid and not leading zeros
+                                if(!flags.zero && radix[0])
+                                    nchar += kprint(radix);
+
+                                //print number itself
+                                nchar += kprint(val_buf);
+
+                                //print trailing padding if left justified
+                                if(flags.left && lenpad>0)
+                                    nchar += kprintn_char(' ', lenpad);
+
                             }
-                            len_val_str = format_int(va_arg(valist, unsigned int), val_str, base, field_width, field_prec, flags);
-                            if(len_val_str<0) return len_val_str; //conversion error
                             break;
                         case(LONGLONGINT):
                             return -1; //long long not supported
@@ -211,8 +395,6 @@ int kprintf(const char* format, ...)
                             return -1; //invalid length mod
                     }
 
-                    kprint(val_str,len_val_str);
-                    nchar += len_val_str;
                     break;
 
                 case 'e':
@@ -223,50 +405,37 @@ int kprintf(const char* format, ...)
                 case 'G':
                     return -1; // not yet implemented
                 case 'c':
-                    val_str[0] = (char) va_arg(valist, int);
-
-                    if(field_width>1 && !flags.left)    
                     {
-                        nchar += field_width - 1;
-                        for(int nn=0; nn<field_width-1; nn++)
-                            kprint(" ",1);
-                    }
+                        char c = (char) va_arg(valist, int);
 
-                    kprint(val_str,1);
-                    nchar++;
+                        if(field_width>1 && !flags.left)    
+                            nchar += kprintn_char(' ', field_width-1);
 
-                    if(field_width>1 && flags.left)    
-                    {
-                        nchar += field_width - 1;
-                        for(int nn=0; nn<field_width-1; nn++)
-                            kprint(" ",1);
-                    }
-                    
+                        nchar += kprint_char(c);
+
+                        if(field_width>1 && flags.left)    
+                            nchar += kprintn_char(' ', field_width-1);
+                    }                    
                     break;
 
                 case 's':
-                    val_str = va_arg(valist, char*);
-                    len_val_str = strlen(val_str);
-                    if(field_prec > 0 && field_prec < len_val_str)
-                        len_val_str = field_prec;
-
-                    if(field_width>len_val_str && !flags.left)    
                     {
-                        nchar += field_width-len_val_str;
-                        for(int nn=0; nn<field_width-len_val_str; nn++)
-                            kprint(" ",1);
+                        char* str = va_arg(valist, char*);
+                        int len = strlen(str);
+                        if(field_prec > 0 && field_prec < len)
+                            len = field_prec;
+
+                        int lenpad = field_width - len; 
+
+                        if(lenpad>0 && !flags.left)    
+                            nchar += kprintn_char(' ', lenpad);
+
+                        nchar += kprintn(str,len);
+
+                        if(lenpad>0 && flags.left)
+                            nchar += kprintn_char(' ', lenpad);
+                        
                     }
-
-                    kprint(val_str,len_val_str);
-                    nchar += len_val_str;
-
-                    if(field_width>len_val_str && flags.left)
-                    {
-                        nchar += field_width-len_val_str;
-                        for(int nn=0; nn<field_width-len_val_str; nn++)
-                            kprint(" ",1);
-                    }
-
                     break;
                 default:
                     //unsupported type
@@ -278,7 +447,7 @@ int kprintf(const char* format, ...)
         else
         {
             //this isnt part of a format code, just copy char to string and increment pointers
-            kprint(f++, 1);
+            kprint_char(*(f++));
             nchar++;
         }
     }
@@ -289,9 +458,12 @@ int kprintf(const char* format, ...)
    return nchar; //number of characters copied to str
 }
 
-
-//returns length of formatted string
-int format_int(int value, char* str, unsigned int base, unsigned int min_width, int precision, struct format_flags flags)
+// formats an unsigned integer as a (alpha)numeric string
+// base may be 2-32
+// precision is per printf format, precision<0 represents default (unspecified) 
+// cap = 0, alpha-numbers are capitalized [base>10 only]
+// returns length of string (not counting null termination)
+int format_uint(unsigned int value, char* str, unsigned int base, int precision, int cap)
 {
     if(base < 2 || base > 32)
         return -1;
@@ -303,111 +475,35 @@ int format_int(int value, char* str, unsigned int base, unsigned int min_width, 
         return 0;
     }
 
-    unsigned int residual; //holds the unsigned value still to be parsed
-    char sign_char = 0; //sign char may be +,-, space, or null
+    // find number of digits
+    int num_digits = numdigits_uint(value, base);
+    num_digits = num_digits>precision ? num_digits : precision;
 
-    if(base == 10)
-    {
-        if(value < 0)
-        {
-            sign_char = '-';
-            residual = -value;
-        }
-        else
-        {
-            residual = value;
+    //write formatted number out in reverse order
+    char* s = str + num_digits;
 
-            if(flags.sign)
-                sign_char = '+';  //+ overrides space
-            else if(flags.space)
-                sign_char = ' ';
-        }
-        
-
-    }
-    else
-        residual = (unsigned int) value; //all non-decimal numbers are treated as unsigned
-
-
-    // find length of field
-    int char_digits = numdigits_uint(residual, base);
-    int char_prec_digits = char_digits>precision ? char_digits : precision;
-    int char_sign = sign_char==0 ? 0 : 1;
-    int char_radix = 0;
-
-    //add room for radix fmt
-    if(flags.alt)
-    {
-        if(base == 16)
-            char_radix = 2; //leading "0x" for hex
-        if(base == 8 && char_prec_digits==char_digits && residual>0)
-            char_prec_digits++; //force leading 0 for octal
-    }
-
-    //total width;
-    unsigned int width = char_prec_digits+char_sign+char_radix;
-    unsigned int char_padding = 0;
-    if(width < min_width)
-    {
-        //If a precision is given with a numeric conversion the 0 flag is ignored. 
-        if(flags.zero && !flags.left && precision<0)
-            char_prec_digits += min_width-width;    //pad with zeros
-        else
-            char_padding = min_width-width;         //pad with spaces
-        width = min_width;
-    }
-
-    //start writing out string
-    char* s = str;
-    str[width] = '\0'; //null termination
-
-    //write padding
-    if(flags.left)
-    {
-        for(unsigned int nn=width-char_padding; nn<width; nn++)
-            str[nn] = ' ';        
-    }
-    else
-    {
-        for(unsigned int nn=0; nn<char_padding; nn++)
-            str[nn] = ' ';
-        s += char_padding;
-    }
-
-    //at this point, s points at the beginning of the field, after any left-side padding
-
-    //write hex prefix or sign character
-    if(char_radix>0)
-    {
-        *(s++) = '0';
-        *(s++) = 'x';
-    }
-    if(char_sign > 0)
-    {
-        *(s++) = sign_char;
-    }
-
-    //at this point, s points at most sig. digit
-    //move to least sig digit
-
-    s += char_prec_digits-1;
+    *(s--) = '\0'; //null termination
 
     //compute each digit from lowest to highest.
-    unsigned int digit;
-    for(int nn=0;nn<char_prec_digits; nn++)
+    unsigned int d;
+    for(int nn=0;nn<num_digits; nn++)
     {
-        digit = residual % base;
-        residual /= base;
+        d = value % base;
+        value /= base;
 
         //write digit into string and decrement pointer
-        if(digit < 10)
-            *(s--) = digit + '0';
+        if(d < 10)
+            *(s--) = d + '0';
+        else if(cap == 0)
+            *(s--) = d - 10 + 'a';
         else
-            *(s--) = digit - 10 + 'A';        
+            *(s--) = d - 10 + 'A';
     }
 
-    return width;
+    return num_digits;
 }
+
+
 
 //returns number of digits of unsigned int represented in given base
 //num_digits is always >= 1
@@ -438,23 +534,18 @@ void kprintf_test()
     kprintf("\nFixed width, left justify:\n");
     kprintf("Decimal: [%-15d]\n", num);
     kprintf("Hex:     [%-#15x]\n", num);
-    kprintf("Oct:     [%-#15o]\n", num);
     kprintf("String:  [%-15s]\n", "Hello World!");
-    kprintf("Char:    [%-15c]\n", '!');
 
     kprintf("\nFixed Precision:\n");
-    kprintf("Decimal: [%15.10d]\nHex:     [%#15.10x]\nOct:     [%#15.10o]\nString:  [%15.10s]\nChar:    [%15.10c]\n", 
-        num, num, num, "Hello World!",'!');
+    kprintf("Decimal: [%15.10d]\nHex:     [%#15.10x]\nOct:     [%#15.10o]\nString:  [%15.10s]\n", 
+        num, num, num, "Hello World!");
 
     kprintf("\nLeading Zeros:\n");
     kprintf("Decimal: [%015.10d]\nHex:     [%#015.10x]\nOct:     [%#015.10o]\n",num, num, num);
 
-    kprintf("\nSigned (space):\n");
-    kprintf("Decimal: [% d]\nHex:     [%# x]\nOct:     [%# o]\n",num, num, num);
-    kprintf("\nSigned (+):\n");
-    kprintf("Decimal: [%+d]\nHex:     [%#+x]\nOct:     [%#+o]\n",num, num, num);
-    kprintf("\nSigned: (-)\n");
-    kprintf("Decimal: [%+d]\nHex:     [%#+x]\nOct:     [%#+o]\n",-num, -num, -num);
+    kprintf("Signed (none):  [%d], [%d]\n",num, -num);
+    kprintf("Signed (space): [% d], [% d]\n",num, -num);
+    kprintf("Signed (+):     [%+d], [%+d]\n",num, -num);
 
 }
 

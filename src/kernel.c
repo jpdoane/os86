@@ -16,5 +16,5 @@ void kernel_main(void)
 	kprintf("Jon Doane, 2020\n");
     terminal_setcolor(&stdout, VGA_COLOR_WHITE);
 
-	kprintf_test();
+	//kprintf_test();
 }
