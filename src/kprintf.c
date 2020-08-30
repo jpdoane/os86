@@ -40,66 +40,6 @@ int kprintn_char(char c, size_t rpt)
 }
 
 
-
-
-
-//     if(base == 10)
-//     {
-//         if(value < 0)
-//         {
-//             v = -value;
-//             sign_char = '-';
-//         }
-//         else
-//         {
-//             v = value;
-//             if(sign < 0)
-//                 sign_char = ' ';
-//             else if(sign>0)
-//                 sign_char = '+';
-//             //if sign==0 then positive number has no sign character
-//         }
-//     }
-//     else
-//         v = (unsigned int) value; //all non-decimal numbers are treated as unsigned
-
-
-//     // find number of digits
-//     int digits = numdigits_uint(v, base);
-//     int num_digits = digits>precision ? digits : precision;
-//     int num_digits_signed = sign_char == '\0' ? num_digits : num_digits + 1;
-
-//     //write formatted number out in reverse order
-//     char* s = str + num_digits_signed;
-
-//     *(s--) = '\0'; //null termination
-
-//     //compute each digit from lowest to highest.
-//     unsigned int d;
-//     for(int nn=0;nn<num_digits; nn++)
-//     {
-//         d = v % base;
-//         v /= base;
-
-//         //write digit into string and decrement pointer
-//         if(d < 10)
-//             *(s--) = d + '0';
-//         else if(radix_cap == 0)
-//             *(s--) = d - 10 + 'a';
-//         else
-//             *(s--) = d - 10 + 'A';
-//     }
-
-//     if(sign_char != '\0')
-//         *s = sign_char;
-
-//     return num_digits_signed;
-// }
-
-
-
-
-
 int kprintf(const char* format, ...)
 {
     /* initialize valist for num number of arguments */
@@ -247,10 +187,15 @@ int kprintf(const char* format, ...)
                         case(CHARINT):
                         case(SHORTINT):
                         case(LONGINT):
+                        case(LONGLONGINT):
                         case(DEFAULT):
                             {
+                                int i_value;
+                                if(length_mod == LONGLONGINT)
+                                    i_value = (int) va_arg(valist, long long int); //TODO: implement actual longlong handling
+                                else
+                                    i_value = va_arg(valist, int);
 
-                                int i_value = va_arg(valist, int);
                                 char sign_char = 0; //sign character or 0 if none
                                 unsigned int ui_value; //unsigned value (abs value)
                                 if(i_value<0)
@@ -297,10 +242,9 @@ int kprintf(const char* format, ...)
                                 if(flags.left && lenpad>0)
                                     nchar += kprintn_char(' ', lenpad);
 
+
                             }
                             break;
-                        case(LONGLONGINT):
-                            return -1; //long long not supported
                         default:
                             return -1; //invalid length mod
                     }
@@ -317,10 +261,15 @@ int kprintf(const char* format, ...)
                         case(CHARINT):
                         case(SHORTINT):
                         case(LONGINT):
+                        case(LONGLONGINT):
                         case(DEFAULT):
                             {
                                 unsigned int base = 10;
-                                int ui_value = va_arg(valist, unsigned int);
+                                unsigned int ui_value;
+                                if(length_mod == LONGLONGINT)
+                                    ui_value = (unsigned int) va_arg(valist, long long unsigned int); //TODO: implement actual longlong handling
+                                else
+                                    ui_value = va_arg(valist, unsigned int);
 
                                 if(*f == 'o')
                                     base = 8;
@@ -389,18 +338,86 @@ int kprintf(const char* format, ...)
 
                             }
                             break;
-                        case(LONGLONGINT):
-                            return -1; //long long not supported
                         default:
                             return -1; //invalid length mod
                     }
 
                     break;
 
-                case 'e':
-                case 'E':
                 case 'f':
                 case 'F':
+                    {
+                        float f_value = (float) va_arg(valist, double);
+
+                        //When 0 is printed with an explicit precision 0, the output is empty.
+                        if(f_value==0 && field_prec==0)
+                            break;
+                        if(field_prec<0) field_prec = 6;  //default is prec = 6
+
+                        unsigned int ui_part;
+                        char sign_char = 0;
+                        if(f_value<0)
+                        {
+                            ui_part = (unsigned int) -f_value;
+                            sign_char = '-';
+                        }
+                        else
+                        {
+                            ui_part = (unsigned int) f_value;
+                            if(flags.sign)
+                                sign_char = '+';
+                            else if(flags.space)
+                                sign_char = ' ';
+                            
+                            //else positive number has no sign character
+                        }
+
+                        int int_len = format_uint(ui_part,val_buf,10,-1,0);
+
+                        int f_len = int_len + 1 + field_prec;
+
+                        //amount of padding required to meet requested width
+                        int lenpad = field_width - f_len; 
+
+                        if(sign_char)
+                        {
+                            lenpad--; //remove one char of padding to account for sign
+                            if(flags.zero)
+                                nchar += kprint_char(sign_char); //if zero padding, sign is at beginning
+                        }
+
+                        if(!flags.left && lenpad>0)
+                        {
+                            if(flags.zero)
+                                nchar += kprintn_char('0', lenpad);
+                            else
+                                nchar += kprintn_char(' ', lenpad);
+                        }
+
+                        if(!flags.zero && sign_char)
+                            nchar += kprint_char(sign_char); //if not zero padding, write sign here
+
+                        nchar += kprint(val_buf);
+                        nchar += kprint_char('.');
+
+                        //compute fractional digits.
+                        float frac = f_value<0 ? -f_value - ui_part : f_value - ui_part;
+                        int d;
+                        for(int nn=0;nn<field_prec; nn++)
+                        {
+                            frac *= 10.;
+                            d = (int) frac;
+                            frac -= d;
+                            nchar += kprint_char('0' + d);
+                        }
+
+                        if(flags.left && lenpad>0)
+                            nchar += kprintn_char(' ', lenpad);
+
+                    }
+                    break;
+                case 'e':
+                case 'E':
                 case 'g':
                 case 'G':
                     return -1; // not yet implemented
@@ -503,6 +520,56 @@ int format_uint(unsigned int value, char* str, unsigned int base, int precision,
     return num_digits;
 }
 
+// // formats a decimal floating point number as a numeric string
+// // precision is per printf format, precision<0 represents default (unspecified) 
+// // returns length of string (not counting null termination)
+// int format_float(float value, char* str, int precision, int cap)
+// {
+//     //When 0 is printed with an explicit precision 0, the output is empty.
+//     if(value==0 && precision==0)
+//     {
+//         str[0] = 0;
+//         return 0;
+//     }
+
+//     char* s = str;
+//     int num_digits;
+
+//     unsigned int unsigned_intpart;
+//     if(value<0)
+//     {
+//         unsigned_intpart = -value;
+//         *(s++) = '-';
+//         num_digits++;
+//     }
+//     else
+//         unsigned_intpart = value;
+
+//     //write integer part to string    
+//     num_digits += format_uint(unsigned_intpart,s,10,precision,0);
+
+//     if(precision==0) return num_digits;
+//     if(precision<0) precision = 6; 
+
+//     // write decimal point
+//     *(s++) = '.';
+//     num_digits++;
+
+//     float frac = value - (int) value;
+//     int d;
+//     //compute fractional digits.
+//     for(int nn=0;nn<precision; nn++)
+//     {
+//         frac *= 10;
+//         d = (int) frac;
+//         *(s++) = d + '0';
+//     }
+//     num_digits += precision;
+
+//     *s = '\0'; //null termination
+
+//     return num_digits;
+// }
 
 
 //returns number of digits of unsigned int represented in given base
@@ -547,6 +614,15 @@ void kprintf_test()
     kprintf("Signed (space): [% d], [% d]\n",num, -num);
     kprintf("Signed (+):     [%+d], [%+d]\n",num, -num);
 
+    float f = 1.23456789;
+    kprintf("\nfloat:     [%15.f]\n",f);
+    kprintf("float:     [%15.3f]\n",f);
+    kprintf("float:     [%15.10f]\n",f);
+
+    f = -12345.6789;
+    kprintf("float:     [%15f]\n",f);
+    kprintf("float:     [%15.3f]\n",f);
+    kprintf("float:     [%15.10f]\n",f);
 }
 
 

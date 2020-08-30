@@ -86,6 +86,12 @@ _start:
 	stack since (pushed 0 bytes so far), so the alignment has thus been
 	preserved and the call is well defined.
 	*/
+
+	# pass memory map arguments to kernel_main
+	push %eax	#extra word to maintain 16byte alignement
+	push %eax	#extra word to maintain 16byte alignement
+	push %eax	#magic number
+	push %ebx	#address of memory map table
 	call kernel_main
  
 	/*
