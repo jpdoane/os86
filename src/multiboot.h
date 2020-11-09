@@ -271,6 +271,10 @@ struct multiboot_apm_info
   multiboot_uint16_t dseg_len;
 };
 
+size_t memory_table(multiboot_info_t* mbd, unsigned int magic);
+int print_memory_table(multiboot_info_t* mbd);
+
+
 #endif /* ! ASM_FILE */
 
 #endif /* ! MULTIBOOT_HEADER */

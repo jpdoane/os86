@@ -16,7 +16,7 @@ LDFLAGS= -T link.lds
 
 GCC_HOST=gcc
 GCC=$(CC_PREFIX)gcc
-ASM=$(CC_PREFIX)as
+ASM=$(CC_PREFIX)gcc
 LD=$(CC_PREFIX)ld
 
 CFLAGS=-std=gnu99 -ffreestanding -O2 -Wall -Wextra

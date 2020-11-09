@@ -1,6 +1,7 @@
 #include "terminal.h"
 #include "kprintf.h"
 #include "multiboot.h"
+// #include "memman.h"
 
  /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if defined(__linux__)  || !defined(__i386__)
@@ -14,20 +15,20 @@ void kernel_main(multiboot_info_t* mbd, unsigned int magic)
 	kprintf("Let's learn about Operating Systems!\n");
 	kprintf("Jon Doane, 2020\n");
 
-	if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
+	size_t mem_size = memory_table(mbd, magic);
+	if(mem_size==0)
 	{
 		kprintf("Error: Invalid memory table!\n");
 		return;
 	}
-
-	multiboot_memory_map_t* mmap_table = (multiboot_memory_map_t*) mbd->mmap_addr;
-	kprintf("\nAvailable Memory:\n");
-	for(unsigned int nn=0; nn<mbd->mmap_length; nn++)
+	else
 	{
-		if(mmap_table[nn].len>0 && mmap_table[nn].size>0)
-			kprintf("%.8llp - %.8llp (%8llu kiB) type: %u\n", mmap_table[nn].addr, mmap_table[nn].addr+mmap_table[nn].len - 1, mmap_table[nn].len/1024, mmap_table[nn].type);
-		
+		kprintf("Found %u MiB availble free memory\n", mem_size/(1<<20));
+		print_memory_table(mbd);
 	}
+	
 
-	//kprintf_test();
+	kprintf_test();
+
+	
 }
