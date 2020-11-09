@@ -7,6 +7,7 @@
 #error "This kernel requires ix86-elf cross compiler"
 #endif
 
+
 void kernel_main(multiboot_info_t* mbd, unsigned int magic)
 {
 	terminal_initialize(&stdout);
