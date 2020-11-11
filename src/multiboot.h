@@ -93,6 +93,8 @@
 
 #ifndef ASM_FILE
 
+#include <stddef.h>
+
 typedef unsigned char           multiboot_uint8_t;
 typedef unsigned short          multiboot_uint16_t;
 typedef unsigned int            multiboot_uint32_t;

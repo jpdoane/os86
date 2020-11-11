@@ -42,3 +42,11 @@ set_page_dir:
 get_page_dir:
     mov eax, cr3
     ret
+
+.globl refresh_paging
+.align 4
+.type refresh_paging, @function
+refresh_paging:
+    mov eax, cr3
+    mov cr3, eax
+    ret

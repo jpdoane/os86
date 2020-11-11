@@ -1,0 +1,3259 @@
+
+build/kernel:     file format elf32-i386
+
+
+Disassembly of section .text.boot:
+
+00100000 <_start-0xc>:
+  100000:	02 b0 ad 1b 03 00    	add    0x31bad(%eax),%dh
+  100006:	00 00                	add    %al,(%eax)
+  100008:	fb                   	sti    
+  100009:	4f                   	dec    %edi
+  10000a:	52                   	push   %edx
+  10000b:	e4                   	.byte 0xe4
+
+0010000c <_start>:
+  10000c:	fc                   	cld    
+  10000d:	a3 0c 80 10 00       	mov    %eax,0x10800c
+  100012:	89 1d 08 80 10 00    	mov    %ebx,0x108008
+  100018:	8d 3d 00 90 10 00    	lea    0x109000,%edi
+  10001e:	8d 35 00 a0 10 00    	lea    0x10a000,%esi
+  100024:	83 ce 03             	or     $0x3,%esi
+  100027:	89 37                	mov    %esi,(%edi)
+  100029:	8d 3d 00 a0 10 00    	lea    0x10a000,%edi
+  10002f:	b8 03 00 00 00       	mov    $0x3,%eax
+  100034:	b9 00 04 00 00       	mov    $0x400,%ecx
+
+00100039 <.nextEntry_low>:
+  100039:	ab                   	stos   %eax,%es:(%edi)
+  10003a:	05 00 10 00 00       	add    $0x1000,%eax
+  10003f:	e2 f8                	loop   100039 <.nextEntry_low>
+  100041:	8d 35 00 b0 10 00    	lea    0x10b000,%esi
+  100047:	83 ce 03             	or     $0x3,%esi
+  10004a:	8d 05 00 00 00 c0    	lea    0xc0000000,%eax
+  100050:	c1 e8 16             	shr    $0x16,%eax
+  100053:	bb 04 00 00 00       	mov    $0x4,%ebx
+  100058:	f7 e3                	mul    %ebx
+  10005a:	8d 3d 00 90 10 00    	lea    0x109000,%edi
+  100060:	01 c7                	add    %eax,%edi
+  100062:	89 37                	mov    %esi,(%edi)
+  100064:	8d 1d 00 00 00 c0    	lea    0xc0000000,%ebx
+  10006a:	8d 0d 00 b0 00 c0    	lea    0xc000b000,%ecx
+  100070:	29 d9                	sub    %ebx,%ecx
+  100072:	c1 e9 0c             	shr    $0xc,%ecx
+  100075:	8d 05 00 00 00 c0    	lea    0xc0000000,%eax
+  10007b:	c1 e8 0c             	shr    $0xc,%eax
+  10007e:	25 ff 03 00 00       	and    $0x3ff,%eax
+  100083:	bb 04 00 00 00       	mov    $0x4,%ebx
+  100088:	f7 e3                	mul    %ebx
+  10008a:	8d 3d 00 b0 10 00    	lea    0x10b000,%edi
+  100090:	01 c7                	add    %eax,%edi
+  100092:	8d 05 00 10 10 00    	lea    0x101000,%eax
+  100098:	83 c8 03             	or     $0x3,%eax
+
+0010009b <.nextEntry_high>:
+  10009b:	ab                   	stos   %eax,%es:(%edi)
+  10009c:	05 00 10 00 00       	add    $0x1000,%eax
+  1000a1:	e2 f8                	loop   10009b <.nextEntry_high>
+  1000a3:	8d 35 00 90 10 00    	lea    0x109000,%esi
+  1000a9:	89 f7                	mov    %esi,%edi
+  1000ab:	81 c7 fc 0f 00 00    	add    $0xffc,%edi
+  1000b1:	83 ce 03             	or     $0x3,%esi
+  1000b4:	89 37                	mov    %esi,(%edi)
+
+001000b6 <_enable_paging>:
+  1000b6:	8d 05 00 90 10 00    	lea    0x109000,%eax
+  1000bc:	0f 22 d8             	mov    %eax,%cr3
+  1000bf:	0f 20 c0             	mov    %cr0,%eax
+  1000c2:	0d 00 00 01 80       	or     $0x80010000,%eax
+  1000c7:	0f 22 c0             	mov    %eax,%cr0
+  1000ca:	a1 0c 70 00 c0       	mov    0xc000700c,%eax
+  1000cf:	8b 1d 08 70 00 c0    	mov    0xc0007008,%ebx
+  1000d5:	89 25 0c 70 00 c0    	mov    %esp,0xc000700c
+  1000db:	8d 25 10 70 00 c0    	lea    0xc0007010,%esp
+  1000e1:	8d 3d 00 80 00 c0    	lea    0xc0008000,%edi
+  1000e7:	50                   	push   %eax
+  1000e8:	57                   	push   %edi
+  1000e9:	50                   	push   %eax
+  1000ea:	53                   	push   %ebx
+  1000eb:	e8 00 1b f0 bf       	call   c0001bf0 <kernel_main>
+  1000f0:	fa                   	cli    
+  1000f1:	f4                   	hlt    
+  1000f2:	eb fd                	jmp    1000f1 <_enable_paging+0x3b>
+
+Disassembly of section .text:
+
+c0000000 <kprint>:
+unsigned int numdigits_uint(unsigned int value, unsigned int base);
+
+int format_uint(unsigned int value, char* str, unsigned int base, int precision, int cap);
+
+int kprint(const char* str)
+{
+c0000000:	55                   	push   %ebp
+c0000001:	89 e5                	mov    %esp,%ebp
+c0000003:	53                   	push   %ebx
+c0000004:	83 ec 0c             	sub    $0xc,%esp
+c0000007:	8b 5d 08             	mov    0x8(%ebp),%ebx
+    terminal_writestring(&stdout, str);
+c000000a:	53                   	push   %ebx
+c000000b:	68 00 30 00 c0       	push   $0xc0003000
+c0000010:	e8 7b 1a 00 00       	call   c0001a90 <terminal_writestring>
+    return strlen(str);
+c0000015:	89 5d 08             	mov    %ebx,0x8(%ebp)
+c0000018:	83 c4 10             	add    $0x10,%esp
+}
+c000001b:	8b 5d fc             	mov    -0x4(%ebp),%ebx
+c000001e:	c9                   	leave  
+    return strlen(str);
+c000001f:	e9 dc 11 00 00       	jmp    c0001200 <strlen>
+c0000024:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c000002b:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+c000002f:	90                   	nop
+
+c0000030 <kprintn>:
+
+int kprintn(const char* str, size_t len)
+{
+c0000030:	55                   	push   %ebp
+c0000031:	89 e5                	mov    %esp,%ebp
+c0000033:	53                   	push   %ebx
+c0000034:	83 ec 08             	sub    $0x8,%esp
+c0000037:	8b 5d 0c             	mov    0xc(%ebp),%ebx
+    terminal_write(&stdout, str, len);
+c000003a:	53                   	push   %ebx
+c000003b:	ff 75 08             	pushl  0x8(%ebp)
+c000003e:	68 00 30 00 c0       	push   $0xc0003000
+c0000043:	e8 e8 18 00 00       	call   c0001930 <terminal_write>
+    return len;
+}
+c0000048:	89 d8                	mov    %ebx,%eax
+c000004a:	8b 5d fc             	mov    -0x4(%ebp),%ebx
+c000004d:	c9                   	leave  
+c000004e:	c3                   	ret    
+c000004f:	90                   	nop
+
+c0000050 <kprint_char>:
+
+int kprint_char(char c)
+{
+c0000050:	55                   	push   %ebp
+c0000051:	89 e5                	mov    %esp,%ebp
+c0000053:	83 ec 10             	sub    $0x10,%esp
+    terminal_putchar(&stdout, c); 
+c0000056:	0f be 45 08          	movsbl 0x8(%ebp),%eax
+c000005a:	50                   	push   %eax
+c000005b:	68 00 30 00 c0       	push   $0xc0003000
+c0000060:	e8 db 17 00 00       	call   c0001840 <terminal_putchar>
+    return 1;
+}
+c0000065:	b8 01 00 00 00       	mov    $0x1,%eax
+c000006a:	c9                   	leave  
+c000006b:	c3                   	ret    
+c000006c:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+
+c0000070 <kprintn_char>:
+
+int kprintn_char(char c, size_t rpt)
+{
+c0000070:	55                   	push   %ebp
+c0000071:	89 e5                	mov    %esp,%ebp
+c0000073:	53                   	push   %ebx
+c0000074:	83 ec 08             	sub    $0x8,%esp
+c0000077:	8b 5d 0c             	mov    0xc(%ebp),%ebx
+    terminal_putcharn(&stdout, c, rpt); 
+c000007a:	0f be 45 08          	movsbl 0x8(%ebp),%eax
+c000007e:	53                   	push   %ebx
+c000007f:	50                   	push   %eax
+c0000080:	68 00 30 00 c0       	push   $0xc0003000
+c0000085:	e8 d6 15 00 00       	call   c0001660 <terminal_putcharn>
+    return rpt;
+}
+c000008a:	89 d8                	mov    %ebx,%eax
+c000008c:	8b 5d fc             	mov    -0x4(%ebp),%ebx
+c000008f:	c9                   	leave  
+c0000090:	c3                   	ret    
+c0000091:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c0000098:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c000009f:	90                   	nop
+
+c00000a0 <format_uint>:
+// base may be 2-32
+// precision is per printf format, precision<0 represents default (unspecified) 
+// cap = 0, alpha-numbers are capitalized [base>10 only]
+// returns length of string (not counting null termination)
+int format_uint(unsigned int value, char* str, unsigned int base, int precision, int cap)
+{
+c00000a0:	55                   	push   %ebp
+c00000a1:	89 e5                	mov    %esp,%ebp
+c00000a3:	57                   	push   %edi
+c00000a4:	56                   	push   %esi
+c00000a5:	53                   	push   %ebx
+c00000a6:	83 ec 04             	sub    $0x4,%esp
+c00000a9:	8b 4d 10             	mov    0x10(%ebp),%ecx
+c00000ac:	8b 75 08             	mov    0x8(%ebp),%esi
+c00000af:	8b 7d 14             	mov    0x14(%ebp),%edi
+    if(base < 2 || base > 32)
+c00000b2:	8d 41 fe             	lea    -0x2(%ecx),%eax
+c00000b5:	83 f8 1e             	cmp    $0x1e,%eax
+c00000b8:	0f 87 ca 00 00 00    	ja     c0000188 <format_uint+0xe8>
+        return -1;
+
+    //When 0 is printed with an explicit precision 0, the output is empty.
+    if(value==0 && precision==0)
+c00000be:	89 f8                	mov    %edi,%eax
+c00000c0:	09 f0                	or     %esi,%eax
+c00000c2:	0f 84 88 00 00 00    	je     c0000150 <format_uint+0xb0>
+//returns number of digits of unsigned int represented in given base
+//num_digits is always >= 1
+unsigned int numdigits_uint(unsigned int value, unsigned int base)
+{
+    unsigned int num_digits = 1;
+    while(value >= base)
+c00000c8:	89 f0                	mov    %esi,%eax
+    unsigned int num_digits = 1;
+c00000ca:	bb 01 00 00 00       	mov    $0x1,%ebx
+    while(value >= base)
+c00000cf:	39 f1                	cmp    %esi,%ecx
+c00000d1:	0f 87 99 00 00 00    	ja     c0000170 <format_uint+0xd0>
+c00000d7:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c00000de:	66 90                	xchg   %ax,%ax
+    {
+        num_digits++;
+        value /= base;
+c00000e0:	31 d2                	xor    %edx,%edx
+        num_digits++;
+c00000e2:	83 c3 01             	add    $0x1,%ebx
+        value /= base;
+c00000e5:	f7 f1                	div    %ecx
+    while(value >= base)
+c00000e7:	39 c1                	cmp    %eax,%ecx
+c00000e9:	76 f5                	jbe    c00000e0 <format_uint+0x40>
+    num_digits = num_digits>precision ? num_digits : precision;
+c00000eb:	39 df                	cmp    %ebx,%edi
+    char* s = str + num_digits;
+c00000ed:	8b 45 0c             	mov    0xc(%ebp),%eax
+    num_digits = num_digits>precision ? num_digits : precision;
+c00000f0:	0f 4c fb             	cmovl  %ebx,%edi
+    char* s = str + num_digits;
+c00000f3:	01 f8                	add    %edi,%eax
+    *(s--) = '\0'; //null termination
+c00000f5:	8d 58 ff             	lea    -0x1(%eax),%ebx
+c00000f8:	c6 00 00             	movb   $0x0,(%eax)
+c00000fb:	89 5d f0             	mov    %ebx,-0x10(%ebp)
+    for(int nn=0;nn<num_digits; nn++)
+c00000fe:	85 ff                	test   %edi,%edi
+c0000100:	7e 42                	jle    c0000144 <format_uint+0xa4>
+    unsigned int num_digits = 1;
+c0000102:	8b 5d f0             	mov    -0x10(%ebp),%ebx
+c0000105:	89 f0                	mov    %esi,%eax
+c0000107:	eb 16                	jmp    c000011f <format_uint+0x7f>
+c0000109:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+            *(s--) = d + '0';
+c0000110:	83 c2 30             	add    $0x30,%edx
+c0000113:	88 53 01             	mov    %dl,0x1(%ebx)
+    for(int nn=0;nn<num_digits; nn++)
+c0000116:	8b 55 f0             	mov    -0x10(%ebp),%edx
+c0000119:	29 da                	sub    %ebx,%edx
+c000011b:	39 d7                	cmp    %edx,%edi
+c000011d:	7e 25                	jle    c0000144 <format_uint+0xa4>
+        value /= base;
+c000011f:	31 d2                	xor    %edx,%edx
+            *(s--) = d + '0';
+c0000121:	83 eb 01             	sub    $0x1,%ebx
+        value /= base;
+c0000124:	f7 f1                	div    %ecx
+        if(d < 10)
+c0000126:	83 fa 09             	cmp    $0x9,%edx
+c0000129:	76 e5                	jbe    c0000110 <format_uint+0x70>
+            *(s--) = d - 10 + 'a';
+c000012b:	8d 72 37             	lea    0x37(%edx),%esi
+c000012e:	83 c2 57             	add    $0x57,%edx
+c0000131:	83 7d 18 00          	cmpl   $0x0,0x18(%ebp)
+c0000135:	0f 45 d6             	cmovne %esi,%edx
+c0000138:	88 53 01             	mov    %dl,0x1(%ebx)
+    for(int nn=0;nn<num_digits; nn++)
+c000013b:	8b 55 f0             	mov    -0x10(%ebp),%edx
+c000013e:	29 da                	sub    %ebx,%edx
+c0000140:	39 d7                	cmp    %edx,%edi
+c0000142:	7f db                	jg     c000011f <format_uint+0x7f>
+}
+c0000144:	83 c4 04             	add    $0x4,%esp
+c0000147:	89 f8                	mov    %edi,%eax
+c0000149:	5b                   	pop    %ebx
+c000014a:	5e                   	pop    %esi
+c000014b:	5f                   	pop    %edi
+c000014c:	5d                   	pop    %ebp
+c000014d:	c3                   	ret    
+c000014e:	66 90                	xchg   %ax,%ax
+        str[0] = 0;
+c0000150:	8b 45 0c             	mov    0xc(%ebp),%eax
+        return 0;
+c0000153:	31 ff                	xor    %edi,%edi
+        str[0] = 0;
+c0000155:	c6 00 00             	movb   $0x0,(%eax)
+}
+c0000158:	83 c4 04             	add    $0x4,%esp
+c000015b:	89 f8                	mov    %edi,%eax
+c000015d:	5b                   	pop    %ebx
+c000015e:	5e                   	pop    %esi
+c000015f:	5f                   	pop    %edi
+c0000160:	5d                   	pop    %ebp
+c0000161:	c3                   	ret    
+c0000162:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c0000169:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+    num_digits = num_digits>precision ? num_digits : precision;
+c0000170:	85 ff                	test   %edi,%edi
+    char* s = str + num_digits;
+c0000172:	8b 45 0c             	mov    0xc(%ebp),%eax
+    num_digits = num_digits>precision ? num_digits : precision;
+c0000175:	0f 4e fb             	cmovle %ebx,%edi
+    char* s = str + num_digits;
+c0000178:	01 f8                	add    %edi,%eax
+    *(s--) = '\0'; //null termination
+c000017a:	8d 58 ff             	lea    -0x1(%eax),%ebx
+c000017d:	c6 00 00             	movb   $0x0,(%eax)
+c0000180:	89 5d f0             	mov    %ebx,-0x10(%ebp)
+    for(int nn=0;nn<num_digits; nn++)
+c0000183:	e9 7a ff ff ff       	jmp    c0000102 <format_uint+0x62>
+        return -1;
+c0000188:	bf ff ff ff ff       	mov    $0xffffffff,%edi
+c000018d:	eb b5                	jmp    c0000144 <format_uint+0xa4>
+c000018f:	90                   	nop
+
+c0000190 <kprintf>:
+{
+c0000190:	55                   	push   %ebp
+c0000191:	89 e5                	mov    %esp,%ebp
+c0000193:	57                   	push   %edi
+    int nchar = 0;
+c0000194:	31 ff                	xor    %edi,%edi
+{
+c0000196:	56                   	push   %esi
+    va_start(valist, format);
+c0000197:	8d 45 0c             	lea    0xc(%ebp),%eax
+{
+c000019a:	53                   	push   %ebx
+c000019b:	81 ec 5c 02 00 00    	sub    $0x25c,%esp
+c00001a1:	8b 5d 08             	mov    0x8(%ebp),%ebx
+    va_start(valist, format);
+c00001a4:	89 85 b4 fd ff ff    	mov    %eax,-0x24c(%ebp)
+    while(f[0] != 0)
+c00001aa:	0f b6 03             	movzbl (%ebx),%eax
+c00001ad:	84 c0                	test   %al,%al
+c00001af:	74 29                	je     c00001da <kprintf+0x4a>
+        if(f[0] == '\\' && f[1] == '%')
+c00001b1:	3c 5c                	cmp    $0x5c,%al
+c00001b3:	74 3b                	je     c00001f0 <kprintf+0x60>
+        if(f[0] == '%')
+c00001b5:	0f be 03             	movsbl (%ebx),%eax
+c00001b8:	3c 25                	cmp    $0x25,%al
+c00001ba:	74 64                	je     c0000220 <kprintf+0x90>
+    terminal_putchar(&stdout, c); 
+c00001bc:	83 ec 08             	sub    $0x8,%esp
+            kprint_char(*(f++));
+c00001bf:	83 c3 01             	add    $0x1,%ebx
+            nchar++;
+c00001c2:	83 c7 01             	add    $0x1,%edi
+    terminal_putchar(&stdout, c); 
+c00001c5:	50                   	push   %eax
+c00001c6:	68 00 30 00 c0       	push   $0xc0003000
+c00001cb:	e8 70 16 00 00       	call   c0001840 <terminal_putchar>
+            nchar++;
+c00001d0:	83 c4 10             	add    $0x10,%esp
+    while(f[0] != 0)
+c00001d3:	0f b6 03             	movzbl (%ebx),%eax
+c00001d6:	84 c0                	test   %al,%al
+c00001d8:	75 d7                	jne    c00001b1 <kprintf+0x21>
+}
+c00001da:	8d 65 f4             	lea    -0xc(%ebp),%esp
+c00001dd:	89 f8                	mov    %edi,%eax
+c00001df:	5b                   	pop    %ebx
+c00001e0:	5e                   	pop    %esi
+c00001e1:	5f                   	pop    %edi
+c00001e2:	5d                   	pop    %ebp
+c00001e3:	c3                   	ret    
+c00001e4:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c00001eb:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+c00001ef:	90                   	nop
+        if(f[0] == '\\' && f[1] == '%')
+c00001f0:	80 7b 01 25          	cmpb   $0x25,0x1(%ebx)
+c00001f4:	75 bf                	jne    c00001b5 <kprintf+0x25>
+    terminal_putchar(&stdout, c); 
+c00001f6:	83 ec 08             	sub    $0x8,%esp
+            f += 2;
+c00001f9:	83 c3 02             	add    $0x2,%ebx
+            nchar++;
+c00001fc:	83 c7 01             	add    $0x1,%edi
+    terminal_putchar(&stdout, c); 
+c00001ff:	6a 25                	push   $0x25
+c0000201:	68 00 30 00 c0       	push   $0xc0003000
+c0000206:	e8 35 16 00 00       	call   c0001840 <terminal_putchar>
+        if(f[0] == '%')
+c000020b:	0f be 03             	movsbl (%ebx),%eax
+            f += 2;
+c000020e:	83 c4 10             	add    $0x10,%esp
+        if(f[0] == '%')
+c0000211:	3c 25                	cmp    $0x25,%al
+c0000213:	75 a7                	jne    c00001bc <kprintf+0x2c>
+c0000215:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c000021c:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+                switch(*(++f))
+c0000220:	0f b6 53 01          	movzbl 0x1(%ebx),%edx
+            struct format_flags flags = {0};
+c0000224:	c6 85 c0 fd ff ff 00 	movb   $0x0,-0x240(%ebp)
+c000022b:	31 f6                	xor    %esi,%esi
+                switch(*(++f))
+c000022d:	8d 4b 01             	lea    0x1(%ebx),%ecx
+            struct format_flags flags = {0};
+c0000230:	c6 85 bf fd ff ff 00 	movb   $0x0,-0x241(%ebp)
+c0000237:	c6 85 d0 fd ff ff 00 	movb   $0x0,-0x230(%ebp)
+c000023e:	c6 85 c8 fd ff ff 00 	movb   $0x0,-0x238(%ebp)
+                switch(*(++f))
+c0000245:	84 d2                	test   %dl,%dl
+c0000247:	0f 84 b3 00 00 00    	je     c0000300 <kprintf+0x170>
+c000024d:	8d 42 e0             	lea    -0x20(%edx),%eax
+c0000250:	3c 10                	cmp    $0x10,%al
+c0000252:	77 0c                	ja     c0000260 <kprintf+0xd0>
+c0000254:	0f b6 c0             	movzbl %al,%eax
+c0000257:	ff 24 85 00 20 00 c0 	jmp    *-0x3fffe000(,%eax,4)
+c000025e:	66 90                	xchg   %ax,%ax
+            if(flags.left) flags.zero = 0; //If the 0 and - flags both appear, the 0 flag is ignored
+c0000260:	b8 00 00 00 00       	mov    $0x0,%eax
+c0000265:	80 bd d0 fd ff ff 00 	cmpb   $0x0,-0x230(%ebp)
+c000026c:	0f 45 f0             	cmovne %eax,%esi
+            while(f[nn] >= '0' && f[nn] <= '9')
+c000026f:	8d 42 d0             	lea    -0x30(%edx),%eax
+c0000272:	3c 09                	cmp    $0x9,%al
+c0000274:	0f 87 36 05 00 00    	ja     c00007b0 <kprintf+0x620>
+c000027a:	8d 53 02             	lea    0x2(%ebx),%edx
+c000027d:	8d 76 00             	lea    0x0(%esi),%esi
+c0000280:	89 d3                	mov    %edx,%ebx
+c0000282:	8d 52 01             	lea    0x1(%edx),%edx
+c0000285:	0f b6 03             	movzbl (%ebx),%eax
+c0000288:	83 e8 30             	sub    $0x30,%eax
+c000028b:	3c 09                	cmp    $0x9,%al
+c000028d:	76 f1                	jbe    c0000280 <kprintf+0xf0>
+                field_width = atoi(f);
+c000028f:	83 ec 0c             	sub    $0xc,%esp
+c0000292:	51                   	push   %ecx
+c0000293:	e8 e8 0f 00 00       	call   c0001280 <atoi>
+            if(f[0] == '.')
+c0000298:	0f b6 13             	movzbl (%ebx),%edx
+c000029b:	83 c4 10             	add    $0x10,%esp
+                field_width = atoi(f);
+c000029e:	89 85 b0 fd ff ff    	mov    %eax,-0x250(%ebp)
+            int field_prec=-1; //default is -1
+c00002a4:	c7 85 ac fd ff ff ff 	movl   $0xffffffff,-0x254(%ebp)
+c00002ab:	ff ff ff 
+                f++;
+c00002ae:	8d 43 01             	lea    0x1(%ebx),%eax
+c00002b1:	89 85 b8 fd ff ff    	mov    %eax,-0x248(%ebp)
+            if(f[0] == '.')
+c00002b7:	80 fa 2e             	cmp    $0x2e,%dl
+c00002ba:	0f 84 80 04 00 00    	je     c0000740 <kprintf+0x5b0>
+            switch(*(f++))
+c00002c0:	83 ea 4c             	sub    $0x4c,%edx
+c00002c3:	80 fa 2e             	cmp    $0x2e,%dl
+c00002c6:	0f 87 c4 00 00 00    	ja     c0000390 <kprintf+0x200>
+c00002cc:	0f b6 d2             	movzbl %dl,%edx
+c00002cf:	ff 24 95 44 20 00 c0 	jmp    *-0x3fffdfbc(,%edx,4)
+c00002d6:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c00002dd:	8d 76 00             	lea    0x0(%esi),%esi
+                        if(flags.zero) return 0;
+c00002e0:	89 f0                	mov    %esi,%eax
+c00002e2:	84 c0                	test   %al,%al
+c00002e4:	0f 85 e6 04 00 00    	jne    c00007d0 <kprintf+0x640>
+                        flags.zero = 1;
+c00002ea:	be 01 00 00 00       	mov    $0x1,%esi
+                        flags.sign = 1;
+c00002ef:	89 cb                	mov    %ecx,%ebx
+                switch(*(++f))
+c00002f1:	0f b6 53 01          	movzbl 0x1(%ebx),%edx
+c00002f5:	8d 4b 01             	lea    0x1(%ebx),%ecx
+c00002f8:	84 d2                	test   %dl,%dl
+c00002fa:	0f 85 4d ff ff ff    	jne    c000024d <kprintf+0xbd>
+}
+c0000300:	8d 65 f4             	lea    -0xc(%ebp),%esp
+                return -1;
+c0000303:	bf ff ff ff ff       	mov    $0xffffffff,%edi
+}
+c0000308:	5b                   	pop    %ebx
+c0000309:	89 f8                	mov    %edi,%eax
+c000030b:	5e                   	pop    %esi
+c000030c:	5f                   	pop    %edi
+c000030d:	5d                   	pop    %ebp
+c000030e:	c3                   	ret    
+c000030f:	90                   	nop
+                        if(flags.left) return 0;
+c0000310:	80 bd d0 fd ff ff 00 	cmpb   $0x0,-0x230(%ebp)
+c0000317:	0f 85 b3 04 00 00    	jne    c00007d0 <kprintf+0x640>
+                        flags.left = 1;
+c000031d:	c6 85 d0 fd ff ff 01 	movb   $0x1,-0x230(%ebp)
+                        flags.sign = 1;
+c0000324:	89 cb                	mov    %ecx,%ebx
+c0000326:	eb c9                	jmp    c00002f1 <kprintf+0x161>
+c0000328:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c000032f:	90                   	nop
+                        if(flags.sign) return 0;
+c0000330:	80 bd c0 fd ff ff 00 	cmpb   $0x0,-0x240(%ebp)
+c0000337:	0f 85 93 04 00 00    	jne    c00007d0 <kprintf+0x640>
+                        flags.sign = 1;
+c000033d:	c6 85 c0 fd ff ff 01 	movb   $0x1,-0x240(%ebp)
+c0000344:	89 cb                	mov    %ecx,%ebx
+c0000346:	eb a9                	jmp    c00002f1 <kprintf+0x161>
+c0000348:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c000034f:	90                   	nop
+                        if(flags.alt) return 0;
+c0000350:	80 bd c8 fd ff ff 00 	cmpb   $0x0,-0x238(%ebp)
+c0000357:	0f 85 73 04 00 00    	jne    c00007d0 <kprintf+0x640>
+                        flags.alt = 1;
+c000035d:	c6 85 c8 fd ff ff 01 	movb   $0x1,-0x238(%ebp)
+                        flags.sign = 1;
+c0000364:	89 cb                	mov    %ecx,%ebx
+c0000366:	eb 89                	jmp    c00002f1 <kprintf+0x161>
+c0000368:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c000036f:	90                   	nop
+                        if(flags.space) return 0;
+c0000370:	80 bd bf fd ff ff 00 	cmpb   $0x0,-0x241(%ebp)
+c0000377:	0f 85 53 04 00 00    	jne    c00007d0 <kprintf+0x640>
+                        flags.space = 1;
+c000037d:	c6 85 bf fd ff ff 01 	movb   $0x1,-0x241(%ebp)
+                        flags.sign = 1;
+c0000384:	89 cb                	mov    %ecx,%ebx
+c0000386:	e9 66 ff ff ff       	jmp    c00002f1 <kprintf+0x161>
+c000038b:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+c000038f:	90                   	nop
+                default:
+c0000390:	89 9d b8 fd ff ff    	mov    %ebx,-0x248(%ebp)
+                    length_mod = DEFAULT;
+c0000396:	31 c0                	xor    %eax,%eax
+c0000398:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c000039f:	90                   	nop
+            if(field_width>511)
+c00003a0:	81 bd b0 fd ff ff ff 	cmpl   $0x1ff,-0x250(%ebp)
+c00003a7:	01 00 00 
+c00003aa:	0f 8f 50 ff ff ff    	jg     c0000300 <kprintf+0x170>
+            switch(*f)
+c00003b0:	8b 8d b8 fd ff ff    	mov    -0x248(%ebp),%ecx
+c00003b6:	0f b6 19             	movzbl (%ecx),%ebx
+c00003b9:	8d 53 ba             	lea    -0x46(%ebx),%edx
+c00003bc:	80 fa 32             	cmp    $0x32,%dl
+c00003bf:	0f 87 3b ff ff ff    	ja     c0000300 <kprintf+0x170>
+c00003c5:	0f b6 d2             	movzbl %dl,%edx
+c00003c8:	ff 24 95 00 21 00 c0 	jmp    *-0x3fffdf00(,%edx,4)
+c00003cf:	90                   	nop
+                    switch(length_mod)
+c00003d0:	83 f8 04             	cmp    $0x4,%eax
+c00003d3:	0f 87 27 ff ff ff    	ja     c0000300 <kprintf+0x170>
+                                    ui_value = (unsigned int) va_arg(valist, long long unsigned int); //TODO: implement actual longlong handling
+c00003d9:	8b 85 b4 fd ff ff    	mov    -0x24c(%ebp),%eax
+c00003df:	8b 10                	mov    (%eax),%edx
+                                if(length_mod == LONGLONGINT)
+c00003e1:	0f 84 a3 05 00 00    	je     c000098a <kprintf+0x7fa>
+                                    ui_value = va_arg(valist, unsigned int);
+c00003e7:	83 c0 04             	add    $0x4,%eax
+c00003ea:	89 85 b4 fd ff ff    	mov    %eax,-0x24c(%ebp)
+                                if(*f == 'o')
+c00003f0:	80 fb 6f             	cmp    $0x6f,%bl
+c00003f3:	0f 84 9f 05 00 00    	je     c0000998 <kprintf+0x808>
+                                else if(*f == 'x' || *f == 'X')
+c00003f9:	89 d8                	mov    %ebx,%eax
+c00003fb:	83 e0 df             	and    $0xffffffdf,%eax
+c00003fe:	3c 58                	cmp    $0x58,%al
+c0000400:	0f 85 d1 03 00 00    	jne    c00007d7 <kprintf+0x647>
+                                int len = format_uint(ui_value, val_buf, base, field_prec, cap);
+c0000406:	83 ec 0c             	sub    $0xc,%esp
+                                else if(*f == 'x' || *f == 'X')
+c0000409:	31 c0                	xor    %eax,%eax
+c000040b:	80 fb 58             	cmp    $0x58,%bl
+c000040e:	0f 94 c0             	sete   %al
+                                int len = format_uint(ui_value, val_buf, base, field_prec, cap);
+c0000411:	50                   	push   %eax
+c0000412:	8d 85 e8 fd ff ff    	lea    -0x218(%ebp),%eax
+c0000418:	ff b5 ac fd ff ff    	pushl  -0x254(%ebp)
+c000041e:	6a 10                	push   $0x10
+c0000420:	50                   	push   %eax
+c0000421:	52                   	push   %edx
+c0000422:	89 85 c0 fd ff ff    	mov    %eax,-0x240(%ebp)
+c0000428:	e8 73 fc ff ff       	call   c00000a0 <format_uint>
+                                int lenpad = field_width - len; 
+c000042d:	8b 95 b0 fd ff ff    	mov    -0x250(%ebp),%edx
+                                if(flags.alt)
+c0000433:	83 c4 20             	add    $0x20,%esp
+                                char radix[3]="";
+c0000436:	c6 85 e7 fd ff ff 00 	movb   $0x0,-0x219(%ebp)
+                                int lenpad = field_width - len; 
+c000043d:	29 c2                	sub    %eax,%edx
+                                char radix[3]="";
+c000043f:	31 c0                	xor    %eax,%eax
+                                if(flags.alt)
+c0000441:	80 bd c8 fd ff ff 00 	cmpb   $0x0,-0x238(%ebp)
+                                char radix[3]="";
+c0000448:	66 89 85 e5 fd ff ff 	mov    %ax,-0x21b(%ebp)
+                                if(flags.alt)
+c000044f:	0f 84 c6 03 00 00    	je     c000081b <kprintf+0x68b>
+                                        radix[0] = '0';
+c0000455:	c6 85 e5 fd ff ff 30 	movb   $0x30,-0x21b(%ebp)
+                                        lenpad -= 2;
+c000045c:	83 ea 02             	sub    $0x2,%edx
+                                        radix[1] = cap ? 'X' : 'x';
+c000045f:	80 fb 58             	cmp    $0x58,%bl
+c0000462:	0f 85 6d 0b 00 00    	jne    c0000fd5 <kprintf+0xe45>
+c0000468:	88 9d e6 fd ff ff    	mov    %bl,-0x21a(%ebp)
+                                    if(flags.zero)
+c000046e:	89 f0                	mov    %esi,%eax
+c0000470:	84 c0                	test   %al,%al
+c0000472:	0f 85 d0 08 00 00    	jne    c0000d48 <kprintf+0xbb8>
+                                if(!flags.left && lenpad>0)
+c0000478:	80 bd d0 fd ff ff 00 	cmpb   $0x0,-0x230(%ebp)
+c000047f:	0f 85 0a 08 00 00    	jne    c0000c8f <kprintf+0xaff>
+c0000485:	85 d2                	test   %edx,%edx
+c0000487:	0f 8e 40 08 00 00    	jle    c0000ccd <kprintf+0xb3d>
+                                        nchar += kprintn_char('0', lenpad);
+c000048d:	01 d7                	add    %edx,%edi
+    terminal_putcharn(&stdout, c, rpt); 
+c000048f:	83 ec 04             	sub    $0x4,%esp
+c0000492:	52                   	push   %edx
+c0000493:	6a 20                	push   $0x20
+c0000495:	68 00 30 00 c0       	push   $0xc0003000
+c000049a:	e8 c1 11 00 00       	call   c0001660 <terminal_putcharn>
+                                if(!flags.zero && radix[0])
+c000049f:	83 c4 10             	add    $0x10,%esp
+c00004a2:	80 bd e5 fd ff ff 00 	cmpb   $0x0,-0x21b(%ebp)
+c00004a9:	0f 85 2b 08 00 00    	jne    c0000cda <kprintf+0xb4a>
+    terminal_writestring(&stdout, str);
+c00004af:	83 ec 08             	sub    $0x8,%esp
+c00004b2:	e9 99 03 00 00       	jmp    c0000850 <kprintf+0x6c0>
+                    length_mod = SIZE;
+c00004b7:	b8 07 00 00 00       	mov    $0x7,%eax
+                    break;
+c00004bc:	e9 df fe ff ff       	jmp    c00003a0 <kprintf+0x210>
+                    switch(length_mod)
+c00004c1:	83 f8 04             	cmp    $0x4,%eax
+c00004c4:	0f 87 36 fe ff ff    	ja     c0000300 <kprintf+0x170>
+                                    i_value = (int) va_arg(valist, long long int); //TODO: implement actual longlong handling
+c00004ca:	8b 8d b4 fd ff ff    	mov    -0x24c(%ebp),%ecx
+c00004d0:	8b 01                	mov    (%ecx),%eax
+                                if(length_mod == LONGLONGINT)
+c00004d2:	0f 84 a4 04 00 00    	je     c000097c <kprintf+0x7ec>
+                                    i_value = va_arg(valist, int);
+c00004d8:	83 c1 04             	add    $0x4,%ecx
+c00004db:	89 8d b4 fd ff ff    	mov    %ecx,-0x24c(%ebp)
+                                if(i_value<0)
+c00004e1:	85 c0                	test   %eax,%eax
+c00004e3:	0f 88 5a 04 00 00    	js     c0000943 <kprintf+0x7b3>
+                                    if(flags.sign)
+c00004e9:	80 bd c0 fd ff ff 00 	cmpb   $0x0,-0x240(%ebp)
+                                    ui_value = i_value;
+c00004f0:	89 c2                	mov    %eax,%edx
+                                    if(flags.sign)
+c00004f2:	0f 85 85 03 00 00    	jne    c000087d <kprintf+0x6ed>
+                                    else if(flags.space)
+c00004f8:	80 bd bf fd ff ff 00 	cmpb   $0x0,-0x241(%ebp)
+c00004ff:	0f 84 b3 08 00 00    	je     c0000db8 <kprintf+0xc28>
+                                        sign_char = ' ';
+c0000505:	b9 20 00 00 00       	mov    $0x20,%ecx
+c000050a:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+                                int len = format_uint(ui_value, val_buf, 10, field_prec, 0);
+c0000510:	83 ec 0c             	sub    $0xc,%esp
+c0000513:	8d 85 e8 fd ff ff    	lea    -0x218(%ebp),%eax
+c0000519:	88 8d c8 fd ff ff    	mov    %cl,-0x238(%ebp)
+c000051f:	6a 00                	push   $0x0
+c0000521:	ff b5 ac fd ff ff    	pushl  -0x254(%ebp)
+c0000527:	6a 0a                	push   $0xa
+c0000529:	50                   	push   %eax
+c000052a:	52                   	push   %edx
+c000052b:	89 85 c0 fd ff ff    	mov    %eax,-0x240(%ebp)
+c0000531:	e8 6a fb ff ff       	call   c00000a0 <format_uint>
+                                int lenpad = field_width - len; 
+c0000536:	8b 9d b0 fd ff ff    	mov    -0x250(%ebp),%ebx
+                                    if(flags.zero)
+c000053c:	83 c4 20             	add    $0x20,%esp
+c000053f:	0f b6 8d c8 fd ff ff 	movzbl -0x238(%ebp),%ecx
+                                int lenpad = field_width - len; 
+c0000546:	29 c3                	sub    %eax,%ebx
+                                    if(flags.zero)
+c0000548:	89 f0                	mov    %esi,%eax
+                                    lenpad--; //remove one char of padding to account for sign
+c000054a:	83 eb 01             	sub    $0x1,%ebx
+                                    if(flags.zero)
+c000054d:	84 c0                	test   %al,%al
+c000054f:	0f 85 aa 07 00 00    	jne    c0000cff <kprintf+0xb6f>
+                                if(!flags.left && lenpad>0)
+c0000555:	80 bd d0 fd ff ff 00 	cmpb   $0x0,-0x230(%ebp)
+c000055c:	0f 84 ef 03 00 00    	je     c0000951 <kprintf+0x7c1>
+    terminal_putchar(&stdout, c); 
+c0000562:	83 ec 08             	sub    $0x8,%esp
+                                    nchar += kprint_char(sign_char); //if not zero padding, write sign here
+c0000565:	0f be c1             	movsbl %cl,%eax
+c0000568:	83 c7 01             	add    $0x1,%edi
+    terminal_putchar(&stdout, c); 
+c000056b:	50                   	push   %eax
+c000056c:	68 00 30 00 c0       	push   $0xc0003000
+c0000571:	e8 ca 12 00 00       	call   c0001840 <terminal_putchar>
+    terminal_writestring(&stdout, str);
+c0000576:	58                   	pop    %eax
+c0000577:	5a                   	pop    %edx
+c0000578:	8b b5 c0 fd ff ff    	mov    -0x240(%ebp),%esi
+c000057e:	56                   	push   %esi
+c000057f:	68 00 30 00 c0       	push   $0xc0003000
+c0000584:	e8 07 15 00 00       	call   c0001a90 <terminal_writestring>
+    return strlen(str);
+c0000589:	89 34 24             	mov    %esi,(%esp)
+c000058c:	e8 6f 0c 00 00       	call   c0001200 <strlen>
+                                nchar += kprint(val_buf);
+c0000591:	83 c4 10             	add    $0x10,%esp
+c0000594:	01 c7                	add    %eax,%edi
+                                if(flags.left && lenpad>0)
+c0000596:	85 db                	test   %ebx,%ebx
+c0000598:	7e 56                	jle    c00005f0 <kprintf+0x460>
+    terminal_putcharn(&stdout, c, rpt); 
+c000059a:	83 ec 04             	sub    $0x4,%esp
+c000059d:	e9 86 01 00 00       	jmp    c0000728 <kprintf+0x598>
+                        float f_value = (float) va_arg(valist, double);
+c00005a2:	8b 8d b4 fd ff ff    	mov    -0x24c(%ebp),%ecx
+                        if(f_value==0 && field_prec==0)
+c00005a8:	ba 00 00 00 00       	mov    $0x0,%edx
+                        float f_value = (float) va_arg(valist, double);
+c00005ad:	89 c8                	mov    %ecx,%eax
+c00005af:	83 c1 08             	add    $0x8,%ecx
+c00005b2:	dd 00                	fldl   (%eax)
+c00005b4:	89 8d b4 fd ff ff    	mov    %ecx,-0x24c(%ebp)
+c00005ba:	d9 9d c8 fd ff ff    	fstps  -0x238(%ebp)
+c00005c0:	d9 85 c8 fd ff ff    	flds   -0x238(%ebp)
+                        if(f_value==0 && field_prec==0)
+c00005c6:	d9 ee                	fldz   
+c00005c8:	df e9                	fucomip %st(1),%st
+c00005ca:	dd d8                	fstp   %st(0)
+c00005cc:	0f 9b c0             	setnp  %al
+c00005cf:	0f 45 c2             	cmovne %edx,%eax
+c00005d2:	84 c0                	test   %al,%al
+c00005d4:	0f 84 22 04 00 00    	je     c00009fc <kprintf+0x86c>
+c00005da:	8b 85 ac fd ff ff    	mov    -0x254(%ebp),%eax
+c00005e0:	85 c0                	test   %eax,%eax
+c00005e2:	0f 85 14 04 00 00    	jne    c00009fc <kprintf+0x86c>
+c00005e8:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c00005ef:	90                   	nop
+            f++;
+c00005f0:	8b 9d b8 fd ff ff    	mov    -0x248(%ebp),%ebx
+c00005f6:	83 c3 01             	add    $0x1,%ebx
+c00005f9:	e9 d5 fb ff ff       	jmp    c00001d3 <kprintf+0x43>
+                    if(*f == 'h')
+c00005fe:	80 7b 01 68          	cmpb   $0x68,0x1(%ebx)
+                        length_mod = SHORTINT;
+c0000602:	b8 02 00 00 00       	mov    $0x2,%eax
+                    if(*f == 'h')
+c0000607:	0f 85 93 fd ff ff    	jne    c00003a0 <kprintf+0x210>
+                        f++;
+c000060d:	8d 43 02             	lea    0x2(%ebx),%eax
+c0000610:	89 85 b8 fd ff ff    	mov    %eax,-0x248(%ebp)
+                        length_mod = CHARINT;
+c0000616:	b8 01 00 00 00       	mov    $0x1,%eax
+c000061b:	e9 80 fd ff ff       	jmp    c00003a0 <kprintf+0x210>
+                    if(*f == 'l')
+c0000620:	80 7b 01 6c          	cmpb   $0x6c,0x1(%ebx)
+                        length_mod = LONGINT;
+c0000624:	b8 03 00 00 00       	mov    $0x3,%eax
+                    if(*f == 'l')
+c0000629:	0f 85 71 fd ff ff    	jne    c00003a0 <kprintf+0x210>
+                        f++;
+c000062f:	8d 43 02             	lea    0x2(%ebx),%eax
+c0000632:	89 85 b8 fd ff ff    	mov    %eax,-0x248(%ebp)
+                        length_mod = LONGLONGINT;
+c0000638:	b8 04 00 00 00       	mov    $0x4,%eax
+c000063d:	e9 5e fd ff ff       	jmp    c00003a0 <kprintf+0x210>
+                    length_mod = PTRDIFF;
+c0000642:	b8 08 00 00 00       	mov    $0x8,%eax
+                    break;
+c0000647:	e9 54 fd ff ff       	jmp    c00003a0 <kprintf+0x210>
+                        char* str = va_arg(valist, char*);
+c000064c:	8b 85 b4 fd ff ff    	mov    -0x24c(%ebp),%eax
+                        int len = strlen(str);
+c0000652:	83 ec 0c             	sub    $0xc,%esp
+                        char* str = va_arg(valist, char*);
+c0000655:	8d 70 04             	lea    0x4(%eax),%esi
+c0000658:	89 b5 c8 fd ff ff    	mov    %esi,-0x238(%ebp)
+c000065e:	8b 30                	mov    (%eax),%esi
+                        int len = strlen(str);
+c0000660:	56                   	push   %esi
+c0000661:	e8 9a 0b 00 00       	call   c0001200 <strlen>
+                        if(field_prec > 0 && field_prec < len)
+c0000666:	8b 8d ac fd ff ff    	mov    -0x254(%ebp),%ecx
+c000066c:	83 c4 10             	add    $0x10,%esp
+                        int len = strlen(str);
+c000066f:	89 c3                	mov    %eax,%ebx
+                        if(field_prec > 0 && field_prec < len)
+c0000671:	85 c9                	test   %ecx,%ecx
+c0000673:	7e 08                	jle    c000067d <kprintf+0x4ed>
+c0000675:	39 c1                	cmp    %eax,%ecx
+c0000677:	7d 04                	jge    c000067d <kprintf+0x4ed>
+                        nchar += kprintn(str,len);
+c0000679:	89 cb                	mov    %ecx,%ebx
+c000067b:	89 c8                	mov    %ecx,%eax
+                        int lenpad = field_width - len; 
+c000067d:	8b 95 b0 fd ff ff    	mov    -0x250(%ebp),%edx
+c0000683:	29 c2                	sub    %eax,%edx
+                        if(lenpad>0 && !flags.left)    
+c0000685:	85 d2                	test   %edx,%edx
+c0000687:	0f 8e 7d 02 00 00    	jle    c000090a <kprintf+0x77a>
+c000068d:	80 bd d0 fd ff ff 00 	cmpb   $0x0,-0x230(%ebp)
+c0000694:	0f 84 17 02 00 00    	je     c00008b1 <kprintf+0x721>
+    terminal_write(&stdout, str, len);
+c000069a:	83 ec 04             	sub    $0x4,%esp
+c000069d:	89 95 d0 fd ff ff    	mov    %edx,-0x230(%ebp)
+c00006a3:	53                   	push   %ebx
+c00006a4:	56                   	push   %esi
+c00006a5:	68 00 30 00 c0       	push   $0xc0003000
+c00006aa:	e8 81 12 00 00       	call   c0001930 <terminal_write>
+    terminal_putcharn(&stdout, c, rpt); 
+c00006af:	8b 95 d0 fd ff ff    	mov    -0x230(%ebp),%edx
+c00006b5:	83 c4 0c             	add    $0xc,%esp
+c00006b8:	52                   	push   %edx
+c00006b9:	6a 20                	push   $0x20
+c00006bb:	68 00 30 00 c0       	push   $0xc0003000
+c00006c0:	e8 9b 0f 00 00       	call   c0001660 <terminal_putcharn>
+                        char* str = va_arg(valist, char*);
+c00006c5:	8b 85 c8 fd ff ff    	mov    -0x238(%ebp),%eax
+                            nchar += kprintn_char(' ', lenpad);
+c00006cb:	03 bd b0 fd ff ff    	add    -0x250(%ebp),%edi
+c00006d1:	83 c4 10             	add    $0x10,%esp
+                        char* str = va_arg(valist, char*);
+c00006d4:	89 85 b4 fd ff ff    	mov    %eax,-0x24c(%ebp)
+c00006da:	e9 11 ff ff ff       	jmp    c00005f0 <kprintf+0x460>
+                        char c = (char) va_arg(valist, int);
+c00006df:	8b b5 b4 fd ff ff    	mov    -0x24c(%ebp),%esi
+c00006e5:	89 f0                	mov    %esi,%eax
+c00006e7:	83 c6 04             	add    $0x4,%esi
+c00006ea:	89 b5 b4 fd ff ff    	mov    %esi,-0x24c(%ebp)
+                        nchar += kprint_char(c);
+c00006f0:	0f be 30             	movsbl (%eax),%esi
+                        if(field_width>1 && !flags.left)    
+c00006f3:	8b 85 b0 fd ff ff    	mov    -0x250(%ebp),%eax
+c00006f9:	83 f8 01             	cmp    $0x1,%eax
+c00006fc:	0f 8e 39 02 00 00    	jle    c000093b <kprintf+0x7ab>
+                            nchar += kprintn_char(' ', field_width-1);
+c0000702:	89 c3                	mov    %eax,%ebx
+c0000704:	83 eb 01             	sub    $0x1,%ebx
+                        if(field_width>1 && !flags.left)    
+c0000707:	80 bd d0 fd ff ff 00 	cmpb   $0x0,-0x230(%ebp)
+c000070e:	0f 84 73 01 00 00    	je     c0000887 <kprintf+0x6f7>
+    terminal_putchar(&stdout, c); 
+c0000714:	83 ec 08             	sub    $0x8,%esp
+                        nchar += kprint_char(c);
+c0000717:	83 c7 01             	add    $0x1,%edi
+    terminal_putchar(&stdout, c); 
+c000071a:	56                   	push   %esi
+c000071b:	68 00 30 00 c0       	push   $0xc0003000
+c0000720:	e8 1b 11 00 00       	call   c0001840 <terminal_putchar>
+    terminal_putcharn(&stdout, c, rpt); 
+c0000725:	83 c4 0c             	add    $0xc,%esp
+c0000728:	53                   	push   %ebx
+                            nchar += kprintn_char(' ', field_width-1);
+c0000729:	01 df                	add    %ebx,%edi
+    terminal_putcharn(&stdout, c, rpt); 
+c000072b:	6a 20                	push   $0x20
+c000072d:	68 00 30 00 c0       	push   $0xc0003000
+c0000732:	e8 29 0f 00 00       	call   c0001660 <terminal_putcharn>
+                            nchar += kprintn_char(' ', field_width-1);
+c0000737:	83 c4 10             	add    $0x10,%esp
+c000073a:	e9 b1 fe ff ff       	jmp    c00005f0 <kprintf+0x460>
+c000073f:	90                   	nop
+                while(f[nn] >= '0' && f[nn] <= '9')
+c0000740:	0f b6 53 01          	movzbl 0x1(%ebx),%edx
+c0000744:	8d 4b 02             	lea    0x2(%ebx),%ecx
+c0000747:	8d 42 d0             	lea    -0x30(%edx),%eax
+c000074a:	3c 09                	cmp    $0x9,%al
+c000074c:	0f 87 41 07 00 00    	ja     c0000e93 <kprintf+0xd03>
+c0000752:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c0000759:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c0000760:	89 cb                	mov    %ecx,%ebx
+c0000762:	8d 49 01             	lea    0x1(%ecx),%ecx
+c0000765:	0f b6 03             	movzbl (%ebx),%eax
+c0000768:	83 e8 30             	sub    $0x30,%eax
+c000076b:	3c 09                	cmp    $0x9,%al
+c000076d:	76 f1                	jbe    c0000760 <kprintf+0x5d0>
+                    field_prec = atoi(f);
+c000076f:	83 ec 0c             	sub    $0xc,%esp
+c0000772:	ff b5 b8 fd ff ff    	pushl  -0x248(%ebp)
+c0000778:	89 8d a0 fd ff ff    	mov    %ecx,-0x260(%ebp)
+c000077e:	e8 fd 0a 00 00       	call   c0001280 <atoi>
+                    if(field_prec<0) field_prec = 0;
+c0000783:	83 c4 10             	add    $0x10,%esp
+c0000786:	ba 00 00 00 00       	mov    $0x0,%edx
+            switch(*(f++))
+c000078b:	8b 8d a0 fd ff ff    	mov    -0x260(%ebp),%ecx
+c0000791:	85 c0                	test   %eax,%eax
+c0000793:	0f 49 d0             	cmovns %eax,%edx
+c0000796:	89 8d b8 fd ff ff    	mov    %ecx,-0x248(%ebp)
+c000079c:	89 95 ac fd ff ff    	mov    %edx,-0x254(%ebp)
+c00007a2:	0f b6 13             	movzbl (%ebx),%edx
+c00007a5:	e9 16 fb ff ff       	jmp    c00002c0 <kprintf+0x130>
+c00007aa:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+            int field_width=0;
+c00007b0:	c7 85 b0 fd ff ff 00 	movl   $0x0,-0x250(%ebp)
+c00007b7:	00 00 00 
+            while(f[nn] >= '0' && f[nn] <= '9')
+c00007ba:	89 cb                	mov    %ecx,%ebx
+c00007bc:	e9 e3 fa ff ff       	jmp    c00002a4 <kprintf+0x114>
+c00007c1:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c00007c8:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c00007cf:	90                   	nop
+                        if(flags.alt) return 0;
+c00007d0:	31 ff                	xor    %edi,%edi
+c00007d2:	e9 03 fa ff ff       	jmp    c00001da <kprintf+0x4a>
+                                else if(*f == 'p')
+c00007d7:	80 fb 70             	cmp    $0x70,%bl
+c00007da:	0f 84 e9 06 00 00    	je     c0000ec9 <kprintf+0xd39>
+                                int len = format_uint(ui_value, val_buf, base, field_prec, cap);
+c00007e0:	83 ec 0c             	sub    $0xc,%esp
+c00007e3:	8d 85 e8 fd ff ff    	lea    -0x218(%ebp),%eax
+c00007e9:	6a 00                	push   $0x0
+c00007eb:	ff b5 ac fd ff ff    	pushl  -0x254(%ebp)
+c00007f1:	6a 0a                	push   $0xa
+c00007f3:	50                   	push   %eax
+c00007f4:	52                   	push   %edx
+c00007f5:	89 85 c0 fd ff ff    	mov    %eax,-0x240(%ebp)
+c00007fb:	e8 a0 f8 ff ff       	call   c00000a0 <format_uint>
+                                int lenpad = field_width - len; 
+c0000800:	8b 95 b0 fd ff ff    	mov    -0x250(%ebp),%edx
+                                char radix[3]="";
+c0000806:	c6 85 e7 fd ff ff 00 	movb   $0x0,-0x219(%ebp)
+c000080d:	83 c4 20             	add    $0x20,%esp
+                                int lenpad = field_width - len; 
+c0000810:	29 c2                	sub    %eax,%edx
+                                char radix[3]="";
+c0000812:	31 c0                	xor    %eax,%eax
+c0000814:	66 89 85 e5 fd ff ff 	mov    %ax,-0x21b(%ebp)
+                                if(!flags.left && lenpad>0)
+c000081b:	80 bd d0 fd ff ff 00 	cmpb   $0x0,-0x230(%ebp)
+c0000822:	0f 85 06 04 00 00    	jne    c0000c2e <kprintf+0xa9e>
+c0000828:	85 d2                	test   %edx,%edx
+c000082a:	0f 8e 93 04 00 00    	jle    c0000cc3 <kprintf+0xb33>
+                                    if(flags.zero)
+c0000830:	89 f0                	mov    %esi,%eax
+                                        nchar += kprintn_char('0', lenpad);
+c0000832:	01 d7                	add    %edx,%edi
+                                    if(flags.zero)
+c0000834:	84 c0                	test   %al,%al
+c0000836:	0f 84 53 fc ff ff    	je     c000048f <kprintf+0x2ff>
+    terminal_putcharn(&stdout, c, rpt); 
+c000083c:	83 ec 04             	sub    $0x4,%esp
+c000083f:	52                   	push   %edx
+c0000840:	6a 30                	push   $0x30
+c0000842:	68 00 30 00 c0       	push   $0xc0003000
+c0000847:	e8 14 0e 00 00       	call   c0001660 <terminal_putcharn>
+    terminal_writestring(&stdout, str);
+c000084c:	58                   	pop    %eax
+c000084d:	5a                   	pop    %edx
+c000084e:	66 90                	xchg   %ax,%ax
+c0000850:	8b b5 c0 fd ff ff    	mov    -0x240(%ebp),%esi
+c0000856:	56                   	push   %esi
+c0000857:	68 00 30 00 c0       	push   $0xc0003000
+c000085c:	e8 2f 12 00 00       	call   c0001a90 <terminal_writestring>
+    return strlen(str);
+c0000861:	89 34 24             	mov    %esi,(%esp)
+c0000864:	e8 97 09 00 00       	call   c0001200 <strlen>
+                                nchar += kprint(val_buf);
+c0000869:	83 c4 10             	add    $0x10,%esp
+c000086c:	01 c7                	add    %eax,%edi
+                                if(flags.left && lenpad>0)
+c000086e:	e9 7d fd ff ff       	jmp    c00005f0 <kprintf+0x460>
+                    length_mod = LONGDOUBLE;
+c0000873:	b8 05 00 00 00       	mov    $0x5,%eax
+c0000878:	e9 23 fb ff ff       	jmp    c00003a0 <kprintf+0x210>
+                                        sign_char = '+';
+c000087d:	b9 2b 00 00 00       	mov    $0x2b,%ecx
+c0000882:	e9 89 fc ff ff       	jmp    c0000510 <kprintf+0x380>
+    terminal_putcharn(&stdout, c, rpt); 
+c0000887:	83 ec 04             	sub    $0x4,%esp
+                            nchar += kprintn_char(' ', field_width-1);
+c000088a:	01 df                	add    %ebx,%edi
+    terminal_putcharn(&stdout, c, rpt); 
+c000088c:	53                   	push   %ebx
+c000088d:	6a 20                	push   $0x20
+c000088f:	68 00 30 00 c0       	push   $0xc0003000
+c0000894:	e8 c7 0d 00 00       	call   c0001660 <terminal_putcharn>
+    terminal_putchar(&stdout, c); 
+c0000899:	58                   	pop    %eax
+c000089a:	5a                   	pop    %edx
+c000089b:	56                   	push   %esi
+                        nchar += kprint_char(c);
+c000089c:	83 c7 01             	add    $0x1,%edi
+    terminal_putchar(&stdout, c); 
+c000089f:	68 00 30 00 c0       	push   $0xc0003000
+c00008a4:	e8 97 0f 00 00       	call   c0001840 <terminal_putchar>
+                        if(field_width>1 && flags.left)    
+c00008a9:	83 c4 10             	add    $0x10,%esp
+c00008ac:	e9 3f fd ff ff       	jmp    c00005f0 <kprintf+0x460>
+    terminal_putcharn(&stdout, c, rpt); 
+c00008b1:	83 ec 04             	sub    $0x4,%esp
+c00008b4:	89 85 c0 fd ff ff    	mov    %eax,-0x240(%ebp)
+c00008ba:	52                   	push   %edx
+c00008bb:	6a 20                	push   $0x20
+c00008bd:	68 00 30 00 c0       	push   $0xc0003000
+c00008c2:	89 95 d0 fd ff ff    	mov    %edx,-0x230(%ebp)
+c00008c8:	e8 93 0d 00 00       	call   c0001660 <terminal_putcharn>
+    terminal_write(&stdout, str, len);
+c00008cd:	83 c4 0c             	add    $0xc,%esp
+                            nchar += kprintn_char(' ', lenpad);
+c00008d0:	8b 95 d0 fd ff ff    	mov    -0x230(%ebp),%edx
+    terminal_write(&stdout, str, len);
+c00008d6:	53                   	push   %ebx
+c00008d7:	56                   	push   %esi
+                            nchar += kprintn_char(' ', lenpad);
+c00008d8:	01 d7                	add    %edx,%edi
+    terminal_write(&stdout, str, len);
+c00008da:	68 00 30 00 c0       	push   $0xc0003000
+c00008df:	e8 4c 10 00 00       	call   c0001930 <terminal_write>
+                        nchar += kprintn(str,len);
+c00008e4:	8b 85 c0 fd ff ff    	mov    -0x240(%ebp),%eax
+c00008ea:	83 c4 10             	add    $0x10,%esp
+c00008ed:	01 c7                	add    %eax,%edi
+                        char* str = va_arg(valist, char*);
+c00008ef:	8b 85 c8 fd ff ff    	mov    -0x238(%ebp),%eax
+c00008f5:	89 85 b4 fd ff ff    	mov    %eax,-0x24c(%ebp)
+c00008fb:	e9 f0 fc ff ff       	jmp    c00005f0 <kprintf+0x460>
+            int field_prec=-1; //default is -1
+c0000900:	b8 06 00 00 00       	mov    $0x6,%eax
+c0000905:	e9 96 fa ff ff       	jmp    c00003a0 <kprintf+0x210>
+    terminal_write(&stdout, str, len);
+c000090a:	83 ec 04             	sub    $0x4,%esp
+c000090d:	89 85 d0 fd ff ff    	mov    %eax,-0x230(%ebp)
+c0000913:	53                   	push   %ebx
+c0000914:	56                   	push   %esi
+c0000915:	68 00 30 00 c0       	push   $0xc0003000
+c000091a:	e8 11 10 00 00       	call   c0001930 <terminal_write>
+                        nchar += kprintn(str,len);
+c000091f:	8b 85 d0 fd ff ff    	mov    -0x230(%ebp),%eax
+c0000925:	83 c4 10             	add    $0x10,%esp
+c0000928:	01 c7                	add    %eax,%edi
+                        char* str = va_arg(valist, char*);
+c000092a:	8b 85 c8 fd ff ff    	mov    -0x238(%ebp),%eax
+c0000930:	89 85 b4 fd ff ff    	mov    %eax,-0x24c(%ebp)
+c0000936:	e9 b5 fc ff ff       	jmp    c00005f0 <kprintf+0x460>
+    terminal_putchar(&stdout, c); 
+c000093b:	83 ec 08             	sub    $0x8,%esp
+c000093e:	e9 58 ff ff ff       	jmp    c000089b <kprintf+0x70b>
+                                    ui_value = -i_value;
+c0000943:	f7 d8                	neg    %eax
+                                    sign_char = '-';
+c0000945:	b9 2d 00 00 00       	mov    $0x2d,%ecx
+                                    ui_value = -i_value;
+c000094a:	89 c2                	mov    %eax,%edx
+                                    sign_char = '-';
+c000094c:	e9 bf fb ff ff       	jmp    c0000510 <kprintf+0x380>
+                                if(!flags.left && lenpad>0)
+c0000951:	85 db                	test   %ebx,%ebx
+c0000953:	0f 8f 38 04 00 00    	jg     c0000d91 <kprintf+0xc01>
+                                if(!flags.zero && sign_char)
+c0000959:	84 c9                	test   %cl,%cl
+c000095b:	0f 84 4e fb ff ff    	je     c00004af <kprintf+0x31f>
+    terminal_putchar(&stdout, c); 
+c0000961:	83 ec 08             	sub    $0x8,%esp
+                                    nchar += kprint_char(sign_char); //if not zero padding, write sign here
+c0000964:	0f be c1             	movsbl %cl,%eax
+c0000967:	83 c7 01             	add    $0x1,%edi
+    terminal_putchar(&stdout, c); 
+c000096a:	50                   	push   %eax
+c000096b:	68 00 30 00 c0       	push   $0xc0003000
+c0000970:	e8 cb 0e 00 00       	call   c0001840 <terminal_putchar>
+    terminal_writestring(&stdout, str);
+c0000975:	59                   	pop    %ecx
+c0000976:	5b                   	pop    %ebx
+c0000977:	e9 d4 fe ff ff       	jmp    c0000850 <kprintf+0x6c0>
+                                    i_value = (int) va_arg(valist, long long int); //TODO: implement actual longlong handling
+c000097c:	83 c1 08             	add    $0x8,%ecx
+c000097f:	89 8d b4 fd ff ff    	mov    %ecx,-0x24c(%ebp)
+c0000985:	e9 57 fb ff ff       	jmp    c00004e1 <kprintf+0x351>
+                                    ui_value = (unsigned int) va_arg(valist, long long unsigned int); //TODO: implement actual longlong handling
+c000098a:	83 c0 08             	add    $0x8,%eax
+c000098d:	89 85 b4 fd ff ff    	mov    %eax,-0x24c(%ebp)
+c0000993:	e9 58 fa ff ff       	jmp    c00003f0 <kprintf+0x260>
+                                int len = format_uint(ui_value, val_buf, base, field_prec, cap);
+c0000998:	83 ec 0c             	sub    $0xc,%esp
+c000099b:	8d 85 e8 fd ff ff    	lea    -0x218(%ebp),%eax
+c00009a1:	6a 00                	push   $0x0
+c00009a3:	ff b5 ac fd ff ff    	pushl  -0x254(%ebp)
+c00009a9:	6a 08                	push   $0x8
+c00009ab:	50                   	push   %eax
+c00009ac:	52                   	push   %edx
+c00009ad:	89 85 c0 fd ff ff    	mov    %eax,-0x240(%ebp)
+c00009b3:	e8 e8 f6 ff ff       	call   c00000a0 <format_uint>
+                                int lenpad = field_width - len; 
+c00009b8:	8b 95 b0 fd ff ff    	mov    -0x250(%ebp),%edx
+                                if(flags.alt)
+c00009be:	83 c4 20             	add    $0x20,%esp
+                                char radix[3]="";
+c00009c1:	c6 85 e7 fd ff ff 00 	movb   $0x0,-0x219(%ebp)
+                                int lenpad = field_width - len; 
+c00009c8:	29 c2                	sub    %eax,%edx
+                                char radix[3]="";
+c00009ca:	31 c0                	xor    %eax,%eax
+                                if(flags.alt)
+c00009cc:	80 bd c8 fd ff ff 00 	cmpb   $0x0,-0x238(%ebp)
+                                char radix[3]="";
+c00009d3:	66 89 85 e5 fd ff ff 	mov    %ax,-0x21b(%ebp)
+                                if(flags.alt)
+c00009da:	0f 84 3b fe ff ff    	je     c000081b <kprintf+0x68b>
+                                    else if(base==8 && val_buf[0] != '0')
+c00009e0:	80 bd e8 fd ff ff 30 	cmpb   $0x30,-0x218(%ebp)
+c00009e7:	0f 84 81 fa ff ff    	je     c000046e <kprintf+0x2de>
+                                        radix[0] = '0';
+c00009ed:	c6 85 e5 fd ff ff 30 	movb   $0x30,-0x21b(%ebp)
+                                        lenpad -= 1;
+c00009f4:	83 ea 01             	sub    $0x1,%edx
+                                        radix[1] = 0;
+c00009f7:	e9 72 fa ff ff       	jmp    c000046e <kprintf+0x2de>
+                        if(field_prec<0) field_prec = 6;  //default is prec = 6
+c00009fc:	8b 8d ac fd ff ff    	mov    -0x254(%ebp),%ecx
+                        if(f_value<0)
+c0000a02:	d9 85 c8 fd ff ff    	flds   -0x238(%ebp)
+c0000a08:	d9 ee                	fldz   
+                        if(field_prec<0) field_prec = 6;  //default is prec = 6
+c0000a0a:	b8 06 00 00 00       	mov    $0x6,%eax
+                        if(!flags.left && lenpad>0)
+c0000a0f:	0f b6 9d d0 fd ff ff 	movzbl -0x230(%ebp),%ebx
+                        if(field_prec<0) field_prec = 6;  //default is prec = 6
+c0000a16:	83 f9 ff             	cmp    $0xffffffff,%ecx
+c0000a19:	0f 45 c1             	cmovne %ecx,%eax
+                        if(!flags.left && lenpad>0)
+c0000a1c:	83 f3 01             	xor    $0x1,%ebx
+                        if(f_value<0)
+c0000a1f:	df f1                	fcomip %st(1),%st
+                        if(field_prec<0) field_prec = 6;  //default is prec = 6
+c0000a21:	89 85 ac fd ff ff    	mov    %eax,-0x254(%ebp)
+                        if(f_value<0)
+c0000a27:	0f 87 e2 04 00 00    	ja     c0000f0f <kprintf+0xd7f>
+c0000a2d:	dd d8                	fstp   %st(0)
+                            ui_part = (unsigned int) f_value;
+c0000a2f:	d9 bd d6 fd ff ff    	fnstcw -0x22a(%ebp)
+c0000a35:	d9 85 c8 fd ff ff    	flds   -0x238(%ebp)
+c0000a3b:	0f b7 85 d6 fd ff ff 	movzwl -0x22a(%ebp),%eax
+c0000a42:	80 cc 0c             	or     $0xc,%ah
+                            if(flags.sign)
+c0000a45:	80 bd c0 fd ff ff 00 	cmpb   $0x0,-0x240(%ebp)
+                            ui_part = (unsigned int) f_value;
+c0000a4c:	66 89 85 d4 fd ff ff 	mov    %ax,-0x22c(%ebp)
+c0000a53:	d9 ad d4 fd ff ff    	fldcw  -0x22c(%ebp)
+c0000a59:	df bd a0 fd ff ff    	fistpll -0x260(%ebp)
+c0000a5f:	d9 ad d6 fd ff ff    	fldcw  -0x22a(%ebp)
+c0000a65:	8b 85 a0 fd ff ff    	mov    -0x260(%ebp),%eax
+                            if(flags.sign)
+c0000a6b:	0f 85 e1 04 00 00    	jne    c0000f52 <kprintf+0xdc2>
+                            else if(flags.space)
+c0000a71:	80 bd bf fd ff ff 00 	cmpb   $0x0,-0x241(%ebp)
+c0000a78:	0f 84 92 03 00 00    	je     c0000e10 <kprintf+0xc80>
+                                sign_char = ' ';
+c0000a7e:	c6 85 ab fd ff ff 20 	movb   $0x20,-0x255(%ebp)
+                        int int_len = format_uint(ui_part,val_buf,10,-1,0);
+c0000a85:	83 ec 0c             	sub    $0xc,%esp
+c0000a88:	8d 85 e8 fd ff ff    	lea    -0x218(%ebp),%eax
+c0000a8e:	6a 00                	push   $0x0
+c0000a90:	6a ff                	push   $0xffffffff
+c0000a92:	6a 0a                	push   $0xa
+c0000a94:	50                   	push   %eax
+c0000a95:	ff b5 a0 fd ff ff    	pushl  -0x260(%ebp)
+c0000a9b:	89 85 c0 fd ff ff    	mov    %eax,-0x240(%ebp)
+c0000aa1:	e8 fa f5 ff ff       	call   c00000a0 <format_uint>
+                        int f_len = int_len + 1 + field_prec;
+c0000aa6:	8b 8d ac fd ff ff    	mov    -0x254(%ebp),%ecx
+                        int lenpad = field_width - f_len; 
+c0000aac:	8b 95 b0 fd ff ff    	mov    -0x250(%ebp),%edx
+                        if(!flags.left && lenpad>0)
+c0000ab2:	83 c4 20             	add    $0x20,%esp
+                        int f_len = int_len + 1 + field_prec;
+c0000ab5:	8d 44 01 01          	lea    0x1(%ecx,%eax,1),%eax
+                        int lenpad = field_width - f_len; 
+c0000ab9:	29 c2                	sub    %eax,%edx
+                            lenpad--; //remove one char of padding to account for sign
+c0000abb:	8d 42 ff             	lea    -0x1(%edx),%eax
+                        if(!flags.left && lenpad>0)
+c0000abe:	85 c0                	test   %eax,%eax
+                            lenpad--; //remove one char of padding to account for sign
+c0000ac0:	89 85 b0 fd ff ff    	mov    %eax,-0x250(%ebp)
+                        if(!flags.left && lenpad>0)
+c0000ac6:	0f 9f 85 bf fd ff ff 	setg   -0x241(%ebp)
+c0000acd:	0f b6 85 bf fd ff ff 	movzbl -0x241(%ebp),%eax
+c0000ad4:	21 c3                	and    %eax,%ebx
+                            if(flags.zero)
+c0000ad6:	89 f0                	mov    %esi,%eax
+c0000ad8:	84 c0                	test   %al,%al
+c0000ada:	0f 85 7e 04 00 00    	jne    c0000f5e <kprintf+0xdce>
+                        if(!flags.left && lenpad>0)
+c0000ae0:	84 db                	test   %bl,%bl
+c0000ae2:	0f 85 a4 04 00 00    	jne    c0000f8c <kprintf+0xdfc>
+                            nchar += kprint_char(sign_char); //if not zero padding, write sign here
+c0000ae8:	0f be 85 ab fd ff ff 	movsbl -0x255(%ebp),%eax
+    terminal_putchar(&stdout, c); 
+c0000aef:	83 ec 08             	sub    $0x8,%esp
+                            nchar += kprint_char(sign_char); //if not zero padding, write sign here
+c0000af2:	83 c7 01             	add    $0x1,%edi
+    terminal_putchar(&stdout, c); 
+c0000af5:	50                   	push   %eax
+c0000af6:	68 00 30 00 c0       	push   $0xc0003000
+c0000afb:	e8 40 0d 00 00       	call   c0001840 <terminal_putchar>
+                            nchar += kprint_char(sign_char); //if not zero padding, write sign here
+c0000b00:	83 c4 10             	add    $0x10,%esp
+    terminal_writestring(&stdout, str);
+c0000b03:	8b b5 c0 fd ff ff    	mov    -0x240(%ebp),%esi
+c0000b09:	83 ec 08             	sub    $0x8,%esp
+c0000b0c:	56                   	push   %esi
+c0000b0d:	68 00 30 00 c0       	push   $0xc0003000
+c0000b12:	e8 79 0f 00 00       	call   c0001a90 <terminal_writestring>
+    return strlen(str);
+c0000b17:	89 34 24             	mov    %esi,(%esp)
+c0000b1a:	e8 e1 06 00 00       	call   c0001200 <strlen>
+    terminal_putchar(&stdout, c); 
+c0000b1f:	5b                   	pop    %ebx
+c0000b20:	5e                   	pop    %esi
+c0000b21:	6a 2e                	push   $0x2e
+c0000b23:	68 00 30 00 c0       	push   $0xc0003000
+                        nchar += kprint(val_buf);
+c0000b28:	01 c7                	add    %eax,%edi
+                        nchar += kprint_char('.');
+c0000b2a:	83 c7 01             	add    $0x1,%edi
+    terminal_putchar(&stdout, c); 
+c0000b2d:	e8 0e 0d 00 00       	call   c0001840 <terminal_putchar>
+                        float frac = f_value<0 ? -f_value - ui_part : f_value - ui_part;
+c0000b32:	83 c4 10             	add    $0x10,%esp
+c0000b35:	d9 85 c8 fd ff ff    	flds   -0x238(%ebp)
+c0000b3b:	d9 ee                	fldz   
+c0000b3d:	df f1                	fcomip %st(1),%st
+c0000b3f:	0f 87 5f 03 00 00    	ja     c0000ea4 <kprintf+0xd14>
+c0000b45:	dd d8                	fstp   %st(0)
+c0000b47:	c7 85 c4 fd ff ff 00 	movl   $0x0,-0x23c(%ebp)
+c0000b4e:	00 00 00 
+c0000b51:	8b 85 a0 fd ff ff    	mov    -0x260(%ebp),%eax
+c0000b57:	89 85 c0 fd ff ff    	mov    %eax,-0x240(%ebp)
+c0000b5d:	df ad c0 fd ff ff    	fildll -0x240(%ebp)
+c0000b63:	d8 ad c8 fd ff ff    	fsubrs -0x238(%ebp)
+                        for(int nn=0;nn<field_prec; nn++)
+c0000b69:	8b 8d ac fd ff ff    	mov    -0x254(%ebp),%ecx
+c0000b6f:	8b b5 ac fd ff ff    	mov    -0x254(%ebp),%esi
+c0000b75:	31 db                	xor    %ebx,%ebx
+c0000b77:	85 c9                	test   %ecx,%ecx
+c0000b79:	74 77                	je     c0000bf2 <kprintf+0xa62>
+c0000b7b:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+c0000b7f:	90                   	nop
+                            d = (int) frac;
+c0000b80:	d9 bd d6 fd ff ff    	fnstcw -0x22a(%ebp)
+                            frac *= 10.;
+c0000b86:	d8 0d c8 24 00 c0    	fmuls  0xc00024c8
+    terminal_putchar(&stdout, c); 
+c0000b8c:	83 ec 08             	sub    $0x8,%esp
+                        for(int nn=0;nn<field_prec; nn++)
+c0000b8f:	83 c3 01             	add    $0x1,%ebx
+                            d = (int) frac;
+c0000b92:	0f b7 85 d6 fd ff ff 	movzwl -0x22a(%ebp),%eax
+c0000b99:	80 cc 0c             	or     $0xc,%ah
+c0000b9c:	66 89 85 d4 fd ff ff 	mov    %ax,-0x22c(%ebp)
+c0000ba3:	d9 ad d4 fd ff ff    	fldcw  -0x22c(%ebp)
+c0000ba9:	db 95 c8 fd ff ff    	fistl  -0x238(%ebp)
+c0000baf:	d9 ad d6 fd ff ff    	fldcw  -0x22a(%ebp)
+                            nchar += kprint_char('0' + d);
+c0000bb5:	0f b6 85 c8 fd ff ff 	movzbl -0x238(%ebp),%eax
+                            frac -= d;
+c0000bbc:	db 85 c8 fd ff ff    	fildl  -0x238(%ebp)
+                            nchar += kprint_char('0' + d);
+c0000bc2:	83 c0 30             	add    $0x30,%eax
+c0000bc5:	0f be c0             	movsbl %al,%eax
+                            frac -= d;
+c0000bc8:	de e9                	fsubrp %st,%st(1)
+    terminal_putchar(&stdout, c); 
+c0000bca:	50                   	push   %eax
+c0000bcb:	68 00 30 00 c0       	push   $0xc0003000
+                            frac -= d;
+c0000bd0:	d9 9d c0 fd ff ff    	fstps  -0x240(%ebp)
+    terminal_putchar(&stdout, c); 
+c0000bd6:	e8 65 0c 00 00       	call   c0001840 <terminal_putchar>
+                        for(int nn=0;nn<field_prec; nn++)
+c0000bdb:	83 c4 10             	add    $0x10,%esp
+c0000bde:	39 de                	cmp    %ebx,%esi
+c0000be0:	d9 85 c0 fd ff ff    	flds   -0x240(%ebp)
+c0000be6:	75 98                	jne    c0000b80 <kprintf+0x9f0>
+c0000be8:	dd d8                	fstp   %st(0)
+                            nchar += kprint_char('0' + d);
+c0000bea:	03 bd ac fd ff ff    	add    -0x254(%ebp),%edi
+c0000bf0:	eb 02                	jmp    c0000bf4 <kprintf+0xa64>
+c0000bf2:	dd d8                	fstp   %st(0)
+                        if(flags.left && lenpad>0)
+c0000bf4:	80 bd d0 fd ff ff 00 	cmpb   $0x0,-0x230(%ebp)
+c0000bfb:	0f 84 ef f9 ff ff    	je     c00005f0 <kprintf+0x460>
+c0000c01:	80 bd bf fd ff ff 00 	cmpb   $0x0,-0x241(%ebp)
+c0000c08:	0f 84 e2 f9 ff ff    	je     c00005f0 <kprintf+0x460>
+    terminal_putcharn(&stdout, c, rpt); 
+c0000c0e:	8b b5 b0 fd ff ff    	mov    -0x250(%ebp),%esi
+c0000c14:	83 ec 04             	sub    $0x4,%esp
+c0000c17:	56                   	push   %esi
+                            nchar += kprintn_char(' ', lenpad);
+c0000c18:	01 f7                	add    %esi,%edi
+    terminal_putcharn(&stdout, c, rpt); 
+c0000c1a:	6a 20                	push   $0x20
+c0000c1c:	68 00 30 00 c0       	push   $0xc0003000
+c0000c21:	e8 3a 0a 00 00       	call   c0001660 <terminal_putcharn>
+                            nchar += kprintn_char(' ', lenpad);
+c0000c26:	83 c4 10             	add    $0x10,%esp
+c0000c29:	e9 c2 f9 ff ff       	jmp    c00005f0 <kprintf+0x460>
+                                if(!flags.zero && radix[0])
+c0000c2e:	89 f0                	mov    %esi,%eax
+c0000c30:	84 c0                	test   %al,%al
+c0000c32:	74 5b                	je     c0000c8f <kprintf+0xaff>
+c0000c34:	89 95 d0 fd ff ff    	mov    %edx,-0x230(%ebp)
+    terminal_writestring(&stdout, str);
+c0000c3a:	83 ec 08             	sub    $0x8,%esp
+c0000c3d:	8b b5 c0 fd ff ff    	mov    -0x240(%ebp),%esi
+c0000c43:	56                   	push   %esi
+c0000c44:	68 00 30 00 c0       	push   $0xc0003000
+c0000c49:	e8 42 0e 00 00       	call   c0001a90 <terminal_writestring>
+    return strlen(str);
+c0000c4e:	89 34 24             	mov    %esi,(%esp)
+c0000c51:	e8 aa 05 00 00       	call   c0001200 <strlen>
+c0000c56:	8b 95 d0 fd ff ff    	mov    -0x230(%ebp),%edx
+                                nchar += kprint(val_buf);
+c0000c5c:	83 c4 10             	add    $0x10,%esp
+c0000c5f:	01 c7                	add    %eax,%edi
+                                if(flags.left && lenpad>0)
+c0000c61:	85 d2                	test   %edx,%edx
+c0000c63:	0f 8e 87 f9 ff ff    	jle    c00005f0 <kprintf+0x460>
+    terminal_putcharn(&stdout, c, rpt); 
+c0000c69:	83 ec 04             	sub    $0x4,%esp
+c0000c6c:	89 95 d0 fd ff ff    	mov    %edx,-0x230(%ebp)
+c0000c72:	52                   	push   %edx
+c0000c73:	6a 20                	push   $0x20
+c0000c75:	68 00 30 00 c0       	push   $0xc0003000
+c0000c7a:	e8 e1 09 00 00       	call   c0001660 <terminal_putcharn>
+                                    nchar += kprintn_char(' ', lenpad);
+c0000c7f:	8b 95 d0 fd ff ff    	mov    -0x230(%ebp),%edx
+c0000c85:	83 c4 10             	add    $0x10,%esp
+c0000c88:	01 d7                	add    %edx,%edi
+                    break;
+c0000c8a:	e9 61 f9 ff ff       	jmp    c00005f0 <kprintf+0x460>
+                                if(!flags.zero && radix[0])
+c0000c8f:	80 bd e5 fd ff ff 00 	cmpb   $0x0,-0x21b(%ebp)
+c0000c96:	74 9c                	je     c0000c34 <kprintf+0xaa4>
+    terminal_writestring(&stdout, str);
+c0000c98:	83 ec 08             	sub    $0x8,%esp
+c0000c9b:	8d 9d e5 fd ff ff    	lea    -0x21b(%ebp),%ebx
+c0000ca1:	89 95 d0 fd ff ff    	mov    %edx,-0x230(%ebp)
+c0000ca7:	53                   	push   %ebx
+c0000ca8:	68 00 30 00 c0       	push   $0xc0003000
+c0000cad:	e8 de 0d 00 00       	call   c0001a90 <terminal_writestring>
+    return strlen(str);
+c0000cb2:	89 1c 24             	mov    %ebx,(%esp)
+c0000cb5:	e8 46 05 00 00       	call   c0001200 <strlen>
+    terminal_writestring(&stdout, str);
+c0000cba:	5e                   	pop    %esi
+                                    nchar += kprint(radix);
+c0000cbb:	01 c7                	add    %eax,%edi
+    terminal_writestring(&stdout, str);
+c0000cbd:	58                   	pop    %eax
+c0000cbe:	e9 7a ff ff ff       	jmp    c0000c3d <kprintf+0xaad>
+                                if(!flags.zero && radix[0])
+c0000cc3:	89 f0                	mov    %esi,%eax
+c0000cc5:	84 c0                	test   %al,%al
+c0000cc7:	0f 85 e2 f7 ff ff    	jne    c00004af <kprintf+0x31f>
+c0000ccd:	80 bd e5 fd ff ff 00 	cmpb   $0x0,-0x21b(%ebp)
+c0000cd4:	0f 84 d5 f7 ff ff    	je     c00004af <kprintf+0x31f>
+    terminal_writestring(&stdout, str);
+c0000cda:	83 ec 08             	sub    $0x8,%esp
+c0000cdd:	8d 9d e5 fd ff ff    	lea    -0x21b(%ebp),%ebx
+c0000ce3:	53                   	push   %ebx
+c0000ce4:	68 00 30 00 c0       	push   $0xc0003000
+c0000ce9:	e8 a2 0d 00 00       	call   c0001a90 <terminal_writestring>
+    return strlen(str);
+c0000cee:	89 1c 24             	mov    %ebx,(%esp)
+c0000cf1:	e8 0a 05 00 00       	call   c0001200 <strlen>
+    terminal_writestring(&stdout, str);
+c0000cf6:	59                   	pop    %ecx
+c0000cf7:	5b                   	pop    %ebx
+                                    nchar += kprint(radix);
+c0000cf8:	01 c7                	add    %eax,%edi
+    terminal_writestring(&stdout, str);
+c0000cfa:	e9 51 fb ff ff       	jmp    c0000850 <kprintf+0x6c0>
+    terminal_putchar(&stdout, c); 
+c0000cff:	83 ec 08             	sub    $0x8,%esp
+                                        nchar += kprint_char(sign_char); //if zero padding, sign is at beginning
+c0000d02:	0f be c1             	movsbl %cl,%eax
+c0000d05:	83 c7 01             	add    $0x1,%edi
+    terminal_putchar(&stdout, c); 
+c0000d08:	50                   	push   %eax
+c0000d09:	68 00 30 00 c0       	push   $0xc0003000
+c0000d0e:	e8 2d 0b 00 00       	call   c0001840 <terminal_putchar>
+                                if(!flags.left && lenpad>0)
+c0000d13:	83 c4 10             	add    $0x10,%esp
+c0000d16:	80 bd d0 fd ff ff 00 	cmpb   $0x0,-0x230(%ebp)
+c0000d1d:	75 21                	jne    c0000d40 <kprintf+0xbb0>
+c0000d1f:	85 db                	test   %ebx,%ebx
+c0000d21:	0f 8e 88 f7 ff ff    	jle    c00004af <kprintf+0x31f>
+                                        nchar += kprintn_char('0', lenpad);
+c0000d27:	01 df                	add    %ebx,%edi
+    terminal_putcharn(&stdout, c, rpt); 
+c0000d29:	83 ec 04             	sub    $0x4,%esp
+c0000d2c:	53                   	push   %ebx
+c0000d2d:	6a 30                	push   $0x30
+c0000d2f:	68 00 30 00 c0       	push   $0xc0003000
+c0000d34:	e8 27 09 00 00       	call   c0001660 <terminal_putcharn>
+    terminal_writestring(&stdout, str);
+c0000d39:	5e                   	pop    %esi
+c0000d3a:	58                   	pop    %eax
+c0000d3b:	e9 10 fb ff ff       	jmp    c0000850 <kprintf+0x6c0>
+c0000d40:	83 ec 08             	sub    $0x8,%esp
+c0000d43:	e9 30 f8 ff ff       	jmp    c0000578 <kprintf+0x3e8>
+c0000d48:	83 ec 08             	sub    $0x8,%esp
+c0000d4b:	8d 9d e5 fd ff ff    	lea    -0x21b(%ebp),%ebx
+c0000d51:	89 95 c8 fd ff ff    	mov    %edx,-0x238(%ebp)
+c0000d57:	53                   	push   %ebx
+c0000d58:	68 00 30 00 c0       	push   $0xc0003000
+c0000d5d:	e8 2e 0d 00 00       	call   c0001a90 <terminal_writestring>
+    return strlen(str);
+c0000d62:	89 1c 24             	mov    %ebx,(%esp)
+c0000d65:	e8 96 04 00 00       	call   c0001200 <strlen>
+                                if(!flags.left && lenpad>0)
+c0000d6a:	83 c4 10             	add    $0x10,%esp
+c0000d6d:	8b 95 c8 fd ff ff    	mov    -0x238(%ebp),%edx
+                                        nchar += kprint(radix);
+c0000d73:	01 c7                	add    %eax,%edi
+                                if(!flags.left && lenpad>0)
+c0000d75:	80 bd d0 fd ff ff 00 	cmpb   $0x0,-0x230(%ebp)
+c0000d7c:	0f 85 b2 fe ff ff    	jne    c0000c34 <kprintf+0xaa4>
+c0000d82:	85 d2                	test   %edx,%edx
+c0000d84:	0f 8e 25 f7 ff ff    	jle    c00004af <kprintf+0x31f>
+                                        nchar += kprintn_char('0', lenpad);
+c0000d8a:	01 d7                	add    %edx,%edi
+c0000d8c:	e9 ab fa ff ff       	jmp    c000083c <kprintf+0x6ac>
+                                        nchar += kprintn_char('0', lenpad);
+c0000d91:	01 df                	add    %ebx,%edi
+    terminal_putcharn(&stdout, c, rpt); 
+c0000d93:	83 ec 04             	sub    $0x4,%esp
+c0000d96:	88 8d d0 fd ff ff    	mov    %cl,-0x230(%ebp)
+c0000d9c:	53                   	push   %ebx
+c0000d9d:	6a 20                	push   $0x20
+c0000d9f:	68 00 30 00 c0       	push   $0xc0003000
+c0000da4:	e8 b7 08 00 00       	call   c0001660 <terminal_putcharn>
+                                if(!flags.zero && sign_char)
+c0000da9:	0f b6 8d d0 fd ff ff 	movzbl -0x230(%ebp),%ecx
+    terminal_putcharn(&stdout, c, rpt); 
+c0000db0:	83 c4 10             	add    $0x10,%esp
+c0000db3:	e9 a1 fb ff ff       	jmp    c0000959 <kprintf+0x7c9>
+                                int len = format_uint(ui_value, val_buf, 10, field_prec, 0);
+c0000db8:	83 ec 0c             	sub    $0xc,%esp
+c0000dbb:	8d 8d e8 fd ff ff    	lea    -0x218(%ebp),%ecx
+c0000dc1:	6a 00                	push   $0x0
+c0000dc3:	ff b5 ac fd ff ff    	pushl  -0x254(%ebp)
+c0000dc9:	6a 0a                	push   $0xa
+c0000dcb:	51                   	push   %ecx
+c0000dcc:	50                   	push   %eax
+c0000dcd:	89 8d c0 fd ff ff    	mov    %ecx,-0x240(%ebp)
+c0000dd3:	e8 c8 f2 ff ff       	call   c00000a0 <format_uint>
+                                int lenpad = field_width - len; 
+c0000dd8:	8b 9d b0 fd ff ff    	mov    -0x250(%ebp),%ebx
+                                if(!flags.left && lenpad>0)
+c0000dde:	83 c4 20             	add    $0x20,%esp
+                                int lenpad = field_width - len; 
+c0000de1:	29 c3                	sub    %eax,%ebx
+                                if(!flags.left && lenpad>0)
+c0000de3:	80 bd d0 fd ff ff 00 	cmpb   $0x0,-0x230(%ebp)
+c0000dea:	0f 85 50 ff ff ff    	jne    c0000d40 <kprintf+0xbb0>
+c0000df0:	85 db                	test   %ebx,%ebx
+c0000df2:	0f 8e b7 f6 ff ff    	jle    c00004af <kprintf+0x31f>
+                                    if(flags.zero)
+c0000df8:	89 f0                	mov    %esi,%eax
+                                        nchar += kprintn_char('0', lenpad);
+c0000dfa:	01 df                	add    %ebx,%edi
+                                    if(flags.zero)
+c0000dfc:	84 c0                	test   %al,%al
+c0000dfe:	0f 85 25 ff ff ff    	jne    c0000d29 <kprintf+0xb99>
+                                char sign_char = 0; //sign character or 0 if none
+c0000e04:	31 c9                	xor    %ecx,%ecx
+c0000e06:	eb 8b                	jmp    c0000d93 <kprintf+0xc03>
+c0000e08:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c0000e0f:	90                   	nop
+                        int int_len = format_uint(ui_part,val_buf,10,-1,0);
+c0000e10:	83 ec 0c             	sub    $0xc,%esp
+c0000e13:	8d 8d e8 fd ff ff    	lea    -0x218(%ebp),%ecx
+c0000e19:	6a 00                	push   $0x0
+c0000e1b:	6a ff                	push   $0xffffffff
+c0000e1d:	6a 0a                	push   $0xa
+c0000e1f:	51                   	push   %ecx
+c0000e20:	50                   	push   %eax
+c0000e21:	89 8d c0 fd ff ff    	mov    %ecx,-0x240(%ebp)
+c0000e27:	e8 74 f2 ff ff       	call   c00000a0 <format_uint>
+                        int f_len = int_len + 1 + field_prec;
+c0000e2c:	8b 8d ac fd ff ff    	mov    -0x254(%ebp),%ecx
+                        if(!flags.left && lenpad>0)
+c0000e32:	83 c4 20             	add    $0x20,%esp
+                        int f_len = int_len + 1 + field_prec;
+c0000e35:	8d 44 01 01          	lea    0x1(%ecx,%eax,1),%eax
+                        int lenpad = field_width - f_len; 
+c0000e39:	8b 8d b0 fd ff ff    	mov    -0x250(%ebp),%ecx
+c0000e3f:	29 c1                	sub    %eax,%ecx
+                        if(!flags.left && lenpad>0)
+c0000e41:	85 c9                	test   %ecx,%ecx
+                        int lenpad = field_width - f_len; 
+c0000e43:	89 8d b0 fd ff ff    	mov    %ecx,-0x250(%ebp)
+                        if(!flags.left && lenpad>0)
+c0000e49:	0f 9f 85 bf fd ff ff 	setg   -0x241(%ebp)
+c0000e50:	0f b6 85 bf fd ff ff 	movzbl -0x241(%ebp),%eax
+c0000e57:	20 c3                	and    %al,%bl
+c0000e59:	0f 84 a4 fc ff ff    	je     c0000b03 <kprintf+0x973>
+                            if(flags.zero)
+c0000e5f:	89 f0                	mov    %esi,%eax
+                                nchar += kprintn_char(' ', lenpad);
+c0000e61:	03 bd b0 fd ff ff    	add    -0x250(%ebp),%edi
+                            if(flags.zero)
+c0000e67:	84 c0                	test   %al,%al
+c0000e69:	0f 84 43 01 00 00    	je     c0000fb2 <kprintf+0xe22>
+    terminal_putcharn(&stdout, c, rpt); 
+c0000e6f:	83 ec 04             	sub    $0x4,%esp
+c0000e72:	ff b5 b0 fd ff ff    	pushl  -0x250(%ebp)
+c0000e78:	6a 30                	push   $0x30
+c0000e7a:	68 00 30 00 c0       	push   $0xc0003000
+c0000e7f:	e8 dc 07 00 00       	call   c0001660 <terminal_putcharn>
+c0000e84:	c6 85 bf fd ff ff 01 	movb   $0x1,-0x241(%ebp)
+c0000e8b:	83 c4 10             	add    $0x10,%esp
+c0000e8e:	e9 70 fc ff ff       	jmp    c0000b03 <kprintf+0x973>
+                f++;
+c0000e93:	8b 9d b8 fd ff ff    	mov    -0x248(%ebp),%ebx
+            switch(*(f++))
+c0000e99:	89 8d b8 fd ff ff    	mov    %ecx,-0x248(%ebp)
+c0000e9f:	e9 1c f4 ff ff       	jmp    c00002c0 <kprintf+0x130>
+                        float frac = f_value<0 ? -f_value - ui_part : f_value - ui_part;
+c0000ea4:	8b 85 a0 fd ff ff    	mov    -0x260(%ebp),%eax
+c0000eaa:	d9 e0                	fchs   
+c0000eac:	c7 85 cc fd ff ff 00 	movl   $0x0,-0x234(%ebp)
+c0000eb3:	00 00 00 
+c0000eb6:	89 85 c8 fd ff ff    	mov    %eax,-0x238(%ebp)
+c0000ebc:	df ad c8 fd ff ff    	fildll -0x238(%ebp)
+c0000ec2:	de e9                	fsubrp %st,%st(1)
+c0000ec4:	e9 a0 fc ff ff       	jmp    c0000b69 <kprintf+0x9d9>
+                                int len = format_uint(ui_value, val_buf, base, field_prec, cap);
+c0000ec9:	83 ec 0c             	sub    $0xc,%esp
+c0000ecc:	8d 85 e8 fd ff ff    	lea    -0x218(%ebp),%eax
+c0000ed2:	6a 00                	push   $0x0
+c0000ed4:	ff b5 ac fd ff ff    	pushl  -0x254(%ebp)
+c0000eda:	6a 10                	push   $0x10
+c0000edc:	50                   	push   %eax
+c0000edd:	52                   	push   %edx
+c0000ede:	89 85 c0 fd ff ff    	mov    %eax,-0x240(%ebp)
+c0000ee4:	e8 b7 f1 ff ff       	call   c00000a0 <format_uint>
+                                int lenpad = field_width - len; 
+c0000ee9:	8b 9d b0 fd ff ff    	mov    -0x250(%ebp),%ebx
+                                char radix[3]="";
+c0000eef:	c6 85 e7 fd ff ff 00 	movb   $0x0,-0x219(%ebp)
+                                        radix[0] = '0';
+c0000ef6:	83 c4 20             	add    $0x20,%esp
+c0000ef9:	c6 85 e5 fd ff ff 30 	movb   $0x30,-0x21b(%ebp)
+                                int lenpad = field_width - len; 
+c0000f00:	29 c3                	sub    %eax,%ebx
+                                        lenpad -= 2;
+c0000f02:	8d 53 fe             	lea    -0x2(%ebx),%edx
+                                        radix[1] = cap ? 'X' : 'x';
+c0000f05:	bb 78 00 00 00       	mov    $0x78,%ebx
+c0000f0a:	e9 59 f5 ff ff       	jmp    c0000468 <kprintf+0x2d8>
+                            ui_part = (unsigned int) -f_value;
+c0000f0f:	d9 bd d6 fd ff ff    	fnstcw -0x22a(%ebp)
+c0000f15:	d9 e0                	fchs   
+                            sign_char = '-';
+c0000f17:	c6 85 ab fd ff ff 2d 	movb   $0x2d,-0x255(%ebp)
+                            ui_part = (unsigned int) -f_value;
+c0000f1e:	0f b7 85 d6 fd ff ff 	movzwl -0x22a(%ebp),%eax
+c0000f25:	80 cc 0c             	or     $0xc,%ah
+c0000f28:	66 89 85 d4 fd ff ff 	mov    %ax,-0x22c(%ebp)
+c0000f2f:	d9 ad d4 fd ff ff    	fldcw  -0x22c(%ebp)
+c0000f35:	df bd c0 fd ff ff    	fistpll -0x240(%ebp)
+c0000f3b:	d9 ad d6 fd ff ff    	fldcw  -0x22a(%ebp)
+c0000f41:	8b 85 c0 fd ff ff    	mov    -0x240(%ebp),%eax
+c0000f47:	89 85 a0 fd ff ff    	mov    %eax,-0x260(%ebp)
+                            sign_char = '-';
+c0000f4d:	e9 33 fb ff ff       	jmp    c0000a85 <kprintf+0x8f5>
+                                sign_char = '+';
+c0000f52:	c6 85 ab fd ff ff 2b 	movb   $0x2b,-0x255(%ebp)
+c0000f59:	e9 27 fb ff ff       	jmp    c0000a85 <kprintf+0x8f5>
+                                nchar += kprint_char(sign_char); //if zero padding, sign is at beginning
+c0000f5e:	0f be 85 ab fd ff ff 	movsbl -0x255(%ebp),%eax
+    terminal_putchar(&stdout, c); 
+c0000f65:	83 ec 08             	sub    $0x8,%esp
+                                nchar += kprint_char(sign_char); //if zero padding, sign is at beginning
+c0000f68:	83 c7 01             	add    $0x1,%edi
+    terminal_putchar(&stdout, c); 
+c0000f6b:	50                   	push   %eax
+c0000f6c:	68 00 30 00 c0       	push   $0xc0003000
+c0000f71:	e8 ca 08 00 00       	call   c0001840 <terminal_putchar>
+                        if(!flags.left && lenpad>0)
+c0000f76:	83 c4 10             	add    $0x10,%esp
+c0000f79:	84 db                	test   %bl,%bl
+c0000f7b:	0f 84 82 fb ff ff    	je     c0000b03 <kprintf+0x973>
+                                nchar += kprintn_char('0', lenpad);
+c0000f81:	03 bd b0 fd ff ff    	add    -0x250(%ebp),%edi
+c0000f87:	e9 e3 fe ff ff       	jmp    c0000e6f <kprintf+0xcdf>
+                                nchar += kprintn_char(' ', lenpad);
+c0000f8c:	8b 85 b0 fd ff ff    	mov    -0x250(%ebp),%eax
+    terminal_putcharn(&stdout, c, rpt); 
+c0000f92:	83 ec 04             	sub    $0x4,%esp
+c0000f95:	50                   	push   %eax
+                                nchar += kprintn_char(' ', lenpad);
+c0000f96:	01 c7                	add    %eax,%edi
+    terminal_putcharn(&stdout, c, rpt); 
+c0000f98:	6a 20                	push   $0x20
+c0000f9a:	68 00 30 00 c0       	push   $0xc0003000
+c0000f9f:	e8 bc 06 00 00       	call   c0001660 <terminal_putcharn>
+c0000fa4:	88 9d bf fd ff ff    	mov    %bl,-0x241(%ebp)
+c0000faa:	83 c4 10             	add    $0x10,%esp
+c0000fad:	e9 36 fb ff ff       	jmp    c0000ae8 <kprintf+0x958>
+c0000fb2:	83 ec 04             	sub    $0x4,%esp
+c0000fb5:	ff b5 b0 fd ff ff    	pushl  -0x250(%ebp)
+c0000fbb:	6a 20                	push   $0x20
+c0000fbd:	68 00 30 00 c0       	push   $0xc0003000
+c0000fc2:	e8 99 06 00 00       	call   c0001660 <terminal_putcharn>
+c0000fc7:	88 9d bf fd ff ff    	mov    %bl,-0x241(%ebp)
+c0000fcd:	83 c4 10             	add    $0x10,%esp
+c0000fd0:	e9 2e fb ff ff       	jmp    c0000b03 <kprintf+0x973>
+                                        radix[1] = cap ? 'X' : 'x';
+c0000fd5:	bb 78 00 00 00       	mov    $0x78,%ebx
+c0000fda:	e9 89 f4 ff ff       	jmp    c0000468 <kprintf+0x2d8>
+c0000fdf:	90                   	nop
+
+c0000fe0 <numdigits_uint>:
+{
+c0000fe0:	55                   	push   %ebp
+c0000fe1:	89 e5                	mov    %esp,%ebp
+c0000fe3:	53                   	push   %ebx
+    unsigned int num_digits = 1;
+c0000fe4:	bb 01 00 00 00       	mov    $0x1,%ebx
+{
+c0000fe9:	8b 45 08             	mov    0x8(%ebp),%eax
+c0000fec:	8b 4d 0c             	mov    0xc(%ebp),%ecx
+    while(value >= base)
+c0000fef:	39 c8                	cmp    %ecx,%eax
+c0000ff1:	72 18                	jb     c000100b <numdigits_uint+0x2b>
+c0000ff3:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c0000ffa:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+        value /= base;
+c0001000:	31 d2                	xor    %edx,%edx
+        num_digits++;
+c0001002:	83 c3 01             	add    $0x1,%ebx
+        value /= base;
+c0001005:	f7 f1                	div    %ecx
+    while(value >= base)
+c0001007:	39 c1                	cmp    %eax,%ecx
+c0001009:	76 f5                	jbe    c0001000 <numdigits_uint+0x20>
+    }
+    return num_digits;
+}
+c000100b:	89 d8                	mov    %ebx,%eax
+c000100d:	8b 5d fc             	mov    -0x4(%ebp),%ebx
+c0001010:	c9                   	leave  
+c0001011:	c3                   	ret    
+c0001012:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c0001019:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+
+c0001020 <kprintf_test>:
+
+
+
+void kprintf_test()
+{
+c0001020:	55                   	push   %ebp
+c0001021:	89 e5                	mov    %esp,%ebp
+c0001023:	83 ec 10             	sub    $0x10,%esp
+    int num = 12345678;    
+    kprintf("\nkprintf() tests...\n", num);
+c0001026:	68 4e 61 bc 00       	push   $0xbc614e
+c000102b:	68 cc 21 00 c0       	push   $0xc00021cc
+c0001030:	e8 5b f1 ff ff       	call   c0000190 <kprintf>
+    kprintf("Fixed width, right justify:\n");
+c0001035:	c7 04 24 e1 21 00 c0 	movl   $0xc00021e1,(%esp)
+c000103c:	e8 4f f1 ff ff       	call   c0000190 <kprintf>
+    kprintf("Decimal: [%15d]\n", num);
+c0001041:	58                   	pop    %eax
+c0001042:	5a                   	pop    %edx
+c0001043:	68 4e 61 bc 00       	push   $0xbc614e
+c0001048:	68 fe 21 00 c0       	push   $0xc00021fe
+c000104d:	e8 3e f1 ff ff       	call   c0000190 <kprintf>
+    kprintf("Hex:     [%#15x]\n", num);
+c0001052:	59                   	pop    %ecx
+c0001053:	58                   	pop    %eax
+c0001054:	68 4e 61 bc 00       	push   $0xbc614e
+c0001059:	68 0f 22 00 c0       	push   $0xc000220f
+c000105e:	e8 2d f1 ff ff       	call   c0000190 <kprintf>
+    kprintf("Oct:     [%#15o]\n", num);
+c0001063:	58                   	pop    %eax
+c0001064:	5a                   	pop    %edx
+c0001065:	68 4e 61 bc 00       	push   $0xbc614e
+c000106a:	68 21 22 00 c0       	push   $0xc0002221
+c000106f:	e8 1c f1 ff ff       	call   c0000190 <kprintf>
+    kprintf("String:  [%15s]\n", "Hello World!");
+c0001074:	59                   	pop    %ecx
+c0001075:	58                   	pop    %eax
+c0001076:	68 33 22 00 c0       	push   $0xc0002233
+c000107b:	68 40 22 00 c0       	push   $0xc0002240
+c0001080:	e8 0b f1 ff ff       	call   c0000190 <kprintf>
+    kprintf("Char:    [%15c]\n", '!');
+c0001085:	58                   	pop    %eax
+c0001086:	5a                   	pop    %edx
+c0001087:	6a 21                	push   $0x21
+c0001089:	68 51 22 00 c0       	push   $0xc0002251
+c000108e:	e8 fd f0 ff ff       	call   c0000190 <kprintf>
+
+    kprintf("\nFixed width, left justify:\n");
+c0001093:	c7 04 24 62 22 00 c0 	movl   $0xc0002262,(%esp)
+c000109a:	e8 f1 f0 ff ff       	call   c0000190 <kprintf>
+    kprintf("Decimal: [%-15d]\n", num);
+c000109f:	59                   	pop    %ecx
+c00010a0:	58                   	pop    %eax
+c00010a1:	68 4e 61 bc 00       	push   $0xbc614e
+c00010a6:	68 7f 22 00 c0       	push   $0xc000227f
+c00010ab:	e8 e0 f0 ff ff       	call   c0000190 <kprintf>
+    kprintf("Hex:     [%-#15x]\n", num);
+c00010b0:	58                   	pop    %eax
+c00010b1:	5a                   	pop    %edx
+c00010b2:	68 4e 61 bc 00       	push   $0xbc614e
+c00010b7:	68 91 22 00 c0       	push   $0xc0002291
+c00010bc:	e8 cf f0 ff ff       	call   c0000190 <kprintf>
+    kprintf("String:  [%-15s]\n", "Hello World!");
+c00010c1:	59                   	pop    %ecx
+c00010c2:	58                   	pop    %eax
+c00010c3:	68 33 22 00 c0       	push   $0xc0002233
+c00010c8:	68 a4 22 00 c0       	push   $0xc00022a4
+c00010cd:	e8 be f0 ff ff       	call   c0000190 <kprintf>
+
+    kprintf("\nFixed Precision:\n");
+c00010d2:	c7 04 24 b6 22 00 c0 	movl   $0xc00022b6,(%esp)
+c00010d9:	e8 b2 f0 ff ff       	call   c0000190 <kprintf>
+    kprintf("Decimal: [%15.10d]\nHex:     [%#15.10x]\nOct:     [%#15.10o]\nString:  [%15.10s]\n", 
+c00010de:	c7 04 24 33 22 00 c0 	movl   $0xc0002233,(%esp)
+c00010e5:	68 4e 61 bc 00       	push   $0xbc614e
+c00010ea:	68 4e 61 bc 00       	push   $0xbc614e
+c00010ef:	68 4e 61 bc 00       	push   $0xbc614e
+c00010f4:	68 c4 23 00 c0       	push   $0xc00023c4
+c00010f9:	e8 92 f0 ff ff       	call   c0000190 <kprintf>
+        num, num, num, "Hello World!");
+
+    kprintf("\nLeading Zeros:\n");
+c00010fe:	83 c4 14             	add    $0x14,%esp
+c0001101:	68 c9 22 00 c0       	push   $0xc00022c9
+c0001106:	e8 85 f0 ff ff       	call   c0000190 <kprintf>
+    kprintf("Decimal: [%015.10d]\nHex:     [%#015.10x]\nOct:     [%#015.10o]\n",num, num, num);
+c000110b:	68 4e 61 bc 00       	push   $0xbc614e
+c0001110:	68 4e 61 bc 00       	push   $0xbc614e
+c0001115:	68 4e 61 bc 00       	push   $0xbc614e
+c000111a:	68 14 24 00 c0       	push   $0xc0002414
+c000111f:	e8 6c f0 ff ff       	call   c0000190 <kprintf>
+
+    kprintf("Signed (none):  [%d], [%d]\n",num, -num);
+c0001124:	83 c4 1c             	add    $0x1c,%esp
+c0001127:	68 b2 9e 43 ff       	push   $0xff439eb2
+c000112c:	68 4e 61 bc 00       	push   $0xbc614e
+c0001131:	68 da 22 00 c0       	push   $0xc00022da
+c0001136:	e8 55 f0 ff ff       	call   c0000190 <kprintf>
+    kprintf("Signed (space): [% d], [% d]\n",num, -num);
+c000113b:	83 c4 0c             	add    $0xc,%esp
+c000113e:	68 b2 9e 43 ff       	push   $0xff439eb2
+c0001143:	68 4e 61 bc 00       	push   $0xbc614e
+c0001148:	68 f6 22 00 c0       	push   $0xc00022f6
+c000114d:	e8 3e f0 ff ff       	call   c0000190 <kprintf>
+    kprintf("Signed (+):     [%+d], [%+d]\n",num, -num);
+c0001152:	83 c4 0c             	add    $0xc,%esp
+c0001155:	68 b2 9e 43 ff       	push   $0xff439eb2
+c000115a:	68 4e 61 bc 00       	push   $0xbc614e
+c000115f:	68 14 23 00 c0       	push   $0xc0002314
+c0001164:	e8 27 f0 ff ff       	call   c0000190 <kprintf>
+
+    float f = 1.23456789;
+    kprintf("\nfloat:     [%15.f]\n",f);
+c0001169:	d9 05 cc 24 00 c0    	flds   0xc00024cc
+c000116f:	c7 04 24 32 23 00 c0 	movl   $0xc0002332,(%esp)
+c0001176:	dd 5c 24 04          	fstpl  0x4(%esp)
+c000117a:	e8 11 f0 ff ff       	call   c0000190 <kprintf>
+    kprintf("float:     [%15.3f]\n",f);
+c000117f:	dd 05 d8 24 00 c0    	fldl   0xc00024d8
+c0001185:	c7 04 24 47 23 00 c0 	movl   $0xc0002347,(%esp)
+c000118c:	dd 5c 24 04          	fstpl  0x4(%esp)
+c0001190:	e8 fb ef ff ff       	call   c0000190 <kprintf>
+    kprintf("float:     [%15.10f]\n",f);
+c0001195:	dd 05 d8 24 00 c0    	fldl   0xc00024d8
+c000119b:	c7 04 24 5c 23 00 c0 	movl   $0xc000235c,(%esp)
+c00011a2:	dd 5c 24 04          	fstpl  0x4(%esp)
+c00011a6:	e8 e5 ef ff ff       	call   c0000190 <kprintf>
+
+    f = -12345.6789;
+    kprintf("float:     [%15f]\n",f);
+c00011ab:	d9 05 d0 24 00 c0    	flds   0xc00024d0
+c00011b1:	c7 04 24 72 23 00 c0 	movl   $0xc0002372,(%esp)
+c00011b8:	dd 5c 24 04          	fstpl  0x4(%esp)
+c00011bc:	e8 cf ef ff ff       	call   c0000190 <kprintf>
+    kprintf("float:     [%15.3f]\n",f);
+c00011c1:	dd 05 e0 24 00 c0    	fldl   0xc00024e0
+c00011c7:	c7 04 24 47 23 00 c0 	movl   $0xc0002347,(%esp)
+c00011ce:	dd 5c 24 04          	fstpl  0x4(%esp)
+c00011d2:	e8 b9 ef ff ff       	call   c0000190 <kprintf>
+    kprintf("float:     [%15.10f]\n",f);
+c00011d7:	dd 05 e0 24 00 c0    	fldl   0xc00024e0
+c00011dd:	c7 04 24 5c 23 00 c0 	movl   $0xc000235c,(%esp)
+c00011e4:	dd 5c 24 04          	fstpl  0x4(%esp)
+c00011e8:	e8 a3 ef ff ff       	call   c0000190 <kprintf>
+}
+c00011ed:	83 c4 10             	add    $0x10,%esp
+c00011f0:	c9                   	leave  
+c00011f1:	c3                   	ret    
+c00011f2:	66 90                	xchg   %ax,%ax
+c00011f4:	66 90                	xchg   %ax,%ax
+c00011f6:	66 90                	xchg   %ax,%ax
+c00011f8:	66 90                	xchg   %ax,%ax
+c00011fa:	66 90                	xchg   %ax,%ax
+c00011fc:	66 90                	xchg   %ax,%ax
+c00011fe:	66 90                	xchg   %ax,%ax
+
+c0001200 <strlen>:
+#include "common.h"
+
+size_t strlen(const char* str) 
+{
+c0001200:	55                   	push   %ebp
+	size_t len = 0;
+c0001201:	31 c0                	xor    %eax,%eax
+{
+c0001203:	89 e5                	mov    %esp,%ebp
+c0001205:	8b 55 08             	mov    0x8(%ebp),%edx
+	while (str[len])
+c0001208:	80 3a 00             	cmpb   $0x0,(%edx)
+c000120b:	74 0c                	je     c0001219 <strlen+0x19>
+c000120d:	8d 76 00             	lea    0x0(%esi),%esi
+		len++;
+c0001210:	83 c0 01             	add    $0x1,%eax
+	while (str[len])
+c0001213:	80 3c 02 00          	cmpb   $0x0,(%edx,%eax,1)
+c0001217:	75 f7                	jne    c0001210 <strlen+0x10>
+	return len;
+}
+c0001219:	5d                   	pop    %ebp
+c000121a:	c3                   	ret    
+c000121b:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+c000121f:	90                   	nop
+
+c0001220 <memcpy>:
+
+// copy n bytes from src to dest
+void *memcpy(void *dest, const void *src, size_t n)
+{
+c0001220:	55                   	push   %ebp
+c0001221:	89 e5                	mov    %esp,%ebp
+c0001223:	57                   	push   %edi
+c0001224:	8b 4d 0c             	mov    0xc(%ebp),%ecx
+c0001227:	8b 7d 08             	mov    0x8(%ebp),%edi
+c000122a:	56                   	push   %esi
+c000122b:	8b 75 10             	mov    0x10(%ebp),%esi
+c000122e:	53                   	push   %ebx
+    //system wordsize is equal to length of size_t
+    size_t n_words = n/sizeof(size_t);
+    size_t* dest_word = (size_t *) dest;
+    size_t* src_word = (size_t *) src;
+    for(size_t nn=0; nn<n_words; nn++)
+c000122f:	89 f3                	mov    %esi,%ebx
+c0001231:	c1 eb 02             	shr    $0x2,%ebx
+c0001234:	74 1c                	je     c0001252 <memcpy+0x32>
+c0001236:	89 c8                	mov    %ecx,%eax
+c0001238:	89 fa                	mov    %edi,%edx
+c000123a:	8d 1c 99             	lea    (%ecx,%ebx,4),%ebx
+c000123d:	8d 76 00             	lea    0x0(%esi),%esi
+        dest_word[nn]=src_word[nn];
+c0001240:	8b 08                	mov    (%eax),%ecx
+    for(size_t nn=0; nn<n_words; nn++)
+c0001242:	83 c0 04             	add    $0x4,%eax
+c0001245:	83 c2 04             	add    $0x4,%edx
+        dest_word[nn]=src_word[nn];
+c0001248:	89 4a fc             	mov    %ecx,-0x4(%edx)
+    for(size_t nn=0; nn<n_words; nn++)
+c000124b:	39 d8                	cmp    %ebx,%eax
+c000124d:	75 f1                	jne    c0001240 <memcpy+0x20>
+c000124f:	8b 4d 0c             	mov    0xc(%ebp),%ecx
+    
+    //copy remaining bytes
+    size_t n_bytes = n - n_words*sizeof(size_t);
+    if(n_bytes > 0)
+c0001252:	83 e6 03             	and    $0x3,%esi
+c0001255:	74 14                	je     c000126b <memcpy+0x4b>
+c0001257:	89 fa                	mov    %edi,%edx
+c0001259:	01 ce                	add    %ecx,%esi
+    {
+        char* dest_byte = (char *) dest;
+        char* src_byte = (char *) src;
+        for(size_t nn=0; nn<n_bytes; nn++)
+            dest_byte[nn]=src_byte[nn];
+c000125b:	0f b6 01             	movzbl (%ecx),%eax
+        for(size_t nn=0; nn<n_bytes; nn++)
+c000125e:	83 c1 01             	add    $0x1,%ecx
+c0001261:	83 c2 01             	add    $0x1,%edx
+            dest_byte[nn]=src_byte[nn];
+c0001264:	88 42 ff             	mov    %al,-0x1(%edx)
+        for(size_t nn=0; nn<n_bytes; nn++)
+c0001267:	39 f1                	cmp    %esi,%ecx
+c0001269:	75 f0                	jne    c000125b <memcpy+0x3b>
+    }
+
+    return dest;
+}
+c000126b:	5b                   	pop    %ebx
+c000126c:	89 f8                	mov    %edi,%eax
+c000126e:	5e                   	pop    %esi
+c000126f:	5f                   	pop    %edi
+c0001270:	5d                   	pop    %ebp
+c0001271:	c3                   	ret    
+c0001272:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c0001279:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+
+c0001280 <atoi>:
+
+int atoi(const char* str)
+{
+c0001280:	55                   	push   %ebp
+    int p = 0;
+    int neg = 0;
+    //find start of number string, ignore whitespace
+    while(str[p] == '-' || str[p] == ' ' || (str[p] >= 9 && str[p] <= 13))
+c0001281:	b8 01 00 00 00       	mov    $0x1,%eax
+{
+c0001286:	89 e5                	mov    %esp,%ebp
+c0001288:	57                   	push   %edi
+c0001289:	8b 4d 08             	mov    0x8(%ebp),%ecx
+c000128c:	56                   	push   %esi
+c000128d:	53                   	push   %ebx
+    while(str[p] == '-' || str[p] == ' ' || (str[p] >= 9 && str[p] <= 13))
+c000128e:	eb 1e                	jmp    c00012ae <atoi+0x2e>
+c0001290:	89 d7                	mov    %edx,%edi
+c0001292:	8d 77 f7             	lea    -0x9(%edi),%esi
+c0001295:	89 f2                	mov    %esi,%edx
+c0001297:	80 fa 04             	cmp    $0x4,%dl
+c000129a:	0f 87 b0 00 00 00    	ja     c0001350 <atoi+0xd0>
+        if(str[p++] == '-')
+        {
+            neg=1;
+            break;
+        }
+        if(str[p++] == '\0')
+c00012a0:	83 c0 02             	add    $0x2,%eax
+c00012a3:	80 7c 01 fe 00       	cmpb   $0x0,-0x2(%ecx,%eax,1)
+c00012a8:	0f 84 92 00 00 00    	je     c0001340 <atoi+0xc0>
+    while(str[p] == '-' || str[p] == ' ' || (str[p] >= 9 && str[p] <= 13))
+c00012ae:	0f b6 54 01 ff       	movzbl -0x1(%ecx,%eax,1),%edx
+c00012b3:	8d 58 ff             	lea    -0x1(%eax),%ebx
+c00012b6:	80 fa 2d             	cmp    $0x2d,%dl
+c00012b9:	74 05                	je     c00012c0 <atoi+0x40>
+c00012bb:	80 fa 20             	cmp    $0x20,%dl
+c00012be:	75 d0                	jne    c0001290 <atoi+0x10>
+        if(str[p++] == '-')
+c00012c0:	89 c3                	mov    %eax,%ebx
+c00012c2:	80 fa 2d             	cmp    $0x2d,%dl
+c00012c5:	75 d9                	jne    c00012a0 <atoi+0x20>
+    }
+
+    int num_start = p;
+
+    //find end of integer string (ints only, no decimal point)
+    while(str[p] >= '0' && str[p] <= '9')
+c00012c7:	0f b6 3c 01          	movzbl (%ecx,%eax,1),%edi
+            neg=1;
+c00012cb:	be 01 00 00 00       	mov    $0x1,%esi
+    while(str[p] >= '0' && str[p] <= '9')
+c00012d0:	8d 57 d0             	lea    -0x30(%edi),%edx
+c00012d3:	80 fa 09             	cmp    $0x9,%dl
+c00012d6:	77 68                	ja     c0001340 <atoi+0xc0>
+c00012d8:	89 d8                	mov    %ebx,%eax
+c00012da:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+    {
+        if(str[p++] == '\0')
+c00012e0:	89 c7                	mov    %eax,%edi
+c00012e2:	83 c0 01             	add    $0x1,%eax
+    while(str[p] >= '0' && str[p] <= '9')
+c00012e5:	0f b6 14 01          	movzbl (%ecx,%eax,1),%edx
+c00012e9:	83 ea 30             	sub    $0x30,%edx
+c00012ec:	80 fa 09             	cmp    $0x9,%dl
+c00012ef:	76 ef                	jbe    c00012e0 <atoi+0x60>
+            return 0; //invalid string (only whitespace found)
+    }
+
+    if(num_start == p) return 0; //length 0 string
+c00012f1:	39 c3                	cmp    %eax,%ebx
+c00012f3:	74 4b                	je     c0001340 <atoi+0xc0>
+
+    int number = 0;
+    int place = 1;
+    //iterate backwards through number to add each digit
+    for(int digit = p-1; digit >= num_start; digit--)
+c00012f5:	39 fb                	cmp    %edi,%ebx
+c00012f7:	7f 5e                	jg     c0001357 <atoi+0xd7>
+c00012f9:	01 cf                	add    %ecx,%edi
+c00012fb:	8d 5c 19 ff          	lea    -0x1(%ecx,%ebx,1),%ebx
+    int place = 1;
+c00012ff:	b8 01 00 00 00       	mov    $0x1,%eax
+    int number = 0;
+c0001304:	31 c9                	xor    %ecx,%ecx
+c0001306:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c000130d:	8d 76 00             	lea    0x0(%esi),%esi
+    {
+        number += (int) (str[digit] - '0') * place;
+c0001310:	0f be 17             	movsbl (%edi),%edx
+    for(int digit = p-1; digit >= num_start; digit--)
+c0001313:	83 ef 01             	sub    $0x1,%edi
+        number += (int) (str[digit] - '0') * place;
+c0001316:	83 ea 30             	sub    $0x30,%edx
+c0001319:	0f af d0             	imul   %eax,%edx
+        place *= 10;
+c000131c:	8d 04 80             	lea    (%eax,%eax,4),%eax
+c000131f:	01 c0                	add    %eax,%eax
+        number += (int) (str[digit] - '0') * place;
+c0001321:	01 d1                	add    %edx,%ecx
+    for(int digit = p-1; digit >= num_start; digit--)
+c0001323:	39 fb                	cmp    %edi,%ebx
+c0001325:	75 e9                	jne    c0001310 <atoi+0x90>
+    }
+
+    if(neg)
+        return -1*number;
+c0001327:	89 c8                	mov    %ecx,%eax
+    else
+        return number;
+}
+c0001329:	5b                   	pop    %ebx
+        return -1*number;
+c000132a:	f7 d8                	neg    %eax
+c000132c:	85 f6                	test   %esi,%esi
+}
+c000132e:	5e                   	pop    %esi
+c000132f:	5f                   	pop    %edi
+        return -1*number;
+c0001330:	0f 45 c8             	cmovne %eax,%ecx
+}
+c0001333:	5d                   	pop    %ebp
+c0001334:	89 c8                	mov    %ecx,%eax
+c0001336:	c3                   	ret    
+c0001337:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c000133e:	66 90                	xchg   %ax,%ax
+            return 0; //invalid string (only whitespace found)
+c0001340:	31 c9                	xor    %ecx,%ecx
+}
+c0001342:	5b                   	pop    %ebx
+c0001343:	5e                   	pop    %esi
+c0001344:	89 c8                	mov    %ecx,%eax
+c0001346:	5f                   	pop    %edi
+c0001347:	5d                   	pop    %ebp
+c0001348:	c3                   	ret    
+c0001349:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+    int neg = 0;
+c0001350:	31 f6                	xor    %esi,%esi
+c0001352:	e9 79 ff ff ff       	jmp    c00012d0 <atoi+0x50>
+    int number = 0;
+c0001357:	31 c9                	xor    %ecx,%ecx
+c0001359:	eb cc                	jmp    c0001327 <atoi+0xa7>
+c000135b:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+c000135f:	90                   	nop
+
+c0001360 <itoa>:
+
+char* itoa( int value, char* str, int base)
+{
+c0001360:	55                   	push   %ebp
+c0001361:	89 e5                	mov    %esp,%ebp
+c0001363:	57                   	push   %edi
+c0001364:	56                   	push   %esi
+c0001365:	53                   	push   %ebx
+c0001366:	83 ec 08             	sub    $0x8,%esp
+c0001369:	8b 4d 10             	mov    0x10(%ebp),%ecx
+c000136c:	8b 45 08             	mov    0x8(%ebp),%eax
+    if(base < 2 || base > 32)
+c000136f:	8d 51 fe             	lea    -0x2(%ecx),%edx
+c0001372:	83 fa 1e             	cmp    $0x1e,%edx
+c0001375:	0f 87 b5 00 00 00    	ja     c0001430 <itoa+0xd0>
+        return NULL;
+
+    //handle zero as special case 
+    if(value == 0)
+c000137b:	85 c0                	test   %eax,%eax
+c000137d:	0f 84 8d 00 00 00    	je     c0001410 <itoa+0xb0>
+        return str;
+    }
+
+    char* s = str;
+    unsigned int residual; //holds the unsigned value still to be parsed
+    if(base == 10 && value < 0)
+c0001383:	83 f9 0a             	cmp    $0xa,%ecx
+c0001386:	75 78                	jne    c0001400 <itoa+0xa0>
+c0001388:	85 c0                	test   %eax,%eax
+c000138a:	79 74                	jns    c0001400 <itoa+0xa0>
+    {
+        residual = -value;
+c000138c:	f7 d8                	neg    %eax
+c000138e:	89 45 f0             	mov    %eax,-0x10(%ebp)
+        *(s++) = '-';
+c0001391:	8b 45 0c             	mov    0xc(%ebp),%eax
+c0001394:	83 c0 01             	add    $0x1,%eax
+c0001397:	89 45 ec             	mov    %eax,-0x14(%ebp)
+c000139a:	8b 45 0c             	mov    0xc(%ebp),%eax
+c000139d:	c6 00 2d             	movb   $0x2d,(%eax)
+    }
+    
+    // find number of digits so that we can parse number
+    // directly into string from lowest to highest digit    
+    unsigned int num_digits = 0;
+    unsigned int temp = residual;
+c00013a0:	8b 45 f0             	mov    -0x10(%ebp),%eax
+    unsigned int num_digits = 0;
+c00013a3:	31 f6                	xor    %esi,%esi
+c00013a5:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c00013ac:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+    while(temp>0)
+    {
+        num_digits++;
+c00013b0:	89 c3                	mov    %eax,%ebx
+        temp /= base;
+c00013b2:	31 d2                	xor    %edx,%edx
+c00013b4:	89 f7                	mov    %esi,%edi
+        num_digits++;
+c00013b6:	83 c6 01             	add    $0x1,%esi
+        temp /= base;
+c00013b9:	f7 f1                	div    %ecx
+    while(temp>0)
+c00013bb:	39 d9                	cmp    %ebx,%ecx
+c00013bd:	76 f1                	jbe    c00013b0 <itoa+0x50>
+    }
+
+    //point at end of string
+    s += num_digits;
+    *(s--) = '\0'; //null termination
+c00013bf:	8b 45 ec             	mov    -0x14(%ebp),%eax
+c00013c2:	89 4d 10             	mov    %ecx,0x10(%ebp)
+c00013c5:	c6 04 30 00          	movb   $0x0,(%eax,%esi,1)
+c00013c9:	8d 1c 38             	lea    (%eax,%edi,1),%ebx
+c00013cc:	8b 45 f0             	mov    -0x10(%ebp),%eax
+c00013cf:	90                   	nop
+    //compute each digit from lowest to highest.
+    unsigned int digit;
+    while(residual>0)
+    {
+        digit = residual % base;
+        residual /= base;
+c00013d0:	31 d2                	xor    %edx,%edx
+c00013d2:	89 c1                	mov    %eax,%ecx
+
+        //write digit into string and decrement pointer
+        if(digit < 10)
+            *(s--) = digit + '0';
+c00013d4:	83 eb 01             	sub    $0x1,%ebx
+        residual /= base;
+c00013d7:	f7 75 10             	divl   0x10(%ebp)
+            *(s--) = digit + '0';
+c00013da:	8d 7a 30             	lea    0x30(%edx),%edi
+c00013dd:	8d 72 37             	lea    0x37(%edx),%esi
+c00013e0:	83 fa 09             	cmp    $0x9,%edx
+c00013e3:	0f 47 fe             	cmova  %esi,%edi
+c00013e6:	89 fa                	mov    %edi,%edx
+c00013e8:	88 53 01             	mov    %dl,0x1(%ebx)
+    while(residual>0)
+c00013eb:	39 4d 10             	cmp    %ecx,0x10(%ebp)
+c00013ee:	76 e0                	jbe    c00013d0 <itoa+0x70>
+        else
+            *(s--) = digit - 10 + 'A';        
+    }
+
+    return str;
+}
+c00013f0:	8b 45 0c             	mov    0xc(%ebp),%eax
+c00013f3:	83 c4 08             	add    $0x8,%esp
+c00013f6:	5b                   	pop    %ebx
+c00013f7:	5e                   	pop    %esi
+c00013f8:	5f                   	pop    %edi
+c00013f9:	5d                   	pop    %ebp
+c00013fa:	c3                   	ret    
+c00013fb:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+c00013ff:	90                   	nop
+        residual = (unsigned int) value;
+c0001400:	89 45 f0             	mov    %eax,-0x10(%ebp)
+c0001403:	8b 45 0c             	mov    0xc(%ebp),%eax
+c0001406:	89 45 ec             	mov    %eax,-0x14(%ebp)
+c0001409:	eb 95                	jmp    c00013a0 <itoa+0x40>
+c000140b:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+c000140f:	90                   	nop
+        str[0] = '0';
+c0001410:	8b 45 0c             	mov    0xc(%ebp),%eax
+c0001413:	ba 30 00 00 00       	mov    $0x30,%edx
+c0001418:	66 89 10             	mov    %dx,(%eax)
+}
+c000141b:	8b 45 0c             	mov    0xc(%ebp),%eax
+c000141e:	83 c4 08             	add    $0x8,%esp
+c0001421:	5b                   	pop    %ebx
+c0001422:	5e                   	pop    %esi
+c0001423:	5f                   	pop    %edi
+c0001424:	5d                   	pop    %ebp
+c0001425:	c3                   	ret    
+c0001426:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c000142d:	8d 76 00             	lea    0x0(%esi),%esi
+        return NULL;
+c0001430:	c7 45 0c 00 00 00 00 	movl   $0x0,0xc(%ebp)
+}
+c0001437:	8b 45 0c             	mov    0xc(%ebp),%eax
+c000143a:	83 c4 08             	add    $0x8,%esp
+c000143d:	5b                   	pop    %ebx
+c000143e:	5e                   	pop    %esi
+c000143f:	5f                   	pop    %edi
+c0001440:	5d                   	pop    %ebp
+c0001441:	c3                   	ret    
+c0001442:	66 90                	xchg   %ax,%ax
+c0001444:	66 90                	xchg   %ax,%ax
+c0001446:	66 90                	xchg   %ax,%ax
+c0001448:	66 90                	xchg   %ax,%ax
+c000144a:	66 90                	xchg   %ax,%ax
+c000144c:	66 90                	xchg   %ax,%ax
+c000144e:	66 90                	xchg   %ax,%ax
+
+c0001450 <memory_table>:
+#include "multiboot.h"
+#include "kprintf.h"
+
+size_t memory_table(multiboot_info_t* mbd, unsigned int magic)
+{
+c0001450:	55                   	push   %ebp
+	if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
+		return 0;
+c0001451:	31 c9                	xor    %ecx,%ecx
+{
+c0001453:	89 e5                	mov    %esp,%ebp
+c0001455:	56                   	push   %esi
+	if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
+c0001456:	81 7d 0c 02 b0 ad 2b 	cmpl   $0x2badb002,0xc(%ebp)
+{
+c000145d:	8b 55 08             	mov    0x8(%ebp),%edx
+c0001460:	53                   	push   %ebx
+	if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
+c0001461:	75 44                	jne    c00014a7 <memory_table+0x57>
+
+	multiboot_memory_map_t* mmap_table = (multiboot_memory_map_t*) mbd->mmap_addr;
+    size_t available_mem = 0;
+	for(unsigned int nn=0; nn<mbd->mmap_length; nn++)
+c0001463:	8b 4a 2c             	mov    0x2c(%edx),%ecx
+	multiboot_memory_map_t* mmap_table = (multiboot_memory_map_t*) mbd->mmap_addr;
+c0001466:	8b 42 30             	mov    0x30(%edx),%eax
+	for(unsigned int nn=0; nn<mbd->mmap_length; nn++)
+c0001469:	85 c9                	test   %ecx,%ecx
+c000146b:	74 3a                	je     c00014a7 <memory_table+0x57>
+c000146d:	8d 14 49             	lea    (%ecx,%ecx,2),%edx
+    size_t available_mem = 0;
+c0001470:	31 c9                	xor    %ecx,%ecx
+c0001472:	8d 1c d0             	lea    (%eax,%edx,8),%ebx
+c0001475:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c000147c:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+	{
+		if(mmap_table[nn].len>0 && mmap_table[nn].size>0)
+c0001480:	8b 50 0c             	mov    0xc(%eax),%edx
+c0001483:	89 d6                	mov    %edx,%esi
+c0001485:	0b 70 10             	or     0x10(%eax),%esi
+c0001488:	74 16                	je     c00014a0 <memory_table+0x50>
+c000148a:	8b 30                	mov    (%eax),%esi
+c000148c:	85 f6                	test   %esi,%esi
+c000148e:	74 10                	je     c00014a0 <memory_table+0x50>
+        {
+            if(mmap_table[nn].type == 1)
+c0001490:	83 78 14 01          	cmpl   $0x1,0x14(%eax)
+c0001494:	75 0a                	jne    c00014a0 <memory_table+0x50>
+            available_mem += mmap_table[nn].len;
+c0001496:	01 d1                	add    %edx,%ecx
+c0001498:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c000149f:	90                   	nop
+	for(unsigned int nn=0; nn<mbd->mmap_length; nn++)
+c00014a0:	83 c0 18             	add    $0x18,%eax
+c00014a3:	39 d8                	cmp    %ebx,%eax
+c00014a5:	75 d9                	jne    c0001480 <memory_table+0x30>
+        }
+		
+	}
+
+    return available_mem;
+}
+c00014a7:	5b                   	pop    %ebx
+c00014a8:	89 c8                	mov    %ecx,%eax
+c00014aa:	5e                   	pop    %esi
+c00014ab:	5d                   	pop    %ebp
+c00014ac:	c3                   	ret    
+c00014ad:	8d 76 00             	lea    0x0(%esi),%esi
+
+c00014b0 <print_memory_table>:
+
+int print_memory_table(multiboot_info_t* mbd)
+{
+c00014b0:	55                   	push   %ebp
+c00014b1:	89 e5                	mov    %esp,%ebp
+c00014b3:	57                   	push   %edi
+c00014b4:	56                   	push   %esi
+c00014b5:	53                   	push   %ebx
+c00014b6:	83 ec 28             	sub    $0x28,%esp
+	multiboot_memory_map_t* mmap_table = (multiboot_memory_map_t*) mbd->mmap_addr;
+c00014b9:	8b 45 08             	mov    0x8(%ebp),%eax
+c00014bc:	8b 78 30             	mov    0x30(%eax),%edi
+	kprintf("Memory Table:\n");
+c00014bf:	68 85 23 00 c0       	push   $0xc0002385
+c00014c4:	e8 c7 ec ff ff       	call   c0000190 <kprintf>
+	for(unsigned int nn=0; nn<mbd->mmap_length; nn++)
+c00014c9:	8b 45 08             	mov    0x8(%ebp),%eax
+c00014cc:	83 c4 10             	add    $0x10,%esp
+c00014cf:	8b 50 2c             	mov    0x2c(%eax),%edx
+c00014d2:	85 d2                	test   %edx,%edx
+c00014d4:	74 75                	je     c000154b <print_memory_table+0x9b>
+c00014d6:	31 f6                	xor    %esi,%esi
+c00014d8:	eb 14                	jmp    c00014ee <print_memory_table+0x3e>
+c00014da:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+c00014e0:	8b 45 08             	mov    0x8(%ebp),%eax
+c00014e3:	83 c6 01             	add    $0x1,%esi
+c00014e6:	83 c7 18             	add    $0x18,%edi
+c00014e9:	39 70 2c             	cmp    %esi,0x2c(%eax)
+c00014ec:	76 5d                	jbe    c000154b <print_memory_table+0x9b>
+	{
+        if(mmap_table[nn].size == 0)
+c00014ee:	8b 07                	mov    (%edi),%eax
+c00014f0:	85 c0                	test   %eax,%eax
+c00014f2:	74 57                	je     c000154b <print_memory_table+0x9b>
+            break;
+
+		if(mmap_table[nn].len>0)
+c00014f4:	8b 5f 10             	mov    0x10(%edi),%ebx
+c00014f7:	8b 4f 0c             	mov    0xc(%edi),%ecx
+c00014fa:	89 da                	mov    %ebx,%edx
+c00014fc:	09 ca                	or     %ecx,%edx
+c00014fe:	74 e0                	je     c00014e0 <print_memory_table+0x30>
+			kprintf("%.8llp - %.8llp (%6llu kiB) type: %u\n", mmap_table[nn].addr, mmap_table[nn].addr+mmap_table[nn].len - 1, mmap_table[nn].len/1024, mmap_table[nn].type);
+c0001500:	8b 47 04             	mov    0x4(%edi),%eax
+c0001503:	8b 57 08             	mov    0x8(%edi),%edx
+c0001506:	ff 77 14             	pushl  0x14(%edi)
+c0001509:	89 45 e0             	mov    %eax,-0x20(%ebp)
+c000150c:	89 c8                	mov    %ecx,%eax
+c000150e:	89 55 e4             	mov    %edx,-0x1c(%ebp)
+c0001511:	89 da                	mov    %ebx,%edx
+c0001513:	0f ac d0 0a          	shrd   $0xa,%edx,%eax
+c0001517:	c1 ea 0a             	shr    $0xa,%edx
+c000151a:	52                   	push   %edx
+c000151b:	8b 55 e4             	mov    -0x1c(%ebp),%edx
+c000151e:	50                   	push   %eax
+c000151f:	8b 45 e0             	mov    -0x20(%ebp),%eax
+c0001522:	01 c1                	add    %eax,%ecx
+c0001524:	11 d3                	adc    %edx,%ebx
+c0001526:	83 c1 ff             	add    $0xffffffff,%ecx
+c0001529:	83 d3 ff             	adc    $0xffffffff,%ebx
+	for(unsigned int nn=0; nn<mbd->mmap_length; nn++)
+c000152c:	83 c6 01             	add    $0x1,%esi
+c000152f:	83 c7 18             	add    $0x18,%edi
+			kprintf("%.8llp - %.8llp (%6llu kiB) type: %u\n", mmap_table[nn].addr, mmap_table[nn].addr+mmap_table[nn].len - 1, mmap_table[nn].len/1024, mmap_table[nn].type);
+c0001532:	53                   	push   %ebx
+c0001533:	51                   	push   %ecx
+c0001534:	52                   	push   %edx
+c0001535:	50                   	push   %eax
+c0001536:	68 54 24 00 c0       	push   $0xc0002454
+c000153b:	e8 50 ec ff ff       	call   c0000190 <kprintf>
+	for(unsigned int nn=0; nn<mbd->mmap_length; nn++)
+c0001540:	8b 45 08             	mov    0x8(%ebp),%eax
+			kprintf("%.8llp - %.8llp (%6llu kiB) type: %u\n", mmap_table[nn].addr, mmap_table[nn].addr+mmap_table[nn].len - 1, mmap_table[nn].len/1024, mmap_table[nn].type);
+c0001543:	83 c4 20             	add    $0x20,%esp
+	for(unsigned int nn=0; nn<mbd->mmap_length; nn++)
+c0001546:	39 70 2c             	cmp    %esi,0x2c(%eax)
+c0001549:	77 a3                	ja     c00014ee <print_memory_table+0x3e>
+	// }
+
+    // print_crs();
+
+    return 0;
+}
+c000154b:	8d 65 f4             	lea    -0xc(%ebp),%esp
+c000154e:	31 c0                	xor    %eax,%eax
+c0001550:	5b                   	pop    %ebx
+c0001551:	5e                   	pop    %esi
+c0001552:	5f                   	pop    %edi
+c0001553:	5d                   	pop    %ebp
+c0001554:	c3                   	ret    
+c0001555:	66 90                	xchg   %ax,%ax
+c0001557:	66 90                	xchg   %ax,%ax
+c0001559:	66 90                	xchg   %ax,%ax
+c000155b:	66 90                	xchg   %ax,%ax
+c000155d:	66 90                	xchg   %ax,%ax
+c000155f:	90                   	nop
+
+c0001560 <terminal_initialize>:
+#include "io.h"
+
+struct terminal stdout;
+
+void terminal_initialize(struct terminal* term) 
+{
+c0001560:	55                   	push   %ebp
+	term->row = 0;
+	term->column = 0;
+	term->color = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+	term->buffer = (uint16_t*) VGA_BUFFER;
+c0001561:	ba a0 80 0b 00       	mov    $0xb80a0,%edx
+{
+c0001566:	89 e5                	mov    %esp,%ebp
+c0001568:	8b 45 08             	mov    0x8(%ebp),%eax
+	term->row = 0;
+c000156b:	c7 00 00 00 00 00    	movl   $0x0,(%eax)
+	term->column = 0;
+c0001571:	c7 40 04 00 00 00 00 	movl   $0x0,0x4(%eax)
+	term->color = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+c0001578:	c6 40 08 07          	movb   $0x7,0x8(%eax)
+	term->buffer = (uint16_t*) VGA_BUFFER;
+c000157c:	c7 40 0c 00 80 0b 00 	movl   $0xb8000,0xc(%eax)
+	for (size_t y = 0; y < VGA_HEIGHT; y++) {
+c0001583:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c000158a:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+		for (size_t x = 0; x < VGA_WIDTH; x++) {
+c0001590:	8d 82 60 ff ff ff    	lea    -0xa0(%edx),%eax
+c0001596:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c000159d:	8d 76 00             	lea    0x0(%esi),%esi
+			const size_t index = y * VGA_WIDTH + x;
+			term->buffer[index] = vga_entry(' ', term->color);
+c00015a0:	b9 20 07 00 00       	mov    $0x720,%ecx
+		for (size_t x = 0; x < VGA_WIDTH; x++) {
+c00015a5:	83 c0 02             	add    $0x2,%eax
+			term->buffer[index] = vga_entry(' ', term->color);
+c00015a8:	66 89 48 fe          	mov    %cx,-0x2(%eax)
+		for (size_t x = 0; x < VGA_WIDTH; x++) {
+c00015ac:	39 d0                	cmp    %edx,%eax
+c00015ae:	75 f0                	jne    c00015a0 <terminal_initialize+0x40>
+	for (size_t y = 0; y < VGA_HEIGHT; y++) {
+c00015b0:	8d 90 a0 00 00 00    	lea    0xa0(%eax),%edx
+c00015b6:	3d a0 8f 0b 00       	cmp    $0xb8fa0,%eax
+c00015bb:	75 d3                	jne    c0001590 <terminal_initialize+0x30>
+}
+
+static __inline void
+outb (unsigned char __value, unsigned short int __port)
+{
+  __asm__ __volatile__ ("outb %b0,%w1": :"a" (__value), "Nd" (__port));
+c00015bd:	b8 0a 00 00 00       	mov    $0xa,%eax
+c00015c2:	ba d4 03 00 00       	mov    $0x3d4,%edx
+c00015c7:	ee                   	out    %al,(%dx)
+c00015c8:	b8 20 00 00 00       	mov    $0x20,%eax
+c00015cd:	ba d5 03 00 00       	mov    $0x3d5,%edx
+c00015d2:	ee                   	out    %al,(%dx)
+	// outb(0x0A, 0x3D4);
+	// outb((inb(0x3D5) & 0xC0) | cursor_start, 0x3D5);
+ 
+	// outb(0x0B, 0x3D4);
+	// outb((inb(0x3D5) & 0xE0) | cursor_end, 0x3D5);
+}
+c00015d3:	5d                   	pop    %ebp
+c00015d4:	c3                   	ret    
+c00015d5:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c00015dc:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+
+c00015e0 <terminal_setcolor>:
+ 
+void terminal_setcolor(struct terminal* term, uint8_t color) 
+{
+c00015e0:	55                   	push   %ebp
+c00015e1:	89 e5                	mov    %esp,%ebp
+	term->color = color;
+c00015e3:	8b 45 08             	mov    0x8(%ebp),%eax
+c00015e6:	8b 55 0c             	mov    0xc(%ebp),%edx
+c00015e9:	88 50 08             	mov    %dl,0x8(%eax)
+}
+c00015ec:	5d                   	pop    %ebp
+c00015ed:	c3                   	ret    
+c00015ee:	66 90                	xchg   %ax,%ax
+
+c00015f0 <terminal_putentryat>:
+ 
+void terminal_putentryat(struct terminal* term, char c, uint8_t color, size_t x, size_t y) 
+{
+c00015f0:	55                   	push   %ebp
+c00015f1:	89 e5                	mov    %esp,%ebp
+c00015f3:	53                   	push   %ebx
+	const size_t index = y * VGA_WIDTH + x;
+	term->buffer[index] = vga_entry(c, color);
+c00015f4:	8b 55 08             	mov    0x8(%ebp),%edx
+{
+c00015f7:	8b 45 18             	mov    0x18(%ebp),%eax
+	term->buffer[index] = vga_entry(c, color);
+c00015fa:	8b 5a 0c             	mov    0xc(%edx),%ebx
+c00015fd:	0f b6 55 10          	movzbl 0x10(%ebp),%edx
+c0001601:	8d 04 80             	lea    (%eax,%eax,4),%eax
+c0001604:	c1 e0 04             	shl    $0x4,%eax
+c0001607:	03 45 14             	add    0x14(%ebp),%eax
+	return fg | bg << 4;
+}
+ 
+static inline uint16_t vga_entry(unsigned char uc, uint8_t color) 
+{
+	return (uint16_t) uc | (uint16_t) color << 8;
+c000160a:	89 d1                	mov    %edx,%ecx
+c000160c:	0f b6 55 0c          	movzbl 0xc(%ebp),%edx
+c0001610:	c1 e1 08             	shl    $0x8,%ecx
+c0001613:	09 ca                	or     %ecx,%edx
+c0001615:	66 89 14 43          	mov    %dx,(%ebx,%eax,2)
+	// terminal_movecursor(term, x, y);
+}
+c0001619:	8b 5d fc             	mov    -0x4(%ebp),%ebx
+c000161c:	c9                   	leave  
+c000161d:	c3                   	ret    
+c000161e:	66 90                	xchg   %ax,%ax
+
+c0001620 <terminal_movecursor>:
+
+void terminal_movecursor(struct terminal* term, size_t x, size_t y)
+{
+c0001620:	55                   	push   %ebp
+c0001621:	b8 0f 00 00 00       	mov    $0xf,%eax
+c0001626:	89 e5                	mov    %esp,%ebp
+c0001628:	56                   	push   %esi
+c0001629:	be d4 03 00 00       	mov    $0x3d4,%esi
+c000162e:	8b 4d 10             	mov    0x10(%ebp),%ecx
+c0001631:	53                   	push   %ebx
+c0001632:	89 f2                	mov    %esi,%edx
+	(void) term; //we are directly manipulating curser, so were arean't using the term struct
+
+	uint16_t pos = y * VGA_WIDTH + x;
+c0001634:	8d 0c 89             	lea    (%ecx,%ecx,4),%ecx
+c0001637:	c1 e1 04             	shl    $0x4,%ecx
+c000163a:	66 03 4d 0c          	add    0xc(%ebp),%cx
+c000163e:	ee                   	out    %al,(%dx)
+c000163f:	bb d5 03 00 00       	mov    $0x3d5,%ebx
+c0001644:	89 c8                	mov    %ecx,%eax
+c0001646:	89 da                	mov    %ebx,%edx
+c0001648:	ee                   	out    %al,(%dx)
+c0001649:	b8 0e 00 00 00       	mov    $0xe,%eax
+c000164e:	89 f2                	mov    %esi,%edx
+c0001650:	ee                   	out    %al,(%dx)
+
+	outb(0x0F, 0x3D4);
+	outb((uint8_t) (pos & 0xFF), 0x3D5);
+	outb(0x0E, 0x3D4);
+	outb((uint8_t) ((pos >> 8) & 0xFF), 0x3D5);
+c0001651:	89 c8                	mov    %ecx,%eax
+c0001653:	89 da                	mov    %ebx,%edx
+c0001655:	66 c1 e8 08          	shr    $0x8,%ax
+c0001659:	ee                   	out    %al,(%dx)
+}
+c000165a:	5b                   	pop    %ebx
+c000165b:	5e                   	pop    %esi
+c000165c:	5d                   	pop    %ebp
+c000165d:	c3                   	ret    
+c000165e:	66 90                	xchg   %ax,%ax
+
+c0001660 <terminal_putcharn>:
+	if (++term->column == VGA_WIDTH)
+		terminal_newline(term);
+}
+
+void terminal_putcharn(struct terminal* term, char c, size_t repeat) 
+{
+c0001660:	55                   	push   %ebp
+c0001661:	89 e5                	mov    %esp,%ebp
+c0001663:	57                   	push   %edi
+c0001664:	56                   	push   %esi
+c0001665:	53                   	push   %ebx
+c0001666:	83 ec 1c             	sub    $0x1c,%esp
+c0001669:	0f b6 45 0c          	movzbl 0xc(%ebp),%eax
+c000166d:	8b 5d 08             	mov    0x8(%ebp),%ebx
+c0001670:	88 45 e3             	mov    %al,-0x1d(%ebp)
+c0001673:	66 89 45 e0          	mov    %ax,-0x20(%ebp)
+	for (size_t i = 0; i < repeat; i++)
+c0001677:	8b 45 10             	mov    0x10(%ebp),%eax
+c000167a:	85 c0                	test   %eax,%eax
+c000167c:	0f 84 c4 00 00 00    	je     c0001746 <terminal_putcharn+0xe6>
+c0001682:	31 ff                	xor    %edi,%edi
+c0001684:	eb 19                	jmp    c000169f <terminal_putcharn+0x3f>
+c0001686:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c000168d:	8d 76 00             	lea    0x0(%esi),%esi
+	if (++term->column == VGA_WIDTH)
+c0001690:	89 43 04             	mov    %eax,0x4(%ebx)
+	for (size_t i = 0; i < repeat; i++)
+c0001693:	83 c7 01             	add    $0x1,%edi
+c0001696:	39 7d 10             	cmp    %edi,0x10(%ebp)
+c0001699:	0f 84 a7 00 00 00    	je     c0001746 <terminal_putcharn+0xe6>
+}
+
+void terminal_newline(struct terminal* term)
+{
+    term->column = 0;
+    if (++term->row == VGA_HEIGHT)
+c000169f:	8b 03                	mov    (%ebx),%eax
+	if(c == '\n')
+c00016a1:	80 7d e3 0a          	cmpb   $0xa,-0x1d(%ebp)
+    if (++term->row == VGA_HEIGHT)
+c00016a5:	89 45 e4             	mov    %eax,-0x1c(%ebp)
+	if(c == '\n')
+c00016a8:	0f 84 a2 00 00 00    	je     c0001750 <terminal_putcharn+0xf0>
+	term->buffer[index] = vga_entry(c, color);
+c00016ae:	8b 43 0c             	mov    0xc(%ebx),%eax
+	terminal_putentryat(term, c, term->color, term->column, term->row);
+c00016b1:	8b 73 04             	mov    0x4(%ebx),%esi
+c00016b4:	0f b6 53 08          	movzbl 0x8(%ebx),%edx
+	term->buffer[index] = vga_entry(c, color);
+c00016b8:	89 c1                	mov    %eax,%ecx
+c00016ba:	89 45 dc             	mov    %eax,-0x24(%ebp)
+c00016bd:	8b 45 e4             	mov    -0x1c(%ebp),%eax
+c00016c0:	c1 e2 08             	shl    $0x8,%edx
+c00016c3:	66 0b 55 e0          	or     -0x20(%ebp),%dx
+c00016c7:	8d 04 80             	lea    (%eax,%eax,4),%eax
+c00016ca:	c1 e0 04             	shl    $0x4,%eax
+c00016cd:	01 f0                	add    %esi,%eax
+c00016cf:	66 89 14 41          	mov    %dx,(%ecx,%eax,2)
+	if (++term->column == VGA_WIDTH)
+c00016d3:	8d 46 01             	lea    0x1(%esi),%eax
+c00016d6:	83 fe 4f             	cmp    $0x4f,%esi
+c00016d9:	75 b5                	jne    c0001690 <terminal_putcharn+0x30>
+    if (++term->row == VGA_HEIGHT)
+c00016db:	8b 4d e4             	mov    -0x1c(%ebp),%ecx
+    term->column = 0;
+c00016de:	c7 43 04 00 00 00 00 	movl   $0x0,0x4(%ebx)
+    if (++term->row == VGA_HEIGHT)
+c00016e5:	83 c1 01             	add    $0x1,%ecx
+c00016e8:	89 0b                	mov    %ecx,(%ebx)
+c00016ea:	83 f9 19             	cmp    $0x19,%ecx
+c00016ed:	75 a4                	jne    c0001693 <terminal_putcharn+0x33>
+}
+
+void terminal_scrollline(struct terminal* term)
+{
+	// copy rows 2 though N to rows 1 through N-1
+	memcpy(term->buffer, &term->buffer[VGA_WIDTH], VGA_WIDTH*(VGA_HEIGHT-1)*sizeof(term->buffer[0]));
+c00016ef:	8b 75 dc             	mov    -0x24(%ebp),%esi
+c00016f2:	83 ec 04             	sub    $0x4,%esp
+c00016f5:	68 00 0f 00 00       	push   $0xf00
+c00016fa:	8d 86 a0 00 00 00    	lea    0xa0(%esi),%eax
+c0001700:	50                   	push   %eax
+c0001701:	56                   	push   %esi
+c0001702:	e8 19 fb ff ff       	call   c0001220 <memcpy>
+
+void terminal_clearline(struct terminal* term)
+{
+	size_t row_start = term->row * VGA_WIDTH;
+	for(size_t nn=0;nn<VGA_WIDTH;nn++)
+		term->buffer[row_start+nn] = vga_entry(' ', term->color);
+c0001707:	0f b6 53 08          	movzbl 0x8(%ebx),%edx
+c000170b:	8b 4b 0c             	mov    0xc(%ebx),%ecx
+c000170e:	83 c4 10             	add    $0x10,%esp
+	term->row = VGA_HEIGHT-1;
+c0001711:	c7 03 18 00 00 00    	movl   $0x18,(%ebx)
+c0001717:	c1 e2 08             	shl    $0x8,%edx
+c000171a:	8d 81 00 0f 00 00    	lea    0xf00(%ecx),%eax
+c0001720:	81 c1 a0 0f 00 00    	add    $0xfa0,%ecx
+c0001726:	83 ca 20             	or     $0x20,%edx
+c0001729:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+		term->buffer[row_start+nn] = vga_entry(' ', term->color);
+c0001730:	66 89 10             	mov    %dx,(%eax)
+	for(size_t nn=0;nn<VGA_WIDTH;nn++)
+c0001733:	83 c0 02             	add    $0x2,%eax
+c0001736:	39 c8                	cmp    %ecx,%eax
+c0001738:	75 f6                	jne    c0001730 <terminal_putcharn+0xd0>
+	for (size_t i = 0; i < repeat; i++)
+c000173a:	83 c7 01             	add    $0x1,%edi
+c000173d:	39 7d 10             	cmp    %edi,0x10(%ebp)
+c0001740:	0f 85 59 ff ff ff    	jne    c000169f <terminal_putcharn+0x3f>
+}
+c0001746:	8d 65 f4             	lea    -0xc(%ebp),%esp
+c0001749:	5b                   	pop    %ebx
+c000174a:	5e                   	pop    %esi
+c000174b:	5f                   	pop    %edi
+c000174c:	5d                   	pop    %ebp
+c000174d:	c3                   	ret    
+c000174e:	66 90                	xchg   %ax,%ax
+    if (++term->row == VGA_HEIGHT)
+c0001750:	89 c1                	mov    %eax,%ecx
+    term->column = 0;
+c0001752:	c7 43 04 00 00 00 00 	movl   $0x0,0x4(%ebx)
+    if (++term->row == VGA_HEIGHT)
+c0001759:	83 c1 01             	add    $0x1,%ecx
+c000175c:	89 0b                	mov    %ecx,(%ebx)
+c000175e:	83 f9 19             	cmp    $0x19,%ecx
+c0001761:	0f 85 2c ff ff ff    	jne    c0001693 <terminal_putcharn+0x33>
+	memcpy(term->buffer, &term->buffer[VGA_WIDTH], VGA_WIDTH*(VGA_HEIGHT-1)*sizeof(term->buffer[0]));
+c0001767:	8b 43 0c             	mov    0xc(%ebx),%eax
+c000176a:	83 ec 04             	sub    $0x4,%esp
+c000176d:	68 00 0f 00 00       	push   $0xf00
+c0001772:	8d 90 a0 00 00 00    	lea    0xa0(%eax),%edx
+c0001778:	52                   	push   %edx
+c0001779:	50                   	push   %eax
+c000177a:	e8 a1 fa ff ff       	call   c0001220 <memcpy>
+		term->buffer[row_start+nn] = vga_entry(' ', term->color);
+c000177f:	0f b6 53 08          	movzbl 0x8(%ebx),%edx
+c0001783:	8b 4b 0c             	mov    0xc(%ebx),%ecx
+c0001786:	83 c4 10             	add    $0x10,%esp
+	term->row = VGA_HEIGHT-1;
+c0001789:	c7 03 18 00 00 00    	movl   $0x18,(%ebx)
+c000178f:	c1 e2 08             	shl    $0x8,%edx
+c0001792:	8d 81 00 0f 00 00    	lea    0xf00(%ecx),%eax
+c0001798:	81 c1 a0 0f 00 00    	add    $0xfa0,%ecx
+c000179e:	83 ca 20             	or     $0x20,%edx
+c00017a1:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c00017a8:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c00017af:	90                   	nop
+		term->buffer[row_start+nn] = vga_entry(' ', term->color);
+c00017b0:	66 89 10             	mov    %dx,(%eax)
+	for(size_t nn=0;nn<VGA_WIDTH;nn++)
+c00017b3:	83 c0 02             	add    $0x2,%eax
+c00017b6:	39 c8                	cmp    %ecx,%eax
+c00017b8:	75 f6                	jne    c00017b0 <terminal_putcharn+0x150>
+c00017ba:	e9 d4 fe ff ff       	jmp    c0001693 <terminal_putcharn+0x33>
+c00017bf:	90                   	nop
+
+c00017c0 <terminal_newline>:
+{
+c00017c0:	55                   	push   %ebp
+c00017c1:	89 e5                	mov    %esp,%ebp
+c00017c3:	53                   	push   %ebx
+c00017c4:	83 ec 04             	sub    $0x4,%esp
+c00017c7:	8b 5d 08             	mov    0x8(%ebp),%ebx
+    if (++term->row == VGA_HEIGHT)
+c00017ca:	8b 03                	mov    (%ebx),%eax
+    term->column = 0;
+c00017cc:	c7 43 04 00 00 00 00 	movl   $0x0,0x4(%ebx)
+    if (++term->row == VGA_HEIGHT)
+c00017d3:	83 c0 01             	add    $0x1,%eax
+c00017d6:	89 03                	mov    %eax,(%ebx)
+c00017d8:	83 f8 19             	cmp    $0x19,%eax
+c00017db:	74 13                	je     c00017f0 <terminal_newline+0x30>
+}
+c00017dd:	8b 5d fc             	mov    -0x4(%ebp),%ebx
+c00017e0:	c9                   	leave  
+c00017e1:	c3                   	ret    
+c00017e2:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c00017e9:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+	memcpy(term->buffer, &term->buffer[VGA_WIDTH], VGA_WIDTH*(VGA_HEIGHT-1)*sizeof(term->buffer[0]));
+c00017f0:	8b 43 0c             	mov    0xc(%ebx),%eax
+c00017f3:	83 ec 04             	sub    $0x4,%esp
+c00017f6:	68 00 0f 00 00       	push   $0xf00
+c00017fb:	8d 90 a0 00 00 00    	lea    0xa0(%eax),%edx
+c0001801:	52                   	push   %edx
+c0001802:	50                   	push   %eax
+c0001803:	e8 18 fa ff ff       	call   c0001220 <memcpy>
+		term->buffer[row_start+nn] = vga_entry(' ', term->color);
+c0001808:	0f b6 53 08          	movzbl 0x8(%ebx),%edx
+c000180c:	8b 4b 0c             	mov    0xc(%ebx),%ecx
+c000180f:	83 c4 10             	add    $0x10,%esp
+	term->row = VGA_HEIGHT-1;
+c0001812:	c7 03 18 00 00 00    	movl   $0x18,(%ebx)
+c0001818:	c1 e2 08             	shl    $0x8,%edx
+c000181b:	8d 81 00 0f 00 00    	lea    0xf00(%ecx),%eax
+c0001821:	81 c1 a0 0f 00 00    	add    $0xfa0,%ecx
+c0001827:	83 ca 20             	or     $0x20,%edx
+c000182a:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+		term->buffer[row_start+nn] = vga_entry(' ', term->color);
+c0001830:	66 89 10             	mov    %dx,(%eax)
+	for(size_t nn=0;nn<VGA_WIDTH;nn++)
+c0001833:	83 c0 02             	add    $0x2,%eax
+c0001836:	39 c8                	cmp    %ecx,%eax
+c0001838:	75 f6                	jne    c0001830 <terminal_newline+0x70>
+}
+c000183a:	8b 5d fc             	mov    -0x4(%ebp),%ebx
+c000183d:	c9                   	leave  
+c000183e:	c3                   	ret    
+c000183f:	90                   	nop
+
+c0001840 <terminal_putchar>:
+{
+c0001840:	55                   	push   %ebp
+c0001841:	89 e5                	mov    %esp,%ebp
+c0001843:	56                   	push   %esi
+c0001844:	8b 45 0c             	mov    0xc(%ebp),%eax
+c0001847:	8b 55 08             	mov    0x8(%ebp),%edx
+c000184a:	53                   	push   %ebx
+	if(c == '\n')
+c000184b:	3c 0a                	cmp    $0xa,%al
+c000184d:	74 31                	je     c0001880 <terminal_putchar+0x40>
+	const size_t index = y * VGA_WIDTH + x;
+c000184f:	8b 1a                	mov    (%edx),%ebx
+	terminal_putentryat(term, c, term->color, term->column, term->row);
+c0001851:	0f b6 72 08          	movzbl 0x8(%edx),%esi
+c0001855:	0f b6 c0             	movzbl %al,%eax
+c0001858:	8b 4a 04             	mov    0x4(%edx),%ecx
+c000185b:	c1 e6 08             	shl    $0x8,%esi
+	term->buffer[index] = vga_entry(c, color);
+c000185e:	8d 1c 9b             	lea    (%ebx,%ebx,4),%ebx
+c0001861:	09 f0                	or     %esi,%eax
+c0001863:	c1 e3 04             	shl    $0x4,%ebx
+c0001866:	8b 72 0c             	mov    0xc(%edx),%esi
+c0001869:	01 cb                	add    %ecx,%ebx
+	if (++term->column == VGA_WIDTH)
+c000186b:	83 c1 01             	add    $0x1,%ecx
+c000186e:	66 89 04 5e          	mov    %ax,(%esi,%ebx,2)
+c0001872:	89 4a 04             	mov    %ecx,0x4(%edx)
+c0001875:	83 f9 50             	cmp    $0x50,%ecx
+c0001878:	74 06                	je     c0001880 <terminal_putchar+0x40>
+}
+c000187a:	5b                   	pop    %ebx
+c000187b:	5e                   	pop    %esi
+c000187c:	5d                   	pop    %ebp
+c000187d:	c3                   	ret    
+c000187e:	66 90                	xchg   %ax,%ax
+c0001880:	5b                   	pop    %ebx
+c0001881:	5e                   	pop    %esi
+		terminal_newline(term);
+c0001882:	89 55 08             	mov    %edx,0x8(%ebp)
+}
+c0001885:	5d                   	pop    %ebp
+		terminal_newline(term);
+c0001886:	e9 35 ff ff ff       	jmp    c00017c0 <terminal_newline>
+c000188b:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+c000188f:	90                   	nop
+
+c0001890 <terminal_scrollline>:
+{
+c0001890:	55                   	push   %ebp
+c0001891:	89 e5                	mov    %esp,%ebp
+c0001893:	53                   	push   %ebx
+c0001894:	83 ec 08             	sub    $0x8,%esp
+c0001897:	8b 5d 08             	mov    0x8(%ebp),%ebx
+	memcpy(term->buffer, &term->buffer[VGA_WIDTH], VGA_WIDTH*(VGA_HEIGHT-1)*sizeof(term->buffer[0]));
+c000189a:	8b 43 0c             	mov    0xc(%ebx),%eax
+c000189d:	68 00 0f 00 00       	push   $0xf00
+c00018a2:	8d 90 a0 00 00 00    	lea    0xa0(%eax),%edx
+c00018a8:	52                   	push   %edx
+c00018a9:	50                   	push   %eax
+c00018aa:	e8 71 f9 ff ff       	call   c0001220 <memcpy>
+		term->buffer[row_start+nn] = vga_entry(' ', term->color);
+c00018af:	0f b6 53 08          	movzbl 0x8(%ebx),%edx
+c00018b3:	8b 4b 0c             	mov    0xc(%ebx),%ecx
+c00018b6:	83 c4 10             	add    $0x10,%esp
+	term->row = VGA_HEIGHT-1;
+c00018b9:	c7 03 18 00 00 00    	movl   $0x18,(%ebx)
+c00018bf:	c1 e2 08             	shl    $0x8,%edx
+c00018c2:	8d 81 00 0f 00 00    	lea    0xf00(%ecx),%eax
+c00018c8:	81 c1 a0 0f 00 00    	add    $0xfa0,%ecx
+c00018ce:	83 ca 20             	or     $0x20,%edx
+c00018d1:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c00018d8:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c00018df:	90                   	nop
+		term->buffer[row_start+nn] = vga_entry(' ', term->color);
+c00018e0:	66 89 10             	mov    %dx,(%eax)
+	for(size_t nn=0;nn<VGA_WIDTH;nn++)
+c00018e3:	83 c0 02             	add    $0x2,%eax
+c00018e6:	39 c8                	cmp    %ecx,%eax
+c00018e8:	75 f6                	jne    c00018e0 <terminal_scrollline+0x50>
+}
+c00018ea:	8b 5d fc             	mov    -0x4(%ebp),%ebx
+c00018ed:	c9                   	leave  
+c00018ee:	c3                   	ret    
+c00018ef:	90                   	nop
+
+c00018f0 <terminal_clearline>:
+{
+c00018f0:	55                   	push   %ebp
+c00018f1:	89 e5                	mov    %esp,%ebp
+c00018f3:	53                   	push   %ebx
+c00018f4:	8b 45 08             	mov    0x8(%ebp),%eax
+		term->buffer[row_start+nn] = vga_entry(' ', term->color);
+c00018f7:	8b 58 0c             	mov    0xc(%eax),%ebx
+c00018fa:	0f b6 50 08          	movzbl 0x8(%eax),%edx
+c00018fe:	8b 00                	mov    (%eax),%eax
+c0001900:	c1 e2 08             	shl    $0x8,%edx
+c0001903:	8d 0c 80             	lea    (%eax,%eax,4),%ecx
+c0001906:	83 ca 20             	or     $0x20,%edx
+c0001909:	c1 e1 05             	shl    $0x5,%ecx
+c000190c:	8d 04 0b             	lea    (%ebx,%ecx,1),%eax
+c000190f:	8d 8c 0b a0 00 00 00 	lea    0xa0(%ebx,%ecx,1),%ecx
+c0001916:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c000191d:	8d 76 00             	lea    0x0(%esi),%esi
+c0001920:	66 89 10             	mov    %dx,(%eax)
+	for(size_t nn=0;nn<VGA_WIDTH;nn++)
+c0001923:	83 c0 02             	add    $0x2,%eax
+c0001926:	39 c8                	cmp    %ecx,%eax
+c0001928:	75 f6                	jne    c0001920 <terminal_clearline+0x30>
+
+}
+c000192a:	8b 5d fc             	mov    -0x4(%ebp),%ebx
+c000192d:	c9                   	leave  
+c000192e:	c3                   	ret    
+c000192f:	90                   	nop
+
+c0001930 <terminal_write>:
+
+
+void terminal_write(struct terminal* term, const char* data, size_t size) 
+{
+c0001930:	55                   	push   %ebp
+c0001931:	89 e5                	mov    %esp,%ebp
+c0001933:	57                   	push   %edi
+c0001934:	56                   	push   %esi
+c0001935:	53                   	push   %ebx
+c0001936:	83 ec 1c             	sub    $0x1c,%esp
+c0001939:	8b 45 10             	mov    0x10(%ebp),%eax
+c000193c:	8b 7d 0c             	mov    0xc(%ebp),%edi
+c000193f:	8b 5d 08             	mov    0x8(%ebp),%ebx
+	for (size_t i = 0; i < size; i++)
+c0001942:	8d 14 07             	lea    (%edi,%eax,1),%edx
+c0001945:	89 55 dc             	mov    %edx,-0x24(%ebp)
+c0001948:	85 c0                	test   %eax,%eax
+c000194a:	75 23                	jne    c000196f <terminal_write+0x3f>
+c000194c:	e9 c5 00 00 00       	jmp    c0001a16 <terminal_write+0xe6>
+c0001951:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c0001958:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c000195f:	90                   	nop
+	if (++term->column == VGA_WIDTH)
+c0001960:	89 43 04             	mov    %eax,0x4(%ebx)
+	for (size_t i = 0; i < size; i++)
+c0001963:	83 c7 01             	add    $0x1,%edi
+c0001966:	3b 7d dc             	cmp    -0x24(%ebp),%edi
+c0001969:	0f 84 a7 00 00 00    	je     c0001a16 <terminal_write+0xe6>
+    if (++term->row == VGA_HEIGHT)
+c000196f:	8b 0b                	mov    (%ebx),%ecx
+		terminal_putchar(term, data[i]);
+c0001971:	0f b6 07             	movzbl (%edi),%eax
+    if (++term->row == VGA_HEIGHT)
+c0001974:	89 4d e4             	mov    %ecx,-0x1c(%ebp)
+	if(c == '\n')
+c0001977:	3c 0a                	cmp    $0xa,%al
+c0001979:	0f 84 a1 00 00 00    	je     c0001a20 <terminal_write+0xf0>
+	term->buffer[index] = vga_entry(c, color);
+c000197f:	8b 73 0c             	mov    0xc(%ebx),%esi
+	terminal_putentryat(term, c, term->color, term->column, term->row);
+c0001982:	8b 4b 04             	mov    0x4(%ebx),%ecx
+	term->buffer[index] = vga_entry(c, color);
+c0001985:	89 f2                	mov    %esi,%edx
+c0001987:	89 75 d8             	mov    %esi,-0x28(%ebp)
+c000198a:	8b 75 e4             	mov    -0x1c(%ebp),%esi
+c000198d:	8d 34 b6             	lea    (%esi,%esi,4),%esi
+c0001990:	c1 e6 04             	shl    $0x4,%esi
+c0001993:	01 ce                	add    %ecx,%esi
+c0001995:	89 75 e0             	mov    %esi,-0x20(%ebp)
+	terminal_putentryat(term, c, term->color, term->column, term->row);
+c0001998:	0f b6 73 08          	movzbl 0x8(%ebx),%esi
+c000199c:	c1 e6 08             	shl    $0x8,%esi
+c000199f:	09 f0                	or     %esi,%eax
+c00019a1:	89 d6                	mov    %edx,%esi
+c00019a3:	8b 55 e0             	mov    -0x20(%ebp),%edx
+c00019a6:	66 89 04 56          	mov    %ax,(%esi,%edx,2)
+	if (++term->column == VGA_WIDTH)
+c00019aa:	8d 41 01             	lea    0x1(%ecx),%eax
+c00019ad:	83 f9 4f             	cmp    $0x4f,%ecx
+c00019b0:	75 ae                	jne    c0001960 <terminal_write+0x30>
+    if (++term->row == VGA_HEIGHT)
+c00019b2:	8b 55 e4             	mov    -0x1c(%ebp),%edx
+    term->column = 0;
+c00019b5:	c7 43 04 00 00 00 00 	movl   $0x0,0x4(%ebx)
+    if (++term->row == VGA_HEIGHT)
+c00019bc:	83 c2 01             	add    $0x1,%edx
+c00019bf:	89 13                	mov    %edx,(%ebx)
+c00019c1:	83 fa 19             	cmp    $0x19,%edx
+c00019c4:	75 9d                	jne    c0001963 <terminal_write+0x33>
+	memcpy(term->buffer, &term->buffer[VGA_WIDTH], VGA_WIDTH*(VGA_HEIGHT-1)*sizeof(term->buffer[0]));
+c00019c6:	8b 55 d8             	mov    -0x28(%ebp),%edx
+c00019c9:	83 ec 04             	sub    $0x4,%esp
+c00019cc:	68 00 0f 00 00       	push   $0xf00
+c00019d1:	8d 82 a0 00 00 00    	lea    0xa0(%edx),%eax
+c00019d7:	50                   	push   %eax
+c00019d8:	52                   	push   %edx
+c00019d9:	e8 42 f8 ff ff       	call   c0001220 <memcpy>
+		term->buffer[row_start+nn] = vga_entry(' ', term->color);
+c00019de:	0f b6 53 08          	movzbl 0x8(%ebx),%edx
+c00019e2:	8b 4b 0c             	mov    0xc(%ebx),%ecx
+c00019e5:	83 c4 10             	add    $0x10,%esp
+	term->row = VGA_HEIGHT-1;
+c00019e8:	c7 03 18 00 00 00    	movl   $0x18,(%ebx)
+c00019ee:	c1 e2 08             	shl    $0x8,%edx
+c00019f1:	8d 81 00 0f 00 00    	lea    0xf00(%ecx),%eax
+c00019f7:	81 c1 a0 0f 00 00    	add    $0xfa0,%ecx
+c00019fd:	83 ca 20             	or     $0x20,%edx
+		term->buffer[row_start+nn] = vga_entry(' ', term->color);
+c0001a00:	66 89 10             	mov    %dx,(%eax)
+	for(size_t nn=0;nn<VGA_WIDTH;nn++)
+c0001a03:	83 c0 02             	add    $0x2,%eax
+c0001a06:	39 c8                	cmp    %ecx,%eax
+c0001a08:	75 f6                	jne    c0001a00 <terminal_write+0xd0>
+	for (size_t i = 0; i < size; i++)
+c0001a0a:	83 c7 01             	add    $0x1,%edi
+c0001a0d:	3b 7d dc             	cmp    -0x24(%ebp),%edi
+c0001a10:	0f 85 59 ff ff ff    	jne    c000196f <terminal_write+0x3f>
+}
+c0001a16:	8d 65 f4             	lea    -0xc(%ebp),%esp
+c0001a19:	5b                   	pop    %ebx
+c0001a1a:	5e                   	pop    %esi
+c0001a1b:	5f                   	pop    %edi
+c0001a1c:	5d                   	pop    %ebp
+c0001a1d:	c3                   	ret    
+c0001a1e:	66 90                	xchg   %ax,%ax
+    if (++term->row == VGA_HEIGHT)
+c0001a20:	89 ca                	mov    %ecx,%edx
+    term->column = 0;
+c0001a22:	c7 43 04 00 00 00 00 	movl   $0x0,0x4(%ebx)
+    if (++term->row == VGA_HEIGHT)
+c0001a29:	83 c2 01             	add    $0x1,%edx
+c0001a2c:	89 13                	mov    %edx,(%ebx)
+c0001a2e:	83 fa 19             	cmp    $0x19,%edx
+c0001a31:	0f 85 2c ff ff ff    	jne    c0001963 <terminal_write+0x33>
+	memcpy(term->buffer, &term->buffer[VGA_WIDTH], VGA_WIDTH*(VGA_HEIGHT-1)*sizeof(term->buffer[0]));
+c0001a37:	8b 43 0c             	mov    0xc(%ebx),%eax
+c0001a3a:	83 ec 04             	sub    $0x4,%esp
+c0001a3d:	68 00 0f 00 00       	push   $0xf00
+c0001a42:	8d 90 a0 00 00 00    	lea    0xa0(%eax),%edx
+c0001a48:	52                   	push   %edx
+c0001a49:	50                   	push   %eax
+c0001a4a:	e8 d1 f7 ff ff       	call   c0001220 <memcpy>
+		term->buffer[row_start+nn] = vga_entry(' ', term->color);
+c0001a4f:	0f b6 53 08          	movzbl 0x8(%ebx),%edx
+c0001a53:	8b 4b 0c             	mov    0xc(%ebx),%ecx
+c0001a56:	83 c4 10             	add    $0x10,%esp
+	term->row = VGA_HEIGHT-1;
+c0001a59:	c7 03 18 00 00 00    	movl   $0x18,(%ebx)
+c0001a5f:	c1 e2 08             	shl    $0x8,%edx
+c0001a62:	8d 81 00 0f 00 00    	lea    0xf00(%ecx),%eax
+c0001a68:	81 c1 a0 0f 00 00    	add    $0xfa0,%ecx
+c0001a6e:	83 ca 20             	or     $0x20,%edx
+c0001a71:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c0001a78:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c0001a7f:	90                   	nop
+		term->buffer[row_start+nn] = vga_entry(' ', term->color);
+c0001a80:	66 89 10             	mov    %dx,(%eax)
+	for(size_t nn=0;nn<VGA_WIDTH;nn++)
+c0001a83:	83 c0 02             	add    $0x2,%eax
+c0001a86:	39 c8                	cmp    %ecx,%eax
+c0001a88:	75 f6                	jne    c0001a80 <terminal_write+0x150>
+c0001a8a:	e9 d4 fe ff ff       	jmp    c0001963 <terminal_write+0x33>
+c0001a8f:	90                   	nop
+
+c0001a90 <terminal_writestring>:
+ 
+void terminal_writestring(struct terminal* term, const char* data) 
+{
+c0001a90:	55                   	push   %ebp
+c0001a91:	89 e5                	mov    %esp,%ebp
+c0001a93:	57                   	push   %edi
+c0001a94:	56                   	push   %esi
+c0001a95:	53                   	push   %ebx
+c0001a96:	83 ec 28             	sub    $0x28,%esp
+c0001a99:	8b 7d 0c             	mov    0xc(%ebp),%edi
+c0001a9c:	8b 5d 08             	mov    0x8(%ebp),%ebx
+	terminal_write(term, data, strlen(data));
+c0001a9f:	57                   	push   %edi
+c0001aa0:	e8 5b f7 ff ff       	call   c0001200 <strlen>
+	for (size_t i = 0; i < size; i++)
+c0001aa5:	83 c4 10             	add    $0x10,%esp
+c0001aa8:	8d 14 07             	lea    (%edi,%eax,1),%edx
+c0001aab:	89 55 dc             	mov    %edx,-0x24(%ebp)
+c0001aae:	85 c0                	test   %eax,%eax
+c0001ab0:	75 1d                	jne    c0001acf <terminal_writestring+0x3f>
+c0001ab2:	e9 bf 00 00 00       	jmp    c0001b76 <terminal_writestring+0xe6>
+c0001ab7:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c0001abe:	66 90                	xchg   %ax,%ax
+	if (++term->column == VGA_WIDTH)
+c0001ac0:	89 43 04             	mov    %eax,0x4(%ebx)
+	for (size_t i = 0; i < size; i++)
+c0001ac3:	83 c7 01             	add    $0x1,%edi
+c0001ac6:	3b 7d dc             	cmp    -0x24(%ebp),%edi
+c0001ac9:	0f 84 a7 00 00 00    	je     c0001b76 <terminal_writestring+0xe6>
+    if (++term->row == VGA_HEIGHT)
+c0001acf:	8b 0b                	mov    (%ebx),%ecx
+		terminal_putchar(term, data[i]);
+c0001ad1:	0f b6 07             	movzbl (%edi),%eax
+    if (++term->row == VGA_HEIGHT)
+c0001ad4:	89 4d e4             	mov    %ecx,-0x1c(%ebp)
+	if(c == '\n')
+c0001ad7:	3c 0a                	cmp    $0xa,%al
+c0001ad9:	0f 84 a1 00 00 00    	je     c0001b80 <terminal_writestring+0xf0>
+	term->buffer[index] = vga_entry(c, color);
+c0001adf:	8b 73 0c             	mov    0xc(%ebx),%esi
+	terminal_putentryat(term, c, term->color, term->column, term->row);
+c0001ae2:	8b 4b 04             	mov    0x4(%ebx),%ecx
+	term->buffer[index] = vga_entry(c, color);
+c0001ae5:	89 f2                	mov    %esi,%edx
+c0001ae7:	89 75 d8             	mov    %esi,-0x28(%ebp)
+c0001aea:	8b 75 e4             	mov    -0x1c(%ebp),%esi
+c0001aed:	8d 34 b6             	lea    (%esi,%esi,4),%esi
+c0001af0:	c1 e6 04             	shl    $0x4,%esi
+c0001af3:	01 ce                	add    %ecx,%esi
+c0001af5:	89 75 e0             	mov    %esi,-0x20(%ebp)
+	terminal_putentryat(term, c, term->color, term->column, term->row);
+c0001af8:	0f b6 73 08          	movzbl 0x8(%ebx),%esi
+c0001afc:	c1 e6 08             	shl    $0x8,%esi
+c0001aff:	09 f0                	or     %esi,%eax
+c0001b01:	89 d6                	mov    %edx,%esi
+c0001b03:	8b 55 e0             	mov    -0x20(%ebp),%edx
+c0001b06:	66 89 04 56          	mov    %ax,(%esi,%edx,2)
+	if (++term->column == VGA_WIDTH)
+c0001b0a:	8d 41 01             	lea    0x1(%ecx),%eax
+c0001b0d:	83 f9 4f             	cmp    $0x4f,%ecx
+c0001b10:	75 ae                	jne    c0001ac0 <terminal_writestring+0x30>
+    if (++term->row == VGA_HEIGHT)
+c0001b12:	8b 55 e4             	mov    -0x1c(%ebp),%edx
+    term->column = 0;
+c0001b15:	c7 43 04 00 00 00 00 	movl   $0x0,0x4(%ebx)
+    if (++term->row == VGA_HEIGHT)
+c0001b1c:	83 c2 01             	add    $0x1,%edx
+c0001b1f:	89 13                	mov    %edx,(%ebx)
+c0001b21:	83 fa 19             	cmp    $0x19,%edx
+c0001b24:	75 9d                	jne    c0001ac3 <terminal_writestring+0x33>
+	memcpy(term->buffer, &term->buffer[VGA_WIDTH], VGA_WIDTH*(VGA_HEIGHT-1)*sizeof(term->buffer[0]));
+c0001b26:	8b 55 d8             	mov    -0x28(%ebp),%edx
+c0001b29:	83 ec 04             	sub    $0x4,%esp
+c0001b2c:	68 00 0f 00 00       	push   $0xf00
+c0001b31:	8d 82 a0 00 00 00    	lea    0xa0(%edx),%eax
+c0001b37:	50                   	push   %eax
+c0001b38:	52                   	push   %edx
+c0001b39:	e8 e2 f6 ff ff       	call   c0001220 <memcpy>
+		term->buffer[row_start+nn] = vga_entry(' ', term->color);
+c0001b3e:	0f b6 53 08          	movzbl 0x8(%ebx),%edx
+c0001b42:	8b 4b 0c             	mov    0xc(%ebx),%ecx
+c0001b45:	83 c4 10             	add    $0x10,%esp
+	term->row = VGA_HEIGHT-1;
+c0001b48:	c7 03 18 00 00 00    	movl   $0x18,(%ebx)
+c0001b4e:	c1 e2 08             	shl    $0x8,%edx
+c0001b51:	8d 81 00 0f 00 00    	lea    0xf00(%ecx),%eax
+c0001b57:	81 c1 a0 0f 00 00    	add    $0xfa0,%ecx
+c0001b5d:	83 ca 20             	or     $0x20,%edx
+		term->buffer[row_start+nn] = vga_entry(' ', term->color);
+c0001b60:	66 89 10             	mov    %dx,(%eax)
+	for(size_t nn=0;nn<VGA_WIDTH;nn++)
+c0001b63:	83 c0 02             	add    $0x2,%eax
+c0001b66:	39 c8                	cmp    %ecx,%eax
+c0001b68:	75 f6                	jne    c0001b60 <terminal_writestring+0xd0>
+	for (size_t i = 0; i < size; i++)
+c0001b6a:	83 c7 01             	add    $0x1,%edi
+c0001b6d:	3b 7d dc             	cmp    -0x24(%ebp),%edi
+c0001b70:	0f 85 59 ff ff ff    	jne    c0001acf <terminal_writestring+0x3f>
+}
+c0001b76:	8d 65 f4             	lea    -0xc(%ebp),%esp
+c0001b79:	5b                   	pop    %ebx
+c0001b7a:	5e                   	pop    %esi
+c0001b7b:	5f                   	pop    %edi
+c0001b7c:	5d                   	pop    %ebp
+c0001b7d:	c3                   	ret    
+c0001b7e:	66 90                	xchg   %ax,%ax
+    if (++term->row == VGA_HEIGHT)
+c0001b80:	89 ca                	mov    %ecx,%edx
+    term->column = 0;
+c0001b82:	c7 43 04 00 00 00 00 	movl   $0x0,0x4(%ebx)
+    if (++term->row == VGA_HEIGHT)
+c0001b89:	83 c2 01             	add    $0x1,%edx
+c0001b8c:	89 13                	mov    %edx,(%ebx)
+c0001b8e:	83 fa 19             	cmp    $0x19,%edx
+c0001b91:	0f 85 2c ff ff ff    	jne    c0001ac3 <terminal_writestring+0x33>
+	memcpy(term->buffer, &term->buffer[VGA_WIDTH], VGA_WIDTH*(VGA_HEIGHT-1)*sizeof(term->buffer[0]));
+c0001b97:	8b 43 0c             	mov    0xc(%ebx),%eax
+c0001b9a:	83 ec 04             	sub    $0x4,%esp
+c0001b9d:	68 00 0f 00 00       	push   $0xf00
+c0001ba2:	8d 90 a0 00 00 00    	lea    0xa0(%eax),%edx
+c0001ba8:	52                   	push   %edx
+c0001ba9:	50                   	push   %eax
+c0001baa:	e8 71 f6 ff ff       	call   c0001220 <memcpy>
+		term->buffer[row_start+nn] = vga_entry(' ', term->color);
+c0001baf:	0f b6 53 08          	movzbl 0x8(%ebx),%edx
+c0001bb3:	8b 4b 0c             	mov    0xc(%ebx),%ecx
+c0001bb6:	83 c4 10             	add    $0x10,%esp
+	term->row = VGA_HEIGHT-1;
+c0001bb9:	c7 03 18 00 00 00    	movl   $0x18,(%ebx)
+c0001bbf:	c1 e2 08             	shl    $0x8,%edx
+c0001bc2:	8d 81 00 0f 00 00    	lea    0xf00(%ecx),%eax
+c0001bc8:	81 c1 a0 0f 00 00    	add    $0xfa0,%ecx
+c0001bce:	83 ca 20             	or     $0x20,%edx
+c0001bd1:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c0001bd8:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c0001bdf:	90                   	nop
+		term->buffer[row_start+nn] = vga_entry(' ', term->color);
+c0001be0:	66 89 10             	mov    %dx,(%eax)
+	for(size_t nn=0;nn<VGA_WIDTH;nn++)
+c0001be3:	83 c0 02             	add    $0x2,%eax
+c0001be6:	39 c8                	cmp    %ecx,%eax
+c0001be8:	75 f6                	jne    c0001be0 <terminal_writestring+0x150>
+c0001bea:	e9 d4 fe ff ff       	jmp    c0001ac3 <terminal_writestring+0x33>
+c0001bef:	90                   	nop
+
+c0001bf0 <kernel_main>:
+#if defined(__linux__)  || !defined(__i386__)
+#error "This kernel requires ix86-elf cross compiler"
+#endif
+
+void kernel_main(multiboot_info_t* mbd, unsigned int magic, page_directory_t* pd)
+{
+c0001bf0:	55                   	push   %ebp
+c0001bf1:	89 e5                	mov    %esp,%ebp
+c0001bf3:	56                   	push   %esi
+c0001bf4:	53                   	push   %ebx
+c0001bf5:	8b 75 0c             	mov    0xc(%ebp),%esi
+c0001bf8:	8b 5d 08             	mov    0x8(%ebp),%ebx
+
+	// addr_t pt_vga_buf_addr;
+	// get_physaddr(&pt_vga_buf_addr, (addr_t) &pt_vga_buf, pd, NULL);
+	// map_pages(pt_vga_buf_addr, 0xB8000, 1);
+
+	terminal_initialize(&stdout);
+c0001bfb:	83 ec 0c             	sub    $0xc,%esp
+c0001bfe:	68 00 30 00 c0       	push   $0xc0003000
+c0001c03:	e8 58 f9 ff ff       	call   c0001560 <terminal_initialize>
+    // terminal_setcolor(&stdout, VGA_COLOR_WHITE);
+	kprintf("Let's learn about Operating Systems!\n");
+c0001c08:	c7 04 24 7c 24 00 c0 	movl   $0xc000247c,(%esp)
+c0001c0f:	e8 7c e5 ff ff       	call   c0000190 <kprintf>
+	kprintf("Jon Doane, 2020\n");
+c0001c14:	c7 04 24 94 23 00 c0 	movl   $0xc0002394,(%esp)
+c0001c1b:	e8 70 e5 ff ff       	call   c0000190 <kprintf>
+
+	size_t mem_size = memory_table(mbd, magic);
+c0001c20:	58                   	pop    %eax
+c0001c21:	5a                   	pop    %edx
+c0001c22:	56                   	push   %esi
+c0001c23:	53                   	push   %ebx
+c0001c24:	e8 27 f8 ff ff       	call   c0001450 <memory_table>
+	if(mem_size==0)
+c0001c29:	83 c4 10             	add    $0x10,%esp
+c0001c2c:	85 c0                	test   %eax,%eax
+c0001c2e:	74 30                	je     c0001c60 <kernel_main+0x70>
+		kprintf("Error: Invalid memory table!\n");
+		return;
+	}
+	else
+	{
+		kprintf("Found %u MiB availble free memory\n", mem_size/(1<<20));
+c0001c30:	83 ec 08             	sub    $0x8,%esp
+c0001c33:	c1 e8 14             	shr    $0x14,%eax
+c0001c36:	50                   	push   %eax
+c0001c37:	68 a4 24 00 c0       	push   $0xc00024a4
+c0001c3c:	e8 4f e5 ff ff       	call   c0000190 <kprintf>
+		print_memory_table(mbd);
+c0001c41:	89 5d 08             	mov    %ebx,0x8(%ebp)
+c0001c44:	83 c4 10             	add    $0x10,%esp
+	
+
+	// kprintf_test();
+
+	
+}
+c0001c47:	8d 65 f8             	lea    -0x8(%ebp),%esp
+c0001c4a:	5b                   	pop    %ebx
+c0001c4b:	5e                   	pop    %esi
+c0001c4c:	5d                   	pop    %ebp
+		print_memory_table(mbd);
+c0001c4d:	e9 5e f8 ff ff       	jmp    c00014b0 <print_memory_table>
+c0001c52:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+c0001c59:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+		kprintf("Error: Invalid memory table!\n");
+c0001c60:	c7 45 08 a5 23 00 c0 	movl   $0xc00023a5,0x8(%ebp)
+}
+c0001c67:	8d 65 f8             	lea    -0x8(%ebp),%esp
+c0001c6a:	5b                   	pop    %ebx
+c0001c6b:	5e                   	pop    %esi
+c0001c6c:	5d                   	pop    %ebp
+		kprintf("Error: Invalid memory table!\n");
+c0001c6d:	e9 1e e5 ff ff       	jmp    c0000190 <kprintf>
+c0001c72:	66 90                	xchg   %ax,%ax
+
+c0001c74 <enable_paging>:
+c0001c74:	55                   	push   %ebp
+c0001c75:	89 e5                	mov    %esp,%ebp
+c0001c77:	8b 45 08             	mov    0x8(%ebp),%eax
+c0001c7a:	0f 22 d8             	mov    %eax,%cr3
+c0001c7d:	0f 20 c0             	mov    %cr0,%eax
+c0001c80:	0d 01 00 00 80       	or     $0x80000001,%eax
+c0001c85:	0f 22 c0             	mov    %eax,%cr0
+c0001c88:	89 ec                	mov    %ebp,%esp
+c0001c8a:	5d                   	pop    %ebp
+c0001c8b:	c3                   	ret    
+
+c0001c8c <set_page_dir>:
+c0001c8c:	8b 44 24 08          	mov    0x8(%esp),%eax
+c0001c90:	0f 22 d8             	mov    %eax,%cr3
+c0001c93:	c3                   	ret    
+
+c0001c94 <get_page_dir>:
+c0001c94:	0f 20 d8             	mov    %cr3,%eax
+c0001c97:	c3                   	ret    
+
+c0001c98 <refresh_paging>:
+c0001c98:	0f 20 d8             	mov    %cr3,%eax
+c0001c9b:	0f 22 d8             	mov    %eax,%cr3
+c0001c9e:	c3                   	ret    

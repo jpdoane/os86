@@ -81,7 +81,9 @@ int get_physaddr(addr_t* phys_addr, addr_t virt_addr, page_directory_t* pd, int*
     if(! pt[ptindex] & PTE_PRESENT)
         return -1;
 
-    *pte_flags = pt[ptindex] & PTE_FLAGSMASK; 
+    if(pte_flags)
+        *pte_flags = pt[ptindex] & PTE_FLAGSMASK; 
+
     *phys_addr = pt[ptindex] & PTE_ADDRMASK + virt_addr & 0xFFF;
     return 0;
 }

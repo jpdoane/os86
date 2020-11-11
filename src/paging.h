@@ -1,10 +1,7 @@
 #ifndef __MEMMAN_H__
 #define __MEMMAN_H__
 
-#include <stdint.h>
-#include <stddef.h>
 #include "multiboot.h"
-#include "memmap.h"
 
 /**** 1st MB layout (identity mapped) ******
 0x00000000 	0x000003FF 	Real Mode IVT
@@ -35,11 +32,8 @@
 0xc0010000               page tables
 ****************************************************/
 
-typedef uint32_t addr_t;
-typedef addr_t page_directory_t;
-typedef addr_t page_table_t;
-
-#define KERNEL_BASE_PHYS    0x00100000
+// these must be consistent with linker script
+#define KERNEL_BASE_PHYS    0x00101000
 #define KERNEL_BASE         0xc0000000
 
 #define KERNEL_VIRT_TO_PHYS(p) p-KERNEL_BASE+KERNEL_BASE_PHYS
@@ -84,6 +78,23 @@ typedef addr_t page_table_t;
 #define _4MB 0x400000
 
 
+#ifndef ASM_FILE
+#include <stdint.h>
+#include <stddef.h>
+
+typedef uint32_t addr_t;
+// typedef uint32_t page_directory_t;
+// typedef uint32_t page_table_t;
+
+typedef struct page_directory_t {
+    uint32_t pde[PAGING_NUM_PDE];
+} page_directory_t;
+
+typedef struct page_table_t {
+    uint32_t pte[PAGING_NUM_PTE];
+} page_table_t;
+
+
 //asm functions defined in paging.s
 void enable_paging(page_directory_t* pd);
 void set_page_dir(page_directory_t* pd);
@@ -96,7 +107,7 @@ int initialize_paging();
 int get_physaddr(addr_t* phys_addr, addr_t virt_addr, page_directory_t* pd, int* pte_flags);
 void print_crs();
 
-
+#endif
 
 
 #endif

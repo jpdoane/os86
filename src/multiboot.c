@@ -33,9 +33,7 @@ int print_memory_table(multiboot_info_t* mbd)
 		if(mmap_table[nn].len>0)
 			kprintf("%.8llp - %.8llp (%6llu kiB) type: %u\n", mmap_table[nn].addr, mmap_table[nn].addr+mmap_table[nn].len - 1, mmap_table[nn].len/1024, mmap_table[nn].type);
 		
-	}#  .code16gcc
-
-
+	}
 
     // page_directory_t* pd = getPageDirectory();
 	// kprintf("Page Directory at %p:\n", pd);
