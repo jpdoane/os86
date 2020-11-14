@@ -1,34 +1,42 @@
 #include "terminal.h"
 #include "kprintf.h"
+#include "paging.h"
 #include "multiboot.h"
+#include "mman.h"
 
  /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if defined(__linux__)  || !defined(__i386__)
 #error "This kernel requires ix86-elf cross compiler"
 #endif
 
-
-void kernel_main(multiboot_info_t* mbd, unsigned int magic)
+void kernel_main(multiboot_info_t* mbd)
 {
-	terminal_initialize(&stdout);
+	terminal_init(&stdout);
+
     // terminal_setcolor(&stdout, VGA_COLOR_WHITE);
 	kprintf("Let's learn about Operating Systems!\n");
-	kprintf("Jon Doane, 2020\n");
+	kprintf("Jon Doane, 2020\n\n");
 
-	if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
-	{
-		kprintf("Error: Invalid memory table!\n");
-		return;
-	}
+	print_memory_table(mbd);
+	memory_init(mbd);	//after this the multiboot structure is unmapped
 
-	multiboot_memory_map_t* mmap_table = (multiboot_memory_map_t*) mbd->mmap_addr;
-	kprintf("\nAvailable Memory:\n");
-	for(unsigned int nn=0; nn<mbd->mmap_length; nn++)
-	{
-		if(mmap_table[nn].len>0 && mmap_table[nn].size>0)
-			kprintf("%.8llp - %.8llp (%8llu kiB) type: %u\n", mmap_table[nn].addr, mmap_table[nn].addr+mmap_table[nn].len - 1, mmap_table[nn].len/1024, mmap_table[nn].type);
-		
-	}
+	kprintf("Allocate some memory on the heap...\n");
+	uint32_t* some_memory = kmalloc(sizeof(uint32_t)*4000);
+	kprintf("setting [0x%x] = 0x%x\n", some_memory + 0, 0x12345678);
+	kprintf("setting [0x%x] = 0x%x\n", some_memory + 100, 0xdeadbeef);
+	kprintf("setting [0x%x] = 0x%x\n", some_memory + 3000, 0xbeefcafe);
+	kprintf("setting [0x%x] = 0x%x\n", some_memory + 3999, 0x1234abcd);
 
-	//kprintf_test();
+	some_memory[0] = 0x12345678;
+	some_memory[100] = 0xdeadbeef;
+	some_memory[3000] = 0xbeefcafe;
+	some_memory[3999] = 0x1234abcd;
+
+	kprintf("check [0x%x] = 0x%x\n", some_memory + 0, some_memory[0]);
+	kprintf("check [0x%x] = 0x%x\n", some_memory + 100, some_memory[100]);
+	kprintf("check [0x%x] = 0x%x\n", some_memory + 3000, some_memory[3000]);
+	kprintf("check [0x%x] = 0x%x\n", some_memory + 3999, some_memory[3999]);
+
+
+	while(1);
 }

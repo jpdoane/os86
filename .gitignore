@@ -1,3 +1,6 @@
 *.o
 *.bin
+kernel
+*.iso
 .vscode
+stage2_eltorito

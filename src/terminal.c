@@ -3,7 +3,7 @@
 
 struct terminal stdout;
 
-void terminal_initialize(struct terminal* term) 
+void terminal_init(struct terminal* term) 
 {
 	term->row = 0;
 	term->column = 0;

@@ -49,7 +49,7 @@ static inline uint16_t vga_entry(unsigned char uc, uint8_t color)
 }
   
 
-void terminal_initialize(struct terminal* term); 
+void terminal_init(struct terminal* term); 
 void terminal_setcolor(struct terminal* term, uint8_t color);
 void terminal_putentryat(struct terminal* term, char c, uint8_t color, size_t x, size_t y);
 void terminal_putchar(struct terminal* term, char c);
