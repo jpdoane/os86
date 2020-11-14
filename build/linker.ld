@@ -31,9 +31,9 @@ SECTIONS
 	.bss ALIGN (4K) : AT (ADDR (.bss) - _kernel_virt_offset )
 	{
 		*(COMMON)
-		*(.bss)
 		*(.bootstrap_stack)
 		*(.page_tables)
+		*(.bss)
 	}
 	/* Add a symbol that indicates the end address of the kernel. */
 	_kernel_end = .;

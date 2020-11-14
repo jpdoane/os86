@@ -1,6 +1,8 @@
 .intel_syntax noprefix
-.section .text
 
+#include "paging.h"
+
+.section .text
 # void enable_paging(page_directory_t* page_dir)
 .globl enable_paging
 .align 4
@@ -43,10 +45,18 @@ get_page_dir:
     mov eax, cr3
     ret
 
-.globl refresh_paging
+.globl refresh_tlb
 .align 4
-.type refresh_paging, @function
-refresh_paging:
+.type refresh_tlb, @function
+refresh_tlb:
     mov eax, cr3
     mov cr3, eax
+    ret
+
+.globl refresh_page
+.align 4
+.type refresh_page, @function
+refresh_page:
+    mov eax, [esp+8]
+	invlpg [eax]
     ret

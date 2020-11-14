@@ -1,11 +1,8 @@
 #include "multiboot.h"
 #include "kprintf.h"
 
-size_t memory_table(multiboot_info_t* mbd, unsigned int magic)
+size_t memory_table(multiboot_info_t* mbd)
 {
-	if(magic != MULTIBOOT_BOOTLOADER_MAGIC)
-		return 0;
-
 	multiboot_memory_map_t* mmap_table = (multiboot_memory_map_t*) mbd->mmap_addr;
     size_t available_mem = 0;
 	for(unsigned int nn=0; nn<mbd->mmap_length; nn++)
@@ -31,7 +28,12 @@ int print_memory_table(multiboot_info_t* mbd)
             break;
 
 		if(mmap_table[nn].len>0)
-			kprintf("%.8llp - %.8llp (%6llu kiB) type: %u\n", mmap_table[nn].addr, mmap_table[nn].addr+mmap_table[nn].len - 1, mmap_table[nn].len/1024, mmap_table[nn].type);
+		{
+			if(mmap_table[nn].type == MULTIBOOT_MEMORY_AVAILABLE)
+				kprintf("%.8llp - %.8llp [AVAILABLE] (%6llu kiB)\n", mmap_table[nn].addr, mmap_table[nn].addr+mmap_table[nn].len - 1, mmap_table[nn].len/1024);
+			else
+				kprintf("%.8llp - %.8llp [RESERVED]\n", mmap_table[nn].addr, mmap_table[nn].addr+mmap_table[nn].len - 1, mmap_table[nn].len/1024);
+		}
 		
 	}
 

@@ -2,43 +2,41 @@
 #include "kprintf.h"
 #include "paging.h"
 #include "multiboot.h"
+#include "mman.h"
 
  /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if defined(__linux__)  || !defined(__i386__)
 #error "This kernel requires ix86-elf cross compiler"
 #endif
 
-void kernel_main(multiboot_info_t* mbd, unsigned int magic, page_directory_t* pd)
+void kernel_main(multiboot_info_t* mbd)
 {
-	// page_table_t* pt = (page_table_t*) (pd+1); //page tables follow page directory
-	// //pt[0] holds initial kernel map
+	terminal_init(&stdout);
 
-	// //use pt[1] to hold 1st MB, including 
-	// pt[1]
-
-	// addr_t pt_vga_buf_addr;
-	// get_physaddr(&pt_vga_buf_addr, (addr_t) &pt_vga_buf, pd, NULL);
-	// map_pages(pt_vga_buf_addr, 0xB8000, 1);
-
-	terminal_initialize(&stdout);
     // terminal_setcolor(&stdout, VGA_COLOR_WHITE);
 	kprintf("Let's learn about Operating Systems!\n");
-	kprintf("Jon Doane, 2020\n");
+	kprintf("Jon Doane, 2020\n\n");
 
-	size_t mem_size = memory_table(mbd, magic);
-	if(mem_size==0)
-	{
-		kprintf("Error: Invalid memory table!\n");
-		return;
-	}
-	else
-	{
-		kprintf("Found %u MiB availble free memory\n", mem_size/(1<<20));
-		print_memory_table(mbd);
-	}
-	
+	print_memory_table(mbd);
+	memory_init(mbd);	//after this the multiboot structure is unmapped
 
-	// kprintf_test();
+	kprintf("Allocate some memory on the heap...\n");
+	uint32_t* some_memory = kmalloc(sizeof(uint32_t)*4000);
+	kprintf("setting [0x%x] = 0x%x\n", some_memory + 0, 0x12345678);
+	kprintf("setting [0x%x] = 0x%x\n", some_memory + 100, 0xdeadbeef);
+	kprintf("setting [0x%x] = 0x%x\n", some_memory + 3000, 0xbeefcafe);
+	kprintf("setting [0x%x] = 0x%x\n", some_memory + 3999, 0x1234abcd);
 
-	
+	some_memory[0] = 0x12345678;
+	some_memory[100] = 0xdeadbeef;
+	some_memory[3000] = 0xbeefcafe;
+	some_memory[3999] = 0x1234abcd;
+
+	kprintf("check [0x%x] = 0x%x\n", some_memory + 0, some_memory[0]);
+	kprintf("check [0x%x] = 0x%x\n", some_memory + 100, some_memory[100]);
+	kprintf("check [0x%x] = 0x%x\n", some_memory + 3000, some_memory[3000]);
+	kprintf("check [0x%x] = 0x%x\n", some_memory + 3999, some_memory[3999]);
+
+
+	while(1);
 }

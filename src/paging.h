@@ -1,5 +1,5 @@
-#ifndef __MEMMAN_H__
-#define __MEMMAN_H__
+#ifndef __PAGING_H__
+#define __PAGING_H__
 
 #include "multiboot.h"
 
@@ -20,71 +20,54 @@
 0x000F0000 	0x000FFFFF 	Motherboard BIOS 
 ********************************************/
 
-/******* physical memory layout *************
-0x00000000  0x000fffff   1MB
-0x00100000  0x001fffff   kernel space
-0x00200000  MAX          user space
-********************************************/
 
-/******* virtual memory layout, kernel *************
-0x00000000  0xbfffffff   user space
-0xc0000000               kernel space
-0xc0010000               page tables
-****************************************************/
+// example paging table layout after boot
+// cr3: 0x0010a000                                      Page directory (boot_page_directory)
+// 0x00000000-0x003fffff -> 0x00000000-0x003fffff       identity map of 1st 4MiB (uses pd[0])
+// 0x00400000-0x00400fff -> 0x0010d000-0x0010dfff       first page allocated on heap: (uses pd[1], pt[0])
+// 0xc0000000-0xc000bfff -> 0x00101000-0x0010cfff       kernel pages (uses pd[0x300] = pd+0xc00)
+// 0xffc00000-0xffc00fff -> 0x00000000-0x00000fff       pd[0] remaps lowest page (not actual page table but intepreted as one)
+// 0xffc01000-0xffc01fff -> 0x0010e000-0x0010efff       pd[1] page table, maps heap pages 0x00400000-0x007ff000
+// 0xfff00000-0xfff00fff -> 0x0010b000-0x0010bfff       pd[0x300] (boot_pt_kernel), maps kernel pages 0xc0000000-0xc03ff000
+// 0xfffff000-0xffffffff -> 0x0010a000-0x0010afff       Self-map of last pde -> pd
+
 
 // these must be consistent with linker script
 #define KERNEL_BASE_PHYS    0x00101000
 #define KERNEL_BASE         0xc0000000
+#define KERNEL_HEAP         0x00400000
 
 #define KERNEL_VIRT_TO_PHYS(p) p-KERNEL_BASE+KERNEL_BASE_PHYS
 #define KERNEL_PHYS_TO_VIRT(p) p+KERNEL_BASE-KERNEL_BASE_PHYS
 
-#define PAGING_NUM_PDE 0x400        //1024
-#define PAGING_PD_SIZE 0x1000       //4KB
-
-#define PAGING_NUM_PTE 0x400        //1024
-#define PAGING_PT_SIZE 0x1000       //4KB
-
-#define PDE_EMPTY           0
-#define PDE_PRESENT         1
-#define PDE_READWRITE       1<<1
-#define PDE_USERSUPERVISOR  1<<2
-#define PDE_WRITETHROUGH    1<<3
-#define PDE_CACHEDISABLED   1<<4
-#define PDE_ACCESSED        1<<5
-#define PDE_DIRTY           1<<6
-#define PDE_PATTYPE         1<<7
-#define PDE_GLOBAL          1<<8
-#define PDE_FLAGSMASK        0xfff
-#define PDE_ADDRMASK        0xfffff000
-
-#define PTE_EMPTY           0
-#define PTE_PRESENT         1
-#define PTE_READWRITE       1<<1
-#define PTE_USERSUPERVISOR  1<<2
-#define PTE_WRITETHROUGH    1<<3
-#define PTE_CACHEDISABLED   1<<4
-#define PTE_ACCESSED        1<<5
-#define PTE_SIZE            1<<6
-#define PTE_FLAGSMASK        0xfff
-#define PTE_ADDRMASK        0xfffff000
-
-#define PAGING_PD_KERN 0x1000       // addr of kernel's page dir
-#define PAGING_PT_1MB  0x2000       // addr of identity page table for 1st 1MB
-#define PAGING_PT_KERN 0x3000       // addr of kernel's 1st page table
+#define PAGE_FLAG_EMPTY              0
+#define PAGE_FLAG_PRESENT            1
+#define PAGE_FLAG_WRITE              1<<1
+#define PAGE_FLAG_USER               1<<2
+#define PAGE_FLAG_WRITETHROUGH       1<<3
+#define PAGE_FLAG_CACHEDISABLED      1<<4
+#define PAGE_FLAG_ACCESSED           1<<5
+#define PAGE_FLAG_DIRTY              1<<6
+#define PAGE_FLAG_SIZE               1<<7
+#define PAGE_FLAG_PATTYPE            1<<7
+#define PAGE_FLAG_GLOBAL             1<<8
+#define PAGE_FLAGSMASK          0xfff
+#define PAGE_ADDRMASK           0xfffff000
+#define PAGE_PTE_MASK           0x003ff000
 
 #define _4KB 0x1000
 #define _1MB 0x100000
 #define _4MB 0x400000
 
+#define PAGE_SIZE _4KB
+#define PAGING_NUM_PDE 0x400        //1024
+#define PAGING_NUM_PTE 0x400        //1024
+
+#define PD_ADDR         0xffc00000  //virtual address of paging structure
 
 #ifndef ASM_FILE
 #include <stdint.h>
 #include <stddef.h>
-
-typedef uint32_t addr_t;
-// typedef uint32_t page_directory_t;
-// typedef uint32_t page_table_t;
 
 typedef struct page_directory_t {
     uint32_t pde[PAGING_NUM_PDE];
@@ -94,18 +77,55 @@ typedef struct page_table_t {
     uint32_t pte[PAGING_NUM_PTE];
 } page_table_t;
 
+// this is the paging structure in virtual memory after self-mapping the last PDE
+// accessing virtual memory at 0xffcxxxxx will select the page dir itself as its own page table
+// then the middle bits will select the offset into the directory, and return the page table as the page
+// There are therefore 1023 page tables, with the final table being the directory itself. 
+typedef struct page_directory_virt_t {
+    page_table_t tables[PAGING_NUM_PDE-1];
+    page_directory_t dir;
+} page_directory_virt_t;
+
+
+//global pointer to page directory
+extern page_directory_virt_t* pd;   //initialized in paging_asm.S
+
+// return page table index for virtual address
+inline uint32_t get_ptindex(void* addr)
+{
+    return (((uint32_t) addr) & PAGE_PTE_MASK ) >> 12;
+}
+
+// return page directory index for virtual address
+inline uint32_t get_pdindex(void* addr)
+{
+    return ((uint32_t) addr) >> 22;
+}
+
+// return offset into page
+inline uint32_t get_page_offset(void* addr)
+{
+    return ((uint32_t) addr) & ~PAGE_ADDRMASK;
+}
+
+
+inline void* get_virtual_addr(uint32_t pd_index, uint32_t pt_index, uint32_t offset)
+{
+    return (void*) (pd_index << 22 | pt_index << 12 | offset);
+}
+
+
 
 //asm functions defined in paging.s
 void enable_paging(page_directory_t* pd);
 void set_page_dir(page_directory_t* pd);
 page_directory_t* get_page_dir();
+void refresh_page(void* addr);
+void refresh_tlb();
 
 // c functions defined in paging.c
-size_t map_pages(page_table_t* pte, addr_t base, size_t num_pages);
-void init_page_dir(page_directory_t* pd);
-int initialize_paging();
-int get_physaddr(addr_t* phys_addr, addr_t virt_addr, page_directory_t* pd, int* pte_flags);
-void print_crs();
+page_table_t* get_table(void* addr);
+char* get_physaddr(char* addr); // return physical addr from virt addr
 
 #endif
 

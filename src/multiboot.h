@@ -43,7 +43,7 @@
 /* Flags set in the ’flags’ member of the multiboot header. */
 
 /* Align all boot modules on i386 page (4KB) boundaries. */
-#define MULTIBOOT_PAGE_ALIGN                    0x00000001
+#define MULTIBOOT_PAGE_FLAG_ALIGN                    0x00000001
 
 /* Must pass memory information to OS. */
 #define MULTIBOOT_MEMORY_INFO                   0x00000002
@@ -273,7 +273,7 @@ struct multiboot_apm_info
   multiboot_uint16_t dseg_len;
 };
 
-size_t memory_table(multiboot_info_t* mbd, unsigned int magic);
+size_t memory_table(multiboot_info_t* mbd);
 int print_memory_table(multiboot_info_t* mbd);
 
 

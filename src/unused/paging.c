@@ -9,7 +9,7 @@ size_t map_pages(page_table_t* pte, addr_t base, size_t num_pages)
     size_t nn;
     for(nn = 0; nn < num_pages; nn++)
     {
-        *pte = base | PTE_PRESENT;
+        *pte = base | PAGE_FLAG_PRESENT;
         base += _4KB;
         pte++;
 
@@ -26,11 +26,11 @@ void init_page_dir(page_directory_t* pd)
 
     //initialize empty page directory
     for(int nn=0; nn<PAGING_NUM_PDE-1; nn++)
-        pd[nn] = PDE_EMPTY;
+        pd[nn] = PAGE_FLAG_EMPTY;
 
     //map last pde to itself
     //PD will be accessible at virtual addr 0xfffffxxx 
-    pd[PAGING_NUM_PDE-1] =  ((addr_t) pd) & PDE_ADDRMASK + PDE_PRESENT;
+    pd[PAGING_NUM_PDE-1] =  ((addr_t) pd) & PAGE_ADDRMASK + PAGE_FLAG_PRESENT;
 }
 
 
@@ -44,13 +44,13 @@ int initialize_paging()
     init_page_dir(pd);
 
     //set up identity page table for 1st 1MB
-    pd[0] = PAGING_PT_1MB | PDE_PRESENT;
-    map_pages(PAGING_PT_1MB, 0x0, PAGING_PT_SIZE);
+    pd[0] = PAGING_PT_1MB | PAGE_FLAG_PRESENT;
+    map_pages(PAGING_PT_1MB, 0x0, PAGE_SIZE);
 
     //set up 1MB of kernel-space memory
     int kern_base_pde = KERNEL_BASE >> 22;
-    pd[kern_base_pde] = PAGING_PT_KERN | PDE_PRESENT;
-    map_pages(PAGING_PT_KERN, KERNEL_BASE_PHYS, PAGING_PT_SIZE);
+    pd[kern_base_pde] = PAGING_PT_KERN | PAGE_FLAG_PRESENT;
+    map_pages(PAGING_PT_KERN, KERNEL_BASE_PHYS, PAGE_SIZE);
 
     enable_paging(pd); //asm call
 
@@ -65,26 +65,26 @@ int initialize_paging()
 // [11-0]  offset into page (12 bits, 0-4095)
 // populates virt_addr and page table entry flags
 // returns 0 on success, -1 on page miss
-int get_physaddr(addr_t* phys_addr, addr_t virt_addr, page_directory_t* pd, int* pte_flags)
+int get_physaddr(addr_t* phys_addr, addr_t virt_addr, page_directory_t* pd, int* PAGE_FLAG_flags)
 {
     unsigned int pdindex = virt_addr >> 22;
     unsigned int ptindex = virt_addr >> 12 & 0x03FF;
     unsigned int offset = virt_addr & 0xFFF;
 
     //check pd entry is present
-    if(! pd[pdindex] & PDE_PRESENT)
+    if(! pd[pdindex] & PAGE_FLAG_PRESENT)
         return -1;
 
-    page_table_t* pt = (page_table_t*) (((addr_t)pd[pdindex]) & PDE_ADDRMASK);
+    page_table_t* pt = (page_table_t*) (((addr_t)pd[pdindex]) & PAGE_ADDRMASK);
 
     //check pt entry is present
-    if(! pt[ptindex] & PTE_PRESENT)
+    if(! pt[ptindex] & PAGE_FLAG_PRESENT)
         return -1;
 
-    if(pte_flags)
-        *pte_flags = pt[ptindex] & PTE_FLAGSMASK; 
+    if(page_flags)
+        *page_flags = pt[ptindex] & PAGE_FLAGSMASK; 
 
-    *phys_addr = pt[ptindex] & PTE_ADDRMASK + virt_addr & 0xFFF;
+    *phys_addr = pt[ptindex] & PAGE_ADDRMASK + virt_addr & 0xFFF;
     return 0;
 }
 

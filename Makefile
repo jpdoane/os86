@@ -56,10 +56,17 @@ $(SYMBOLFILE): $(TARGET)
 list: $(TARGET)
 	i686-elf-objdump $(TARGET) -S > $(BUILD_DIR)/kernel.list
 
-run: $(ISO_IMG) $(SYMBOLFILE)
+
+debug: debug-qemu
+
+debug-qemu: $(TARGET)
+	$(QEMU) -s -S -kernel $(TARGET) &
+	gdb -x debug/gdb.start
+
+debug-bochs: $(ISO_IMG) $(SYMBOLFILE)
 	bochs -f $(DEBUG_DIR)/bochsrc.txt
 
-qemu: $(TARGET)
+run: $(TARGET)
 	$(QEMU) -kernel $(TARGET)
 
 
@@ -68,4 +75,5 @@ clean:
 	-rm $(DEBUG_DIR)/kern.sym
 	-rm $(DEBUG_DIR)/sym.txt
 	-rm $(TARGET)
+	-rm $(SYMBOLFILE)
 	-rm $(ISO_IMG)
