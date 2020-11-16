@@ -15,4 +15,10 @@ int sprintf(char* str, const char* format, ...);
 int atoi(const char* str);
 char* itoa( int value, char* str, int base);
 
+
+inline void bp()
+{
+  __asm__ ("xchg %bx, %bx");
+}
+
 #endif

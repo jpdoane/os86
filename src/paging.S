@@ -13,7 +13,7 @@ enable_paging:
     mov ebp, esp 
 
     # move arg 1 (page dir) to cr3
-    mov eax, [ebp+8]
+    mov eax, [ebp+4]
     mov cr3, eax            
 
     # set PG and PE bits of cr0
@@ -33,7 +33,7 @@ enable_paging:
 .type set_page_dir, @function
 set_page_dir:
     # move arg 1 (page dir) to cr3
-    mov eax, [esp+8]
+    mov eax, [esp+4]
     mov cr3, eax            
     ret
 
@@ -57,6 +57,6 @@ refresh_tlb:
 .align 4
 .type refresh_page, @function
 refresh_page:
-    mov eax, [esp+8]
+    mov eax, [esp+4]
 	invlpg [eax]
     ret

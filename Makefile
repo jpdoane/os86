@@ -7,11 +7,12 @@ IMAGE_DIR=image
 DEBUG_DIR=debug
 
 ASM_SUFFIX=S
+ASM_OBJ_SUFFIX=asm.o
 
 CSRC= $(wildcard $(SRCDIR)/*.c)
 ASMSRC= $(wildcard $(SRCDIR)/*.$(ASM_SUFFIX))
 
-OBJS= $(patsubst $(SRCDIR)/%,$(OBJDIR)/%,$(CSRC:.c=.o) $(ASMSRC:.$(ASM_SUFFIX)=.o))
+OBJS= $(patsubst $(SRCDIR)/%,$(OBJDIR)/%,$(CSRC:.c=.o) $(ASMSRC:.$(ASM_SUFFIX)=.$(ASM_OBJ_SUFFIX)))
 
 
 TARGET=$(BUILD_DIR)/kernel
@@ -25,7 +26,7 @@ ASM=$(CC_PREFIX)gcc
 LD=$(CC_PREFIX)ld
 
 CFLAGS=-std=gnu99 -ffreestanding -O2 -Wall -Wextra -g
-ASMFLAGS= -DASM_FILE
+ASMFLAGS= -DASM_FILE -masm=intel
 LDFLAGS=-T $(LDSCRIPT) -lgcc -ffreestanding -O2 -nostdlib
 
 QEMU=qemu-system-i386
@@ -34,7 +35,7 @@ $(shell mkdir -p $(OBJDIR))
 
 all: $(TARGET)
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.$(ASM_SUFFIX)
+$(OBJDIR)/%.$(ASM_OBJ_SUFFIX): $(SRCDIR)/%.$(ASM_SUFFIX)
 	$(ASM) -c $(ASMFLAGS) $^ -o $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c

@@ -5,5 +5,6 @@
 #include "terminal.h"
 
 int kprintf(const char* format, ...);
+int kprint_char(char c);
 
 #endif

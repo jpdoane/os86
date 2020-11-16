@@ -40,14 +40,46 @@ boot_page_directory:
 	.skip PAGE_SIZE
 boot_pt_kernel:
 	.skip PAGE_SIZE
-# Further page tables may be required if the kernel grows beyond 1 MiB.
 
+# GDT
+.section .data
+gdt:
+
+  gdt_null:
+  .4byte 0
+  .4byte 0
+ 
+  gdt_code:
+  .2byte 0x0FFFF
+  .2byte 0
+ 
+  .byte 0
+  .byte 0b10011010
+  .byte 0b11001111
+  .byte 0
+ 
+  gdt_data:
+  .2byte 0x0FFFF
+  .2byte 0
+ 
+  .byte 0
+  .byte 0b10010010
+  .byte 0b11001111
+  .byte 0
+ 
+  gdt_end:
+  gdt_desc:
+   .2byte gdt_end - gdt - 1
+   .4byte gdt
+ 
 # The kernel entry point, prior to paging
 .section .text.boot
 .global _start
 .type _start, @function
 _start:
 	
+    cli  				#disable interrupts
+
 	# test for multiboot magic number in eax
 	cmp eax, MULTIBOOT_BOOTLOADER_MAGIC
 	jne kpanic
@@ -126,6 +158,17 @@ _enable_paging:
     mov cr0, eax
 
 	# we are now paging, using virtual addresses
+
+	#load gdt
+    lgdt [gdt_desc]		#load GDT
+    jmp 0x08:set_cs
+set_cs:
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
 
     #update stack pointer to virtual addr
 	lea esp, stack_top
