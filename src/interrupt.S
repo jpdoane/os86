@@ -6,10 +6,11 @@
 
 .global load_idt
 .align 4
+.extern idtd
 .type load_idt, @function
 load_idt:
-  mov eax, [esp+4]
-	lidt [eax]
+  # mov eax, [esp+4]
+	lidt [idtd]
 	sti
 	ret
 

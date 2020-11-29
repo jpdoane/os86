@@ -4,6 +4,7 @@
 #include "multiboot.h"
 #include "mman.h"
 #include "interrupt.h"
+#include "gdt.h"
 
  /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if defined(__linux__)  || !defined(__i386__)
@@ -12,6 +13,9 @@
 
 void kernel_main(multiboot_info_t* mbd)
 {
+	init_gdt();
+	init_interrupts();
+
 	terminal_init(&stdout);
 
     // terminal_setcolor(&stdout, VGA_COLOR_WHITE);
@@ -20,7 +24,6 @@ void kernel_main(multiboot_info_t* mbd)
 
 	print_memory_table(mbd);
 	memory_init(mbd);	//after this the multiboot structure is unmapped
-	init_interrupts();
 
 	// kprintf("Allocate some memory on the heap...\n");
 	// uint32_t* some_memory = kmalloc(sizeof(uint32_t)*4000);

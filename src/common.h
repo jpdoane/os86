@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 
+#define __aligned __attribute__ ((aligned (32)))
 
 size_t strlen(const char* str);
 void *memcpy(void *dest, const void *src, size_t n);

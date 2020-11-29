@@ -26,7 +26,10 @@
 #define PIC_8086MODE 0x01
 //then send IRQ masks (1 is mask, 0 is allow)
 
-typedef struct __attribute__((__packed__)) idt_entry_t
+
+#define PIC_EOI 0x20 //send after interrupt is handled
+
+typedef struct __attribute__((__packed__))  idt_entry_t
 {
     uint16_t offset_low;
     uint16_t segment;
@@ -35,27 +38,21 @@ typedef struct __attribute__((__packed__)) idt_entry_t
     uint16_t offset_high;
 } idt_entry_t;
 
-typedef struct __attribute__((__packed__)) idt_descriptor_t
+typedef struct __attribute__((__packed__))  idt_descriptor_t
 {
     uint16_t limit;
     uint32_t base;
-} idt_descriptor_t;
+} __attribute__ ((aligned (32)))  idt_descriptor_t;
 
 extern idt_entry_t idt[];
 
 void init_interrupts();
-void load_idt(idt_descriptor_t* idt);
+// void load_idt(idt_descriptor_t* idt);
+void load_idt();
 
 void set_interrupt_handler(int int_num, void* handler);
 void exception_handler(uint32_t exception_num, uint32_t code);
 void irq_handler(uint32_t irq_num);
-
-
-inline void eoi()
-{
-    outb(0x20, 0x20);
-    outb(0x20, 0xa0);
-}
 
 
 extern void except_0();

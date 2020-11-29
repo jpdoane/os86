@@ -1,5 +1,13 @@
 #include "keyboard.h"
 
+// // global keyboard state
+// int shift = 0;
+// int capslock = 0;
+// int numlock = 0;
+// int ctrl = 0;
+// int alt = 0;
+// int fn = 0;
+
 char kbd_US[256] =
 {
     0,  27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',   
@@ -39,3 +47,29 @@ char scancode_to_ascii(uint8_t scancode)
 {
     return kbd_US[scancode];
 }
+
+// int shift = 0;
+// int capslock = 0;
+// int numlock = 0;
+// int ctrl = 0;
+// int alt = 0;
+// int fn = 0;
+
+// char presskey(uint8_t scancode)
+// {
+//   switch(scancode)
+//   {
+//     case 0x2a:
+//     case 0x36:
+//       shift = 1;
+//       return 0;
+//       break;
+//     case 0x38:
+//     case 0x39:
+//       shift = 1;
+//       return 0;
+//       break;
+
+//   }
+
+// }

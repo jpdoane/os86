@@ -2,25 +2,29 @@
 #include "common.h"
 #include "kprintf.h"
 #include "keyboard.h"
+#include "gdt.h"
 
-idt_entry_t idt[NUM_INTERRUPT_HANDLERS] = {0};
-idt_descriptor_t idtd __attribute__ ((aligned (32)));
+idt_entry_t __aligned idt[NUM_INTERRUPT_HANDLERS] = {0};
+idt_descriptor_t __aligned idtd;
 
 void init_interrupts()
 {
     /* init the PIC */
-	outb(PIC_INIT, PIC1_CMD);
-    outb(PIC_INIT, PIC2_CMD);
-    outb(PIC1_OFFSET, PIC1_DATA);
-    outb(PIC2_OFFSET, PIC2_DATA);
-    outb(PIC1_MS, PIC1_DATA);
-    outb(PIC2_MS, PIC2_DATA);
-    outb(PIC_8086MODE, PIC1_DATA);
-    outb(PIC_8086MODE, PIC2_DATA);
+	outb(PIC_INIT, PIC1_CMD);  // init PIC 1
+    outb(PIC_INIT, PIC2_CMD);  // init PIC 2
+    outb(PIC1_OFFSET, PIC1_DATA); // map irq 0x0-0x7 to int 0x20-0x27
+    outb(PIC2_OFFSET, PIC2_DATA); // map irq 0x8-0xf to int 0x28-0x2f
+    outb(PIC1_MS, PIC1_DATA);     // pic1 is master, with slave at irq 2
+    outb(PIC2_MS, PIC2_DATA);     // pic2 is slave with id 2
+    outb(PIC_8086MODE, PIC1_DATA); //enable 8086 mode
+    outb(PIC_8086MODE, PIC2_DATA); //enable 8086 mode
+    // interrupt mask
     outb( ~(1<<1) , PIC1_DATA); //enable irq1 (keyboard)
     outb(0xff, PIC2_DATA); //disable interrupts from slave
 
 
+    // individual handler routines defined in interrupt.S
+    // these call back to exception_handler() and irq_handler()
     set_interrupt_handler(0,except_0);
     set_interrupt_handler(1,except_1);
     set_interrupt_handler(2,except_2);
@@ -63,13 +67,13 @@ void init_interrupts()
 
     idtd.base = (uint32_t) idt;
     idtd.limit = sizeof(idt_entry_t) * NUM_INTERRUPT_HANDLERS - 1;
-    load_idt(&idtd);
+    load_idt();
 }
 
 void set_interrupt_handler(int int_num, void* handler)
 {
 	idt[int_num].offset_low = ((uint32_t) handler) & 0xffff;
-	idt[int_num].segment = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
+	idt[int_num].segment = KERNEL_CODE_SEGMENT;
 	idt[int_num].zero = 0;
 	idt[int_num].type = 0x8e; /* INTERRUPT_GATE */
 	idt[int_num].offset_high = (((uint32_t) handler) & 0xffff0000) >> 16;    
@@ -91,6 +95,12 @@ void irq_handler(uint32_t irq_num)
             kprint_char(key_ascii);
     
     }
-    eoi();
+
+    // notify PIC that interrupt handling is complete
+    if(irq_num >= 8)
+        outb(PIC_EOI, PIC2_CMD);
+
+    outb(PIC_EOI, PIC1_CMD);
+
     return;
 }
