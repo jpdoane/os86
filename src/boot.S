@@ -30,7 +30,7 @@ forced to be within the first 8 KiB of the kernel file.
 .section .bootstrap_stack
 .align 16
 stack_bottom:
-.skip 16384 # 16 KiB
+.skip KERNEL_STACK_SIZE
 stack_top:
 
 # Preallocate pages used for paging

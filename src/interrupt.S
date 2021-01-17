@@ -63,13 +63,32 @@ EXCEPTION_HANDLER_CODE 10 //  invalid tss
 EXCEPTION_HANDLER_CODE 11 //  segment not present
 EXCEPTION_HANDLER_CODE 12 //  stack segment fault
 EXCEPTION_HANDLER_CODE 13 //  gen protection fault
-EXCEPTION_HANDLER_CODE 14 //  page fault
+//EXCEPTION_HANDLER_CODE 14 //  page fault
 EXCEPTION_HANDLER_CODE 16 //  x87 fp exception
 EXCEPTION_HANDLER_CODE 17 //  alignemt check
 EXCEPTION_HANDLER_CODE 18 //  machine check
 EXCEPTION_HANDLER_CODE 19 //  simd fp ex
 EXCEPTION_HANDLER_CODE 20 //  virt ex
 EXCEPTION_HANDLER_CODE 30 //  security ex
+
+
+// page fault handler
+.align 4
+.global except_pf
+.type except_pf, @function
+except_pf:
+  pushad    //save all regs
+  mov eax, cr2
+  push eax // fault address
+  mov eax,[esp+36] // code is on the stack, before all the regs we just saved
+  push eax // code number
+  call page_fault_handler
+  add esp, 8 //clean up stack
+  popad     //restore all registers
+  add esp, 4 //pop code off stack
+  iret
+.endm
+
 
 
 // define irq handlers

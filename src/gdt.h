@@ -102,7 +102,7 @@ typedef struct tss_entry_t
 } tss_entry_t;
 
 
-inline void populate_gdt_entry(gdt_entry_t* sd, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags)
+static inline void populate_gdt_entry(gdt_entry_t* sd, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags)
 {
     sd->limit_low = limit & SEGMENT_LIMIT_LOW_MASK;
     sd->limit_high = (limit & SEGMENT_LIMIT_HIGH_MASK) >> 16;
@@ -114,7 +114,7 @@ inline void populate_gdt_entry(gdt_entry_t* sd, uint32_t base, uint32_t limit, u
 }
 
 void init_gdt();
-void update_tss(uint32_t kernel_stack_ptr);
+void update_kstack(void* kernel_stack_ptr);
 
 // defined in gdt_asm.S
 void load_gdt();

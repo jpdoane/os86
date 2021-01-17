@@ -38,7 +38,7 @@ void init_interrupts()
     set_interrupt_handler(11,except_11);
     set_interrupt_handler(12,except_12);
     set_interrupt_handler(13,except_13);
-    set_interrupt_handler(14,except_14);
+    set_interrupt_handler(14,except_pf);
     set_interrupt_handler(16,except_16);
     set_interrupt_handler(17,except_17);
     set_interrupt_handler(18,except_18);
@@ -79,9 +79,17 @@ void set_interrupt_handler(int int_num, void* handler)
 	idt[int_num].offset_high = (((uint32_t) handler) & 0xffff0000) >> 16;    
 }
 
+void page_fault_handler(uint32_t code, void* fault_addr)
+{
+    kprintf("\n\nPage Fault at address %x with code %x\n", fault_addr, code);
+    while(1);
+}
+
+
 void exception_handler(uint32_t exception_num, uint32_t code)
 {
-    kprintf("Exception %u with code %u\n", exception_num, code);
+    kprintf("\n\nException %u with code %u\n", exception_num, code);
+    while(1);
 }
 
 void irq_handler(uint32_t irq_num)

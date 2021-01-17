@@ -13,7 +13,7 @@ page_table_t* get_table(void* addr)
 }
 
 // return physical addr from virt addr
-char* get_physaddr(char* addr)
+void* get_physaddr(void* addr)
 {
     //check pd entry is present
     uint32_t pdi = get_pdindex(addr);
@@ -25,5 +25,5 @@ char* get_physaddr(char* addr)
     if(! pte & PAGE_FLAG_PRESENT)
         return NULL;
 
-    return (char*) ((pte & PAGE_ADDRMASK) +  get_page_offset(addr) );
+    return (void*) ((pte & PAGE_ADDRMASK) +  get_page_offset(addr) );
 }

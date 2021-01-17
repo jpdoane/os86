@@ -31,18 +31,18 @@ void* kmalloc(size_t sz);
 void* kmalloc_aligned(size_t sz, size_t alignment);
 void* memset(void* addr, int val, size_t cnt);
 
-inline void* align_addr(void* addr, uint32_t alignment)
+static inline void* align_addr(void* addr, uint32_t alignment)
 {
     uint32_t am = alignment - 1;
     return (char*) (((uint32_t)addr + am) & ~am);
 }
 
-inline int is_pow_of_two(uint32_t x)
+static inline int is_pow_of_two(uint32_t x)
 {
     return (x != 0) && ((x & (x - 1)) == 0);
 }
 
-// inline void* align_to_page(void* addr)
+// static inline void* align_to_page(void* addr)
 // {
 //     return (void*) ((((uint32_t)addr) + PAGE_SIZE - 1) & PAGE_ADDRMASK);
 // }

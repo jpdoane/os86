@@ -25,9 +25,12 @@ GCC=$(CC_PREFIX)gcc
 ASM=$(CC_PREFIX)gcc
 LD=$(CC_PREFIX)ld
 
-CFLAGS=-std=gnu99 -ffreestanding -O2 -Wall -Wextra -g
-ASMFLAGS= -DASM_FILE -masm=intel
-LDFLAGS=-T $(LDSCRIPT) -lgcc -ffreestanding -O2 -nostdlib
+
+OPTFLAGS=-O0
+# CFLAGS=-std=gnu99 -ffreestanding  -Wall -Wextra -g $(OPTFLAGS)
+CFLAGS=-ffreestanding  -Wall -Wextra -g $(OPTFLAGS)
+ASMFLAGS= -DASM_FILE -masm=intel 
+LDFLAGS=-T $(LDSCRIPT) -lgcc -ffreestanding -nostdlib
 
 QEMU=qemu-system-i386
 
@@ -64,6 +67,11 @@ debug-qemu: $(TARGET)
 	$(QEMU) -s -S -kernel $(TARGET) &
 	gdb -x debug/gdb.start
 
+debug-asm: $(TARGET)
+	$(QEMU) -s -S -kernel $(TARGET) &
+	gdb -x debug/gdb_asm.start
+	echo "done"
+
 debug-bochs: $(ISO_IMG) $(SYMBOLFILE)
 	bochs -f $(DEBUG_DIR)/bochsrc.txt
 
@@ -74,7 +82,6 @@ run: $(TARGET)
 clean:
 	-rm -rf $(OBJDIR)
 	-rm $(DEBUG_DIR)/kern.sym
-	-rm $(DEBUG_DIR)/sym.txt
 	-rm $(TARGET)
 	-rm $(SYMBOLFILE)
 	-rm $(ISO_IMG)

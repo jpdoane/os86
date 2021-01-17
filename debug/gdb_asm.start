@@ -1,0 +1,5 @@
+target remote localhost:1234
+symbol-file build/kernel
+layout asm
+layout regs
+focus cmd

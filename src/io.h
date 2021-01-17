@@ -1,7 +1,7 @@
 #ifndef __IO_H__
 #define __IO_H__
 
-inline unsigned char
+static inline unsigned char
 inb (unsigned short int __port)
 {
   unsigned char _v;
@@ -10,7 +10,7 @@ inb (unsigned short int __port)
   return _v;
 }
 
-inline void
+static inline void
 outb (unsigned char __value, unsigned short int __port)
 {
   __asm__ __volatile__ ("outb %b0,%w1": :"a" (__value), "Nd" (__port));

@@ -5,11 +5,34 @@
 #include "mman.h"
 #include "interrupt.h"
 #include "gdt.h"
+#include "task.h"
 
  /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if defined(__linux__)  || !defined(__i386__)
 #error "This kernel requires ix86-elf cross compiler"
 #endif
+
+void test_multitasking2()
+{
+	int count = 0;
+	while(1)
+	{
+		kprintf("task 2, count %d\n", count++);
+		switch_to_next_task();
+	}
+}
+
+void test_multitasking1()
+{
+	int count = 0;
+	new_kernel_task( &test_multitasking2 );
+
+	while(1)
+	{
+		kprintf("task 1, count %d\n", count++);
+		switch_to_next_task();
+	}	
+}
 
 void kernel_main(multiboot_info_t* mbd)
 {
@@ -24,6 +47,7 @@ void kernel_main(multiboot_info_t* mbd)
 
 	print_memory_table(mbd);
 	memory_init(mbd);	//after this the multiboot structure is unmapped
+	initialize_multitasking();
 
 	// kprintf("Allocate some memory on the heap...\n");
 	// uint32_t* some_memory = kmalloc(sizeof(uint32_t)*4000);
@@ -53,5 +77,8 @@ void kernel_main(multiboot_info_t* mbd)
 	// kprintf("%d\n",e);
 
 	kprintf("$ ");
+
+	test_multitasking1();
+
 	while(1);
 }

@@ -53,6 +53,7 @@ void load_idt();
 void set_interrupt_handler(int int_num, void* handler);
 void exception_handler(uint32_t exception_num, uint32_t code);
 void irq_handler(uint32_t irq_num);
+void page_fault_handler(uint32_t code, void* fault_addr);
 
 
 extern void except_0();
@@ -68,7 +69,7 @@ extern void except_10();
 extern void except_11();
 extern void except_12();
 extern void except_13();
-extern void except_14();
+extern void except_pf();
 extern void except_16();
 extern void except_17();
 extern void except_18();

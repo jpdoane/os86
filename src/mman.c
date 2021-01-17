@@ -72,7 +72,7 @@ char* heap_init(multiboot_info_t* mbd)
     //start new allocations here in virtual memory
     heap_page = (page_t*) align_addr((void*) KERNEL_HEAP, PAGE_SIZE);
     heap = (char*) heap_page;
-    heap_end = (char*) KERNEL_BASE;
+    heap_end = (char*) KERNEL_HEAP_END;
 
 	kprintf("\nPhysical heap: 0x%.8x - 0x%.8x (%u MiB)\n", heap_phys, heap_end_phys,  (uint32_t) (heap_end_phys-heap_phys) >> 20);
 	kprintf("Virtual heap: 0x%.8x - 0x%.8x (%u MiB)\n\n", heap, heap_end,  (uint32_t) (heap_end-heap) >> 20);

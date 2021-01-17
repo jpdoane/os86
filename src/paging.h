@@ -31,11 +31,21 @@
 // 0xfff00000-0xfff00fff -> 0x0010b000-0x0010bfff       pd[0x300] (boot_pt_kernel), maps kernel pages 0xc0000000-0xc03ff000
 // 0xfffff000-0xffffffff -> 0x0010a000-0x0010afff       Self-map of last pde -> pd
 
+// extern char _kernel_start_phys;
+// extern char _kernel_start;
+// #define KERNEL_BASE_PHYS    &_kernel_start_phys //0x00101000
+// #define KERNEL_BASE         &_kernel_start      //0xc0000000
 
 // these must be consistent with linker script
 #define KERNEL_BASE_PHYS    0x00101000
+#define USER_CODE           0x01000000
+#define USER_HEAP           0x40000000
+#define USER_HEAP_END       0xc0000000
 #define KERNEL_BASE         0xc0000000
-#define KERNEL_HEAP         0x00400000
+#define KERNEL_HEAP         0xc5000000
+#define KERNEL_HEAP_END     0xf0000000
+
+#define KERNEL_STACK_SIZE   32768
 
 #define KERNEL_VIRT_TO_PHYS(p) p-KERNEL_BASE+KERNEL_BASE_PHYS
 #define KERNEL_PHYS_TO_VIRT(p) p+KERNEL_BASE-KERNEL_BASE_PHYS
@@ -91,25 +101,25 @@ typedef struct page_directory_virt_t {
 extern page_directory_virt_t* pd;   //initialized in paging_asm.S
 
 // return page table index for virtual address
-inline uint32_t get_ptindex(void* addr)
+static inline uint32_t get_ptindex(void* addr)
 {
     return (((uint32_t) addr) & PAGE_PTE_MASK ) >> 12;
 }
 
 // return page directory index for virtual address
-inline uint32_t get_pdindex(void* addr)
+static inline uint32_t get_pdindex(void* addr)
 {
     return ((uint32_t) addr) >> 22;
 }
 
 // return offset into page
-inline uint32_t get_page_offset(void* addr)
+static inline uint32_t get_page_offset(void* addr)
 {
     return ((uint32_t) addr) & ~PAGE_ADDRMASK;
 }
 
 
-inline void* get_virtual_addr(uint32_t pd_index, uint32_t pt_index, uint32_t offset)
+static inline void* get_virtual_addr(uint32_t pd_index, uint32_t pt_index, uint32_t offset)
 {
     return (void*) (pd_index << 22 | pt_index << 12 | offset);
 }
@@ -125,7 +135,7 @@ void refresh_tlb();
 
 // c functions defined in paging.c
 page_table_t* get_table(void* addr);
-char* get_physaddr(char* addr); // return physical addr from virt addr
+void* get_physaddr(void* addr); // return physical addr from virt addr
 
 #endif
 
