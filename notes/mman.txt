@@ -1,0 +1,56 @@
+Memory management notes
+
+https://wiki.osdev.org/Page_Frame_Allocation#Physical_Memory_Allocators
+http://www.osdever.net/tutorials/view/memory-management-1
+http://brokenthorn.com/Resources/OSDev26.html
+
+
+Buddy system: O(logN) allocation of contiguous blocks and coalasence
+
+Ok this confused me for a while: the reason that people use a bitmap & LL (which is technically redundant), is because searching the bitmap is O(N).
+A linked list lets you just directly pop off available blocks and/or immediately see list is empty, thus O(logN)
+
+Simple allocator: Stack of pointers to free pages, so just need 4B/page (0.1% overhead).
+
+
+Buddy system details
+https://en.wikipedia.org/wiki/Buddy_memory_allocation
+https://www.halolinux.us/kernel-reference/the-buddy-system-algorithm.html
+https://www.kernel.org/doc/gorman/html/understand/understand009.html
+https://github.com/Restioson/buddy-allocator-workshop
+https://github.com/evanw/buddy-malloc
+
+
+Manage pages with binary tree
+Order 3: X
+Order 2: X   X
+Order 1: X X X X
+Order 0: XXXXXXXX
+
+Store as flattened bitmap: 322111100000000 
+bit set: this block is free and available
+bit clear: this block is not available, because it is either allocated or because it is part of a larger free block
+
+Initialize bitmap with only highest-order block free (1000000000.....)
+
+void* allocate(order):
+    No -> Search bitmap over requested order for first avilable index, i.e. map(index) == 1
+    Pop free block from LL
+        mark block as unavilable: map(index) = 0
+        If found, mark block as unavailable (clear bit) and return address    
+    If no blocks of requested order are available
+        allocate_and_split(order+1)
+    
+    check higher-order lists until we find free block (If we reach the highest-order node, we've run out of memory)
+        Split the block: clear its bit, mark right child available (set bit) and return left child as available (bit stays clear)
+        Unwind recursive splits until a block of requested size has been identified, return address
+
+int allocate_and_split(order):
+    Mark block unavailable (clear bit)
+    Mark right child available (set bit)
+    Return left child as available (bit stays clear)
+
+Free block:
+    Check buddy - if unavailable (bit clear) then just mark self free (set bit)
+    If buddy is also free, clear buddy bit and free the corresponding higher order block (etc recursively)
+

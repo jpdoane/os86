@@ -16,15 +16,6 @@ typedef struct page_t {
 
 
 
-// // memory management struct
-// typedef struct memory_block_t {
-//     void* addr;
-//     uint32_t len;
-//     uint32_t status;
-//     memory_block_t* prev;
-//     memory_block_t* next;
-// } memory_block_t;
-
 
 
 int memory_init(multiboot_info_t* mbd);
