@@ -3,12 +3,14 @@ baremetal sandbox for rudimentary x86 os development
 
 Implemented:
 - simple paging and virtual memory
-- simple linear heap allocation
+- simple linear heap allocation (but not yet free)
+- simple interrupts and exceptions
+- Simple task swicthing
 
 Todo
-- Interrupts
-- Task swithing
+- User space
 - Scheduling
+- Proper memory management
 - File system
 - lots of other stuff
 
