@@ -64,13 +64,16 @@ list: $(TARGET)
 debug: debug-qemu
 
 debug-qemu: $(TARGET)
+	-pkill qemu
 	$(QEMU) -s -S -kernel $(TARGET) &
 	gdb -x debug/gdb.start
+	-pkill qemu
 
 debug-asm: $(TARGET)
+	-pkill qemu
 	$(QEMU) -s -S -kernel $(TARGET) &
 	gdb -x debug/gdb_asm.start
-	echo "done"
+	-pkill qemu
 
 debug-bochs: $(ISO_IMG) $(SYMBOLFILE)
 	bochs -f $(DEBUG_DIR)/bochsrc.txt

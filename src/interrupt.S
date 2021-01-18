@@ -12,7 +12,16 @@ load_idt:
   # mov eax, [esp+4]
 	lidt [idtd]
 	sti
-	ret
+ret
+
+//get PF addr
+.align 4
+.global pf_addr
+.type pf_addr, @function
+pf_addr:
+  mov eax, cr2
+ret
+
 
 //exception handlers
 // save registers and call exception handler with expection number and (optional) code as arguments
@@ -22,14 +31,33 @@ load_idt:
 .global except_\num
 .type except_\num, @function
 except_\num:
-  pushad    //save all regs
+  push ebp
+  mov ebp,esp
+
+// stack:
+// ebp+0:   old ebp     <-- current esp, ebp
+// ebp+4:   return eip (fault location) <-- esp on entry
+
+  pushad    //save all regs onto stack
+
+  // param 3: fault location
+  mov eax,[ebp+4]
+  push eax 
+
+  // param 2: (dummy) code number
   mov eax,0
-  push eax // (empty) code number
+  push eax 
+
+  // param 1: exception number
   mov eax, \num
-  push eax // exception number
+  push eax 
+
   call exception_handler
-  add esp, 8 //clean up stack
+  add esp, 12 //remove 3 params from stack
+
   popad     //restore all registers
+  pop ebp   //restore ebp
+
   iret
 .endm
 
@@ -38,14 +66,34 @@ except_\num:
 .global except_\num
 .type except_\num, @function
 except_\num:
-  pushad    //save all regs
-  mov eax,[esp+36] // code is on the stack, before all the regs we just saved
-  push eax // code number
+  push ebp
+  mov ebp,esp
+
+// stack:
+// ebp+0:   old ebp         <-- current esp, ebp
+// ebp+4:   exception code  <-- esp on entry
+// ebp+8:   return eip (fault location)
+
+  pushad    //save all regs onto stack
+
+  // param 3: fault location
+  mov eax,[ebp+8]
+  push eax 
+
+  // param 2: code number
+  mov eax,[ebp+4]
+  push eax 
+
+  // param 1: exception number
   mov eax, \num
-  push eax // exception number
+  push eax 
+
   call exception_handler
-  add esp, 8 //clean up stack
+  add esp, 12 //remove 3 params from stack
+
   popad     //restore all registers
+  pop ebp   //restore ebp
+
   add esp, 4 //pop code off stack
   iret
 .endm
@@ -63,32 +111,13 @@ EXCEPTION_HANDLER_CODE 10 //  invalid tss
 EXCEPTION_HANDLER_CODE 11 //  segment not present
 EXCEPTION_HANDLER_CODE 12 //  stack segment fault
 EXCEPTION_HANDLER_CODE 13 //  gen protection fault
-//EXCEPTION_HANDLER_CODE 14 //  page fault
+EXCEPTION_HANDLER_CODE 14 //  page fault
 EXCEPTION_HANDLER_CODE 16 //  x87 fp exception
 EXCEPTION_HANDLER_CODE 17 //  alignemt check
 EXCEPTION_HANDLER_CODE 18 //  machine check
 EXCEPTION_HANDLER_CODE 19 //  simd fp ex
 EXCEPTION_HANDLER_CODE 20 //  virt ex
 EXCEPTION_HANDLER_CODE 30 //  security ex
-
-
-// page fault handler
-.align 4
-.global except_pf
-.type except_pf, @function
-except_pf:
-  pushad    //save all regs
-  mov eax, cr2
-  push eax // fault address
-  mov eax,[esp+36] // code is on the stack, before all the regs we just saved
-  push eax // code number
-  call page_fault_handler
-  add esp, 8 //clean up stack
-  popad     //restore all registers
-  add esp, 4 //pop code off stack
-  iret
-.endm
-
 
 
 // define irq handlers

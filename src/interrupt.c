@@ -38,7 +38,7 @@ void init_interrupts()
     set_interrupt_handler(11,except_11);
     set_interrupt_handler(12,except_12);
     set_interrupt_handler(13,except_13);
-    set_interrupt_handler(14,except_pf);
+    set_interrupt_handler(14,except_14);
     set_interrupt_handler(16,except_16);
     set_interrupt_handler(17,except_17);
     set_interrupt_handler(18,except_18);
@@ -79,16 +79,34 @@ void set_interrupt_handler(int int_num, void* handler)
 	idt[int_num].offset_high = (((uint32_t) handler) & 0xffff0000) >> 16;    
 }
 
-void page_fault_handler(uint32_t code, void* fault_addr)
+void page_fault_handler(uint32_t code, void* fault_ip)
 {
-    kprintf("\n\nPage Fault at address %x with code %x\n", fault_addr, code);
+
+    if(code & PF_CODE_WRITE)
+        kprintf("\n\nPage Fault writing to 0x%x (instruction 0x%x)\n", pf_addr(), fault_ip);
+    else        
+        kprintf("\n\nPage Fault reading from 0x%x (instruction 0x%x)\n", pf_addr(), fault_ip);
+    if(code & PF_CODE_PGPROT)
+        kprintf("Page protection violation\n");
+    else
+        kprintf("Page not present\n");
+    if(code & PF_CODE_USER)
+        kprintf("\n\nFault caused by user code\n");
+    if(code & PF_CODE_RES)
+        kprintf("Page reserved bit set\n");
+    if(code & PF_CODE_IF)
+        kprintf("Fault caused by instruction fetch\n");
+
     while(1);
 }
 
 
-void exception_handler(uint32_t exception_num, uint32_t code)
+void exception_handler(uint32_t exception_num, uint32_t code, void* fault_ip)
 {
-    kprintf("\n\nException %u with code %u\n", exception_num, code);
+    if(exception_num==14)
+        page_fault_handler(code, fault_ip);
+    else
+        kprintf("\n\nException %u with code 0x%x at instruction 0x%x\n", exception_num, code, fault_ip);
     while(1);
 }
 

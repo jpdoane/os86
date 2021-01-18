@@ -27,6 +27,13 @@
 //then send IRQ masks (1 is mask, 0 is allow)
 
 
+#define PF_CODE_PGPROT  1<<0
+#define PF_CODE_WRITE   1<<1
+#define PF_CODE_USER    1<<2
+#define PF_CODE_RES     1<<3
+#define PF_CODE_IF      1<<4
+
+
 #define PIC_EOI 0x20 //send after interrupt is handled
 
 typedef struct __attribute__((__packed__))  idt_entry_t
@@ -51,10 +58,11 @@ void init_interrupts();
 void load_idt();
 
 void set_interrupt_handler(int int_num, void* handler);
-void exception_handler(uint32_t exception_num, uint32_t code);
+void exception_handler(uint32_t exception_num, uint32_t code, void* fault_ip);
 void irq_handler(uint32_t irq_num);
-void page_fault_handler(uint32_t code, void* fault_addr);
+void page_fault_handler(uint32_t code, void* fault_ip);
 
+extern void* pf_addr(void);
 
 extern void except_0();
 extern void except_1();
@@ -69,7 +77,7 @@ extern void except_10();
 extern void except_11();
 extern void except_12();
 extern void except_13();
-extern void except_pf();
+extern void except_14();
 extern void except_16();
 extern void except_17();
 extern void except_18();

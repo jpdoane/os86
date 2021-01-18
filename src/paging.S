@@ -8,12 +8,16 @@
 .align 4
 .type enable_paging, @function
 enable_paging:
-    # Save stack state
     push ebp
     mov ebp, esp 
 
+    // stack:
+    // ebp+0:   old ebp     <-- current esp, ebp
+    // ebp+4:   return eip  <-- esp on entry
+    // ebp+8:   param 1: page_directory_t*
+
     # move arg 1 (page dir) to cr3
-    mov eax, [ebp+4]
+    mov eax, [ebp+8]
     mov cr3, eax            
 
     # set PG and PE bits of cr0

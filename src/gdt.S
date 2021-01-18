@@ -13,7 +13,6 @@ load_gdt:
 
     jmp KERNEL_CODE_SEGMENT:complete_flush
 complete_flush:
-
     mov ax, KERNEL_DATA_SEGMENT
     mov ds, ax
     mov es, ax

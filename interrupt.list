@@ -1,0 +1,491 @@
+
+build/obj/interrupt.asm.o:     file format elf32-i386
+
+
+Disassembly of section .text:
+
+00000000 <load_idt>:
+   0:	0f 01 1d 00 00 00 00 	lidtl  0x0
+   7:	fb                   	sti    
+   8:	c3                   	ret    
+   9:	8d 76 00             	lea    0x0(%esi),%esi
+   c:	55                   	push   %ebp
+   d:	89 e5                	mov    %esp,%ebp
+   f:	60                   	pusha  
+  10:	8b 45 04             	mov    0x4(%ebp),%eax
+  13:	50                   	push   %eax
+  14:	b8 00 00 00 00       	mov    $0x0,%eax
+  19:	50                   	push   %eax
+  1a:	b8 00 00 00 00       	mov    $0x0,%eax
+  1f:	50                   	push   %eax
+  20:	e8 fc ff ff ff       	call   21 <load_idt+0x21>
+  25:	83 c4 0c             	add    $0xc,%esp
+  28:	61                   	popa   
+  29:	5d                   	pop    %ebp
+  2a:	cf                   	iret   
+  2b:	90                   	nop
+  2c:	55                   	push   %ebp
+  2d:	89 e5                	mov    %esp,%ebp
+  2f:	60                   	pusha  
+  30:	8b 45 04             	mov    0x4(%ebp),%eax
+  33:	50                   	push   %eax
+  34:	b8 00 00 00 00       	mov    $0x0,%eax
+  39:	50                   	push   %eax
+  3a:	b8 01 00 00 00       	mov    $0x1,%eax
+  3f:	50                   	push   %eax
+  40:	e8 fc ff ff ff       	call   41 <load_idt+0x41>
+  45:	83 c4 0c             	add    $0xc,%esp
+  48:	61                   	popa   
+  49:	5d                   	pop    %ebp
+  4a:	cf                   	iret   
+  4b:	90                   	nop
+  4c:	55                   	push   %ebp
+  4d:	89 e5                	mov    %esp,%ebp
+  4f:	60                   	pusha  
+  50:	8b 45 04             	mov    0x4(%ebp),%eax
+  53:	50                   	push   %eax
+  54:	b8 00 00 00 00       	mov    $0x0,%eax
+  59:	50                   	push   %eax
+  5a:	b8 02 00 00 00       	mov    $0x2,%eax
+  5f:	50                   	push   %eax
+  60:	e8 fc ff ff ff       	call   61 <load_idt+0x61>
+  65:	83 c4 0c             	add    $0xc,%esp
+  68:	61                   	popa   
+  69:	5d                   	pop    %ebp
+  6a:	cf                   	iret   
+  6b:	90                   	nop
+  6c:	55                   	push   %ebp
+  6d:	89 e5                	mov    %esp,%ebp
+  6f:	60                   	pusha  
+  70:	8b 45 04             	mov    0x4(%ebp),%eax
+  73:	50                   	push   %eax
+  74:	b8 00 00 00 00       	mov    $0x0,%eax
+  79:	50                   	push   %eax
+  7a:	b8 03 00 00 00       	mov    $0x3,%eax
+  7f:	50                   	push   %eax
+  80:	e8 fc ff ff ff       	call   81 <load_idt+0x81>
+  85:	83 c4 0c             	add    $0xc,%esp
+  88:	61                   	popa   
+  89:	5d                   	pop    %ebp
+  8a:	cf                   	iret   
+  8b:	90                   	nop
+  8c:	55                   	push   %ebp
+  8d:	89 e5                	mov    %esp,%ebp
+  8f:	60                   	pusha  
+  90:	8b 45 04             	mov    0x4(%ebp),%eax
+  93:	50                   	push   %eax
+  94:	b8 00 00 00 00       	mov    $0x0,%eax
+  99:	50                   	push   %eax
+  9a:	b8 04 00 00 00       	mov    $0x4,%eax
+  9f:	50                   	push   %eax
+  a0:	e8 fc ff ff ff       	call   a1 <load_idt+0xa1>
+  a5:	83 c4 0c             	add    $0xc,%esp
+  a8:	61                   	popa   
+  a9:	5d                   	pop    %ebp
+  aa:	cf                   	iret   
+  ab:	90                   	nop
+  ac:	55                   	push   %ebp
+  ad:	89 e5                	mov    %esp,%ebp
+  af:	60                   	pusha  
+  b0:	8b 45 04             	mov    0x4(%ebp),%eax
+  b3:	50                   	push   %eax
+  b4:	b8 00 00 00 00       	mov    $0x0,%eax
+  b9:	50                   	push   %eax
+  ba:	b8 05 00 00 00       	mov    $0x5,%eax
+  bf:	50                   	push   %eax
+  c0:	e8 fc ff ff ff       	call   c1 <load_idt+0xc1>
+  c5:	83 c4 0c             	add    $0xc,%esp
+  c8:	61                   	popa   
+  c9:	5d                   	pop    %ebp
+  ca:	cf                   	iret   
+  cb:	90                   	nop
+  cc:	55                   	push   %ebp
+  cd:	89 e5                	mov    %esp,%ebp
+  cf:	60                   	pusha  
+  d0:	8b 45 04             	mov    0x4(%ebp),%eax
+  d3:	50                   	push   %eax
+  d4:	b8 00 00 00 00       	mov    $0x0,%eax
+  d9:	50                   	push   %eax
+  da:	b8 06 00 00 00       	mov    $0x6,%eax
+  df:	50                   	push   %eax
+  e0:	e8 fc ff ff ff       	call   e1 <load_idt+0xe1>
+  e5:	83 c4 0c             	add    $0xc,%esp
+  e8:	61                   	popa   
+  e9:	5d                   	pop    %ebp
+  ea:	cf                   	iret   
+  eb:	90                   	nop
+  ec:	55                   	push   %ebp
+  ed:	89 e5                	mov    %esp,%ebp
+  ef:	60                   	pusha  
+  f0:	8b 45 04             	mov    0x4(%ebp),%eax
+  f3:	50                   	push   %eax
+  f4:	b8 00 00 00 00       	mov    $0x0,%eax
+  f9:	50                   	push   %eax
+  fa:	b8 07 00 00 00       	mov    $0x7,%eax
+  ff:	50                   	push   %eax
+ 100:	e8 fc ff ff ff       	call   101 <load_idt+0x101>
+ 105:	83 c4 0c             	add    $0xc,%esp
+ 108:	61                   	popa   
+ 109:	5d                   	pop    %ebp
+ 10a:	cf                   	iret   
+ 10b:	90                   	nop
+
+0000010c <except_8>:
+ 10c:	55                   	push   %ebp
+ 10d:	89 e5                	mov    %esp,%ebp
+ 10f:	60                   	pusha  
+ 110:	8b 45 04             	mov    0x4(%ebp),%eax
+ 113:	50                   	push   %eax
+ 114:	8b 45 08             	mov    0x8(%ebp),%eax
+ 117:	50                   	push   %eax
+ 118:	b8 08 00 00 00       	mov    $0x8,%eax
+ 11d:	50                   	push   %eax
+ 11e:	e8 fc ff ff ff       	call   11f <except_8+0x13>
+ 123:	83 c4 0c             	add    $0xc,%esp
+ 126:	61                   	popa   
+ 127:	5d                   	pop    %ebp
+ 128:	83 c4 04             	add    $0x4,%esp
+ 12b:	cf                   	iret   
+
+0000012c <except_10>:
+ 12c:	55                   	push   %ebp
+ 12d:	89 e5                	mov    %esp,%ebp
+ 12f:	60                   	pusha  
+ 130:	8b 45 04             	mov    0x4(%ebp),%eax
+ 133:	50                   	push   %eax
+ 134:	8b 45 08             	mov    0x8(%ebp),%eax
+ 137:	50                   	push   %eax
+ 138:	b8 0a 00 00 00       	mov    $0xa,%eax
+ 13d:	50                   	push   %eax
+ 13e:	e8 fc ff ff ff       	call   13f <except_10+0x13>
+ 143:	83 c4 0c             	add    $0xc,%esp
+ 146:	61                   	popa   
+ 147:	5d                   	pop    %ebp
+ 148:	83 c4 04             	add    $0x4,%esp
+ 14b:	cf                   	iret   
+
+0000014c <except_11>:
+ 14c:	55                   	push   %ebp
+ 14d:	89 e5                	mov    %esp,%ebp
+ 14f:	60                   	pusha  
+ 150:	8b 45 04             	mov    0x4(%ebp),%eax
+ 153:	50                   	push   %eax
+ 154:	8b 45 08             	mov    0x8(%ebp),%eax
+ 157:	50                   	push   %eax
+ 158:	b8 0b 00 00 00       	mov    $0xb,%eax
+ 15d:	50                   	push   %eax
+ 15e:	e8 fc ff ff ff       	call   15f <except_11+0x13>
+ 163:	83 c4 0c             	add    $0xc,%esp
+ 166:	61                   	popa   
+ 167:	5d                   	pop    %ebp
+ 168:	83 c4 04             	add    $0x4,%esp
+ 16b:	cf                   	iret   
+
+0000016c <except_12>:
+ 16c:	55                   	push   %ebp
+ 16d:	89 e5                	mov    %esp,%ebp
+ 16f:	60                   	pusha  
+ 170:	8b 45 04             	mov    0x4(%ebp),%eax
+ 173:	50                   	push   %eax
+ 174:	8b 45 08             	mov    0x8(%ebp),%eax
+ 177:	50                   	push   %eax
+ 178:	b8 0c 00 00 00       	mov    $0xc,%eax
+ 17d:	50                   	push   %eax
+ 17e:	e8 fc ff ff ff       	call   17f <except_12+0x13>
+ 183:	83 c4 0c             	add    $0xc,%esp
+ 186:	61                   	popa   
+ 187:	5d                   	pop    %ebp
+ 188:	83 c4 04             	add    $0x4,%esp
+ 18b:	cf                   	iret   
+
+0000018c <except_13>:
+ 18c:	55                   	push   %ebp
+ 18d:	89 e5                	mov    %esp,%ebp
+ 18f:	60                   	pusha  
+ 190:	8b 45 04             	mov    0x4(%ebp),%eax
+ 193:	50                   	push   %eax
+ 194:	8b 45 08             	mov    0x8(%ebp),%eax
+ 197:	50                   	push   %eax
+ 198:	b8 0d 00 00 00       	mov    $0xd,%eax
+ 19d:	50                   	push   %eax
+ 19e:	e8 fc ff ff ff       	call   19f <except_13+0x13>
+ 1a3:	83 c4 0c             	add    $0xc,%esp
+ 1a6:	61                   	popa   
+ 1a7:	5d                   	pop    %ebp
+ 1a8:	83 c4 04             	add    $0x4,%esp
+ 1ab:	cf                   	iret   
+
+000001ac <except_16>:
+ 1ac:	55                   	push   %ebp
+ 1ad:	89 e5                	mov    %esp,%ebp
+ 1af:	60                   	pusha  
+ 1b0:	8b 45 04             	mov    0x4(%ebp),%eax
+ 1b3:	50                   	push   %eax
+ 1b4:	8b 45 08             	mov    0x8(%ebp),%eax
+ 1b7:	50                   	push   %eax
+ 1b8:	b8 10 00 00 00       	mov    $0x10,%eax
+ 1bd:	50                   	push   %eax
+ 1be:	e8 fc ff ff ff       	call   1bf <except_16+0x13>
+ 1c3:	83 c4 0c             	add    $0xc,%esp
+ 1c6:	61                   	popa   
+ 1c7:	5d                   	pop    %ebp
+ 1c8:	83 c4 04             	add    $0x4,%esp
+ 1cb:	cf                   	iret   
+
+000001cc <except_17>:
+ 1cc:	55                   	push   %ebp
+ 1cd:	89 e5                	mov    %esp,%ebp
+ 1cf:	60                   	pusha  
+ 1d0:	8b 45 04             	mov    0x4(%ebp),%eax
+ 1d3:	50                   	push   %eax
+ 1d4:	8b 45 08             	mov    0x8(%ebp),%eax
+ 1d7:	50                   	push   %eax
+ 1d8:	b8 11 00 00 00       	mov    $0x11,%eax
+ 1dd:	50                   	push   %eax
+ 1de:	e8 fc ff ff ff       	call   1df <except_17+0x13>
+ 1e3:	83 c4 0c             	add    $0xc,%esp
+ 1e6:	61                   	popa   
+ 1e7:	5d                   	pop    %ebp
+ 1e8:	83 c4 04             	add    $0x4,%esp
+ 1eb:	cf                   	iret   
+
+000001ec <except_18>:
+ 1ec:	55                   	push   %ebp
+ 1ed:	89 e5                	mov    %esp,%ebp
+ 1ef:	60                   	pusha  
+ 1f0:	8b 45 04             	mov    0x4(%ebp),%eax
+ 1f3:	50                   	push   %eax
+ 1f4:	8b 45 08             	mov    0x8(%ebp),%eax
+ 1f7:	50                   	push   %eax
+ 1f8:	b8 12 00 00 00       	mov    $0x12,%eax
+ 1fd:	50                   	push   %eax
+ 1fe:	e8 fc ff ff ff       	call   1ff <except_18+0x13>
+ 203:	83 c4 0c             	add    $0xc,%esp
+ 206:	61                   	popa   
+ 207:	5d                   	pop    %ebp
+ 208:	83 c4 04             	add    $0x4,%esp
+ 20b:	cf                   	iret   
+
+0000020c <except_19>:
+ 20c:	55                   	push   %ebp
+ 20d:	89 e5                	mov    %esp,%ebp
+ 20f:	60                   	pusha  
+ 210:	8b 45 04             	mov    0x4(%ebp),%eax
+ 213:	50                   	push   %eax
+ 214:	8b 45 08             	mov    0x8(%ebp),%eax
+ 217:	50                   	push   %eax
+ 218:	b8 13 00 00 00       	mov    $0x13,%eax
+ 21d:	50                   	push   %eax
+ 21e:	e8 fc ff ff ff       	call   21f <except_19+0x13>
+ 223:	83 c4 0c             	add    $0xc,%esp
+ 226:	61                   	popa   
+ 227:	5d                   	pop    %ebp
+ 228:	83 c4 04             	add    $0x4,%esp
+ 22b:	cf                   	iret   
+
+0000022c <except_20>:
+ 22c:	55                   	push   %ebp
+ 22d:	89 e5                	mov    %esp,%ebp
+ 22f:	60                   	pusha  
+ 230:	8b 45 04             	mov    0x4(%ebp),%eax
+ 233:	50                   	push   %eax
+ 234:	8b 45 08             	mov    0x8(%ebp),%eax
+ 237:	50                   	push   %eax
+ 238:	b8 14 00 00 00       	mov    $0x14,%eax
+ 23d:	50                   	push   %eax
+ 23e:	e8 fc ff ff ff       	call   23f <except_20+0x13>
+ 243:	83 c4 0c             	add    $0xc,%esp
+ 246:	61                   	popa   
+ 247:	5d                   	pop    %ebp
+ 248:	83 c4 04             	add    $0x4,%esp
+ 24b:	cf                   	iret   
+
+0000024c <except_30>:
+ 24c:	55                   	push   %ebp
+ 24d:	89 e5                	mov    %esp,%ebp
+ 24f:	60                   	pusha  
+ 250:	8b 45 04             	mov    0x4(%ebp),%eax
+ 253:	50                   	push   %eax
+ 254:	8b 45 08             	mov    0x8(%ebp),%eax
+ 257:	50                   	push   %eax
+ 258:	b8 1e 00 00 00       	mov    $0x1e,%eax
+ 25d:	50                   	push   %eax
+ 25e:	e8 fc ff ff ff       	call   25f <except_30+0x13>
+ 263:	83 c4 0c             	add    $0xc,%esp
+ 266:	61                   	popa   
+ 267:	5d                   	pop    %ebp
+ 268:	83 c4 04             	add    $0x4,%esp
+ 26b:	cf                   	iret   
+
+0000026c <except_pf>:
+ 26c:	60                   	pusha  
+ 26d:	0f 20 d0             	mov    %cr2,%eax
+ 270:	50                   	push   %eax
+ 271:	8b 44 24 24          	mov    0x24(%esp),%eax
+ 275:	50                   	push   %eax
+ 276:	8b 44 24 28          	mov    0x28(%esp),%eax
+ 27a:	e8 fc ff ff ff       	call   27b <except_pf+0xf>
+ 27f:	83 c4 08             	add    $0x8,%esp
+ 282:	61                   	popa   
+ 283:	83 c4 04             	add    $0x4,%esp
+ 286:	cf                   	iret   
+ 287:	90                   	nop
+
+00000288 <irq_0>:
+ 288:	60                   	pusha  
+ 289:	b8 00 00 00 00       	mov    $0x0,%eax
+ 28e:	50                   	push   %eax
+ 28f:	e8 fc ff ff ff       	call   290 <irq_0+0x8>
+ 294:	83 c4 04             	add    $0x4,%esp
+ 297:	61                   	popa   
+ 298:	cf                   	iret   
+ 299:	8d 76 00             	lea    0x0(%esi),%esi
+
+0000029c <irq_1>:
+ 29c:	60                   	pusha  
+ 29d:	b8 01 00 00 00       	mov    $0x1,%eax
+ 2a2:	50                   	push   %eax
+ 2a3:	e8 fc ff ff ff       	call   2a4 <irq_1+0x8>
+ 2a8:	83 c4 04             	add    $0x4,%esp
+ 2ab:	61                   	popa   
+ 2ac:	cf                   	iret   
+ 2ad:	8d 76 00             	lea    0x0(%esi),%esi
+
+000002b0 <irq_2>:
+ 2b0:	60                   	pusha  
+ 2b1:	b8 02 00 00 00       	mov    $0x2,%eax
+ 2b6:	50                   	push   %eax
+ 2b7:	e8 fc ff ff ff       	call   2b8 <irq_2+0x8>
+ 2bc:	83 c4 04             	add    $0x4,%esp
+ 2bf:	61                   	popa   
+ 2c0:	cf                   	iret   
+ 2c1:	8d 76 00             	lea    0x0(%esi),%esi
+
+000002c4 <irq_3>:
+ 2c4:	60                   	pusha  
+ 2c5:	b8 03 00 00 00       	mov    $0x3,%eax
+ 2ca:	50                   	push   %eax
+ 2cb:	e8 fc ff ff ff       	call   2cc <irq_3+0x8>
+ 2d0:	83 c4 04             	add    $0x4,%esp
+ 2d3:	61                   	popa   
+ 2d4:	cf                   	iret   
+ 2d5:	8d 76 00             	lea    0x0(%esi),%esi
+
+000002d8 <irq_4>:
+ 2d8:	60                   	pusha  
+ 2d9:	b8 04 00 00 00       	mov    $0x4,%eax
+ 2de:	50                   	push   %eax
+ 2df:	e8 fc ff ff ff       	call   2e0 <irq_4+0x8>
+ 2e4:	83 c4 04             	add    $0x4,%esp
+ 2e7:	61                   	popa   
+ 2e8:	cf                   	iret   
+ 2e9:	8d 76 00             	lea    0x0(%esi),%esi
+
+000002ec <irq_5>:
+ 2ec:	60                   	pusha  
+ 2ed:	b8 05 00 00 00       	mov    $0x5,%eax
+ 2f2:	50                   	push   %eax
+ 2f3:	e8 fc ff ff ff       	call   2f4 <irq_5+0x8>
+ 2f8:	83 c4 04             	add    $0x4,%esp
+ 2fb:	61                   	popa   
+ 2fc:	cf                   	iret   
+ 2fd:	8d 76 00             	lea    0x0(%esi),%esi
+
+00000300 <irq_6>:
+ 300:	60                   	pusha  
+ 301:	b8 06 00 00 00       	mov    $0x6,%eax
+ 306:	50                   	push   %eax
+ 307:	e8 fc ff ff ff       	call   308 <irq_6+0x8>
+ 30c:	83 c4 04             	add    $0x4,%esp
+ 30f:	61                   	popa   
+ 310:	cf                   	iret   
+ 311:	8d 76 00             	lea    0x0(%esi),%esi
+
+00000314 <irq_7>:
+ 314:	60                   	pusha  
+ 315:	b8 07 00 00 00       	mov    $0x7,%eax
+ 31a:	50                   	push   %eax
+ 31b:	e8 fc ff ff ff       	call   31c <irq_7+0x8>
+ 320:	83 c4 04             	add    $0x4,%esp
+ 323:	61                   	popa   
+ 324:	cf                   	iret   
+ 325:	8d 76 00             	lea    0x0(%esi),%esi
+
+00000328 <irq_8>:
+ 328:	60                   	pusha  
+ 329:	b8 08 00 00 00       	mov    $0x8,%eax
+ 32e:	50                   	push   %eax
+ 32f:	e8 fc ff ff ff       	call   330 <irq_8+0x8>
+ 334:	83 c4 04             	add    $0x4,%esp
+ 337:	61                   	popa   
+ 338:	cf                   	iret   
+ 339:	8d 76 00             	lea    0x0(%esi),%esi
+
+0000033c <irq_9>:
+ 33c:	60                   	pusha  
+ 33d:	b8 09 00 00 00       	mov    $0x9,%eax
+ 342:	50                   	push   %eax
+ 343:	e8 fc ff ff ff       	call   344 <irq_9+0x8>
+ 348:	83 c4 04             	add    $0x4,%esp
+ 34b:	61                   	popa   
+ 34c:	cf                   	iret   
+ 34d:	8d 76 00             	lea    0x0(%esi),%esi
+
+00000350 <irq_10>:
+ 350:	60                   	pusha  
+ 351:	b8 0a 00 00 00       	mov    $0xa,%eax
+ 356:	50                   	push   %eax
+ 357:	e8 fc ff ff ff       	call   358 <irq_10+0x8>
+ 35c:	83 c4 04             	add    $0x4,%esp
+ 35f:	61                   	popa   
+ 360:	cf                   	iret   
+ 361:	8d 76 00             	lea    0x0(%esi),%esi
+
+00000364 <irq_11>:
+ 364:	60                   	pusha  
+ 365:	b8 0b 00 00 00       	mov    $0xb,%eax
+ 36a:	50                   	push   %eax
+ 36b:	e8 fc ff ff ff       	call   36c <irq_11+0x8>
+ 370:	83 c4 04             	add    $0x4,%esp
+ 373:	61                   	popa   
+ 374:	cf                   	iret   
+ 375:	8d 76 00             	lea    0x0(%esi),%esi
+
+00000378 <irq_12>:
+ 378:	60                   	pusha  
+ 379:	b8 0c 00 00 00       	mov    $0xc,%eax
+ 37e:	50                   	push   %eax
+ 37f:	e8 fc ff ff ff       	call   380 <irq_12+0x8>
+ 384:	83 c4 04             	add    $0x4,%esp
+ 387:	61                   	popa   
+ 388:	cf                   	iret   
+ 389:	8d 76 00             	lea    0x0(%esi),%esi
+
+0000038c <irq_13>:
+ 38c:	60                   	pusha  
+ 38d:	b8 0d 00 00 00       	mov    $0xd,%eax
+ 392:	50                   	push   %eax
+ 393:	e8 fc ff ff ff       	call   394 <irq_13+0x8>
+ 398:	83 c4 04             	add    $0x4,%esp
+ 39b:	61                   	popa   
+ 39c:	cf                   	iret   
+ 39d:	8d 76 00             	lea    0x0(%esi),%esi
+
+000003a0 <irq_14>:
+ 3a0:	60                   	pusha  
+ 3a1:	b8 0e 00 00 00       	mov    $0xe,%eax
+ 3a6:	50                   	push   %eax
+ 3a7:	e8 fc ff ff ff       	call   3a8 <irq_14+0x8>
+ 3ac:	83 c4 04             	add    $0x4,%esp
+ 3af:	61                   	popa   
+ 3b0:	cf                   	iret   
+ 3b1:	8d 76 00             	lea    0x0(%esi),%esi
+
+000003b4 <irq_15>:
+ 3b4:	60                   	pusha  
+ 3b5:	b8 0f 00 00 00       	mov    $0xf,%eax
+ 3ba:	50                   	push   %eax
+ 3bb:	e8 fc ff ff ff       	call   3bc <irq_15+0x8>
+ 3c0:	83 c4 04             	add    $0x4,%esp
+ 3c3:	61                   	popa   
+ 3c4:	cf                   	iret   
