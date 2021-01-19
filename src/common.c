@@ -1,4 +1,11 @@
 #include "common.h"
+#include "kprintf.h"
+
+void panic(char* str)
+{
+    kprintf(str);
+    while(1);
+}
 
 size_t strlen(const char* str) 
 {
