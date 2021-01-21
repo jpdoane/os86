@@ -113,22 +113,12 @@ void init_page_stack(multiboot_info_t* mbd)
 void* ksbrk(size_t increment)
 {
     if(increment == 0) return kheap_brk;
-    
-    page_t* old_kheap_brk = kheap_brk;
-    page_t* new_kheap_brk = align_addr(kheap_brk + increment, PAGE_SIZE);
 
-    if(new_kheap_brk >= kstack_brk)
-        return NULL; // heap is crashing into stack: we are out of virtual memory!
-    
-    while(kheap_brk < new_kheap_brk)
-    {
-        if(!map_page(kheap_brk++, PAGE_FLAG_WRITE))
-            return NULL; // out of physical memory
-    }
+    page_t* old_brk = kheap_brk;
 
-	kprintf("Setting kernel heap break to 0x%x\n", kheap_brk);
+    if(kbrk(((char*)kheap_brk) + increment)) return NULL;
 
-    return old_kheap_brk;
+    return old_brk;
 }
 
 // set kheap break to addr, growing or shrinking heap accordingly
