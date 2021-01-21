@@ -38,6 +38,16 @@ void *memcpy(void *dest, const void *src, size_t n)
     return dest;
 }
 
+void* memset(void* addr, int val, size_t cnt)
+{
+    char* m = (char*) addr;
+    for(size_t nn=0;nn<cnt; nn++)
+        m[nn] = val;
+
+    return addr;
+}
+
+
 int atoi(const char* str)
 {
     int p = 0;

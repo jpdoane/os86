@@ -1,22 +1,22 @@
 #include "mman.h"
 #include "kprintf.h"
 
-
-page_t* heap_page;      
-char* heap;
-char* heap_end;
-
-
 // physical page allocation
 extern char _kernel_end;      //virtual address of end of static kernel space
 extern char _kernel_end_phys; //phyiscal address of end of static kernel space
 
+page_t* kstack_base;  // fixed at top of memory
+page_t* kstack_brk;   // grows down vvvvvv
+
+page_t* kheap_brk;    // grows up ^^^^^^
+page_t* kheap_base;   // just above page stack
+
 // manage all free physical pages with a stack
 // each stack entry is pointer to physical page
-page_t** free_stack_start;  //beginning of stack memory
+page_t** free_stack_start;  //beginning of stack memory, just after _kernel_end
 page_t** free_stack_top;    //current top of stack (free_stack_start <= free_stack_top <= free_stack_base)
 page_t** free_stack_base;   //end of stack data
-page_t*  free_stack_break;   //end of allocated memory for stack
+page_t*  free_stack_brk;   //end of allocated memory for page allocation stack
 
 // allocate a physical page from the stack
 page_t* pop_free_page()
@@ -50,18 +50,18 @@ void init_page_stack(multiboot_info_t* mbd)
     // Map the stack just past the end of the kernel in virtual mem
 
     // stack_break points to the end of the allocated region for the stack  
-    free_stack_break = align_addr( &_kernel_end, PAGE_SIZE);
+    free_stack_brk = align_addr( &_kernel_end, PAGE_SIZE);
 
     // initialize stack pointers
     // we will initialize the stack by adding new pages to the base
     // first pages (in low mem) will be at top of the stack
-    free_stack_start = (page_t**) free_stack_break;
+    free_stack_start = (page_t**) free_stack_brk;
     free_stack_top = free_stack_start;
     free_stack_base = free_stack_top;
 
     // allocate one page for the stack, incrementing the stack_break and first_free_page pointers
     // We will allocate more pages for the stack as we go as needed
-    if(!map_page_at(free_stack_break++, first_free_page++, PAGE_FLAG_WRITE))
+    if(!map_page_at(free_stack_brk++, first_free_page++, PAGE_FLAG_WRITE))
         panic("Error reserving memory for physical page allocation!");
 
     // loop through each block of memory defined in the multiboot record
@@ -89,11 +89,11 @@ void init_page_stack(multiboot_info_t* mbd)
             for(; pg<pg_end; pg++)
             {
                 // extend end of stack and make sure we have allocated enough memory
-                if( (void*) ++free_stack_base >= (void*) free_stack_break)
+                if( (void*) ++free_stack_base >= (void*) free_stack_brk)
                 {
                     // map a new page at the end of the stack
                     // note that this will pop a free page off the top of the stack
-                    if(!map_page(free_stack_break++, PAGE_FLAG_WRITE))
+                    if(!map_page(free_stack_brk++, PAGE_FLAG_WRITE))
                         panic("Error reserving memory for physical page allocation!");
                 }
 
@@ -108,19 +108,83 @@ void init_page_stack(multiboot_info_t* mbd)
 
 }
 
+
+// increment heap size, return pointer to *old* break (beginning of newly allocated memory)
+void* ksbrk(size_t increment)
+{
+    if(increment == 0) return kheap_brk;
+    
+    page_t* old_kheap_brk = kheap_brk;
+    page_t* new_kheap_brk = align_addr(kheap_brk + increment, PAGE_SIZE);
+
+    if(new_kheap_brk >= kstack_brk)
+        return NULL; // heap is crashing into stack: we are out of virtual memory!
+    
+    while(kheap_brk < new_kheap_brk)
+    {
+        if(!map_page(kheap_brk++, PAGE_FLAG_WRITE))
+            return NULL; // out of physical memory
+    }
+
+	kprintf("Setting kernel heap break to 0x%x\n", kheap_brk);
+
+    return old_kheap_brk;
+}
+
+// set kheap break to addr, growing or shrinking heap accordingly
+// returns 0 on success
+int kbrk(void* addr)
+{
+    //make sure this is a valid break (not before heap begins or into stack)
+    if(addr < (void*) kheap_base || addr >= (void*) kstack_brk)
+        return -1; 
+
+    page_t* pg_addr = align_addr(addr, PAGE_SIZE); // align addr to a page
+
+    if(pg_addr > kheap_brk)
+    {
+        // we are increasing size of the heap
+        while(pg_addr > kheap_brk)
+        {
+            // allocate a new page and map to end of heap
+            if(!map_page(kheap_brk++, PAGE_FLAG_WRITE))
+                return -1; // out of physical memory
+        }
+    }
+    else
+    {
+        // we are decreasing size of the heap
+        while(pg_addr < kheap_brk)
+        {
+            //free page from end of heap
+            if(unmap_page(--kheap_brk))
+                return -1; // error!
+        }
+    }
+
+	kprintf("Setting kernel heap break to 0x%x\n", kheap_brk);
+    
+    return 0;
+}
+
+
 int memory_init(multiboot_info_t* mbd)
 {
     init_page_stack(mbd);
 
-	if(! heap_init() )
-        return -1;
+    // define some dummy pointers for where we will put the stack
+    // TODO: actually set up a stack here
+    kstack_base = (page_t*) 0xffb00000; 
+    kstack_brk = (page_t*)  0xf0000000;
 
+    kheap_base = free_stack_brk; //start heap after the page stack allocator
+    kheap_brk = kheap_base;     // heap starts empty - increase with ksbrk
+
+    // we don't need the 1st MB anymore so unmap it
 	if( unmap_lowmem() )
         return -1;
 
-	// if(! map_multiboot() )
-    //     return -1;
-
+    // except for VGA memory - still need that..
 	if(! map_vga() )
         return -1;
 
@@ -155,23 +219,6 @@ char* map_vga()
     return (char*) vga_buf;
 }
 
-char* heap_init()
-{
-    //start new allocations here in virtual memory
-    heap_page = (page_t*) align_addr((void*) KERNEL_HEAP, PAGE_SIZE);
-    heap = (char*) heap_page;
-    heap_end = (char*) KERNEL_HEAP_END;
-
-	kprintf("Setting up heap: 0x%.8x - 0x%.8x (%u MiB)\n\n", heap, heap_end,  (uint32_t) (heap_end-heap) >> 20);
-
-    //map the first page on the heap
-    if(!map_page(heap_page, PAGE_FLAG_WRITE))
-        return NULL;
-
-    return heap;
-}
-
-
 page_t* map_page_at(page_t* page_virt, page_t* page_phys, uint32_t flags)
 {
     page_table_t* pt = get_table(page_virt);
@@ -194,6 +241,10 @@ page_t* map_page(page_t* page_virt, uint32_t flags)
     return map_page_at(page_virt, pop_free_page(), flags);
 }
 
+int unmap_page(page_t* page_virt)
+{
+    return push_free_page(get_physaddr(page_virt));
+}
 
 page_table_t* new_page_table(void* addr, uint32_t flags)
 {
@@ -220,63 +271,4 @@ page_table_t* new_page_table(void* addr, uint32_t flags)
 
     // return pointer to table (virtual)
     return pv;
-}
-
-void* kmalloc_aligned(size_t sz, size_t alignment)
-{
-    if( sz == 0 || !is_pow_of_two(alignment) ) return NULL;
-
-    char* mem = align_addr(heap, alignment); //start of allocated region
-    char* mem_end = align_addr(mem+sz, alignment); //first byte past end of allocated region
-
-    if(mem_end > heap_end)
-    {
-        // out of memory!
-        return NULL;
-    }
-
-    //map new pages
-    page_t* page_end = (page_t*) (((uint32_t) mem_end - 1) & PAGE_ADDRMASK);
-    while(page_end > heap_page)
-    {
-        page_t* pp = pop_free_page();    // find a free page in physical mem
-        page_t* pv = get_next_heap_page();         // find a free page in virtual mem
-
-        if(!pp || !pv)
-            return NULL; //OOM
-
-        if(!map_page_at(pv, pp, PAGE_FLAG_WRITE))
-            return NULL;
-    }
-
-    heap = mem_end;     //update pointer to end of used heap
-    return (void*) mem;
-}
-
-
-void* kmalloc(size_t sz)
-{
-    return kmalloc_aligned(sz, 4);
-}
-
-void* memset(void* addr, int val, size_t cnt)
-{
-    char* m = (char*) addr;
-    for(size_t nn=0;nn<cnt; nn++)
-        m[nn] = val;
-
-    return addr;
-}
-
-// returns next available virtual page from the heap and updates the heap_page_phys pointer
-// this does *not* update the heap pointer
-// returns NULL on OOM
-page_t* get_next_heap_page()
-{
-    if( (uint32_t) (heap_page+1) > (uint32_t) heap_end)
-    {
-        //out of memory
-        return NULL;
-    }
-    return ++heap_page;
 }

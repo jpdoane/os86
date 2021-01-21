@@ -39,11 +39,9 @@
 // these must be consistent with linker script
 #define KERNEL_BASE_PHYS    0x00101000
 #define USER_CODE           0x01000000
-#define USER_HEAP           0x40000000
-#define USER_HEAP_END       0xc0000000
+#define USER_STACK_BASE     0xbffffff0
 #define KERNEL_BASE         0xc0000000
-#define KERNEL_HEAP         0xc5000000
-#define KERNEL_HEAP_END     0xf0000000
+#define KERNEL_STACK_BASE   0xffb00000
 
 #define KERNEL_STACK_SIZE   32768
 
@@ -78,6 +76,10 @@
 #ifndef ASM_FILE
 #include <stdint.h>
 #include <stddef.h>
+
+typedef struct page_t {
+    uint32_t word[PAGE_SIZE/4];
+} page_t;
 
 typedef struct page_directory_t {
     uint32_t pde[PAGING_NUM_PDE];
