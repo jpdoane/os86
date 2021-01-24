@@ -65,13 +65,13 @@ debug: debug-qemu
 
 debug-qemu: $(TARGET)
 	-pkill qemu
-	$(QEMU) -s -S -kernel $(TARGET) &
+	$(QEMU) -s -S -kernel $(TARGET) -m 512M &
 	gdb -x debug/gdb.start
 	-pkill qemu
 
 debug-asm: $(TARGET)
 	-pkill qemu
-	$(QEMU) -s -S -kernel $(TARGET) &
+	$(QEMU) -s -S -kernel $(TARGET) -m 512M &
 	gdb -x debug/gdb_asm.start
 	-pkill qemu
 
@@ -79,7 +79,7 @@ debug-bochs: $(ISO_IMG) $(SYMBOLFILE)
 	bochs -f $(DEBUG_DIR)/bochsrc.txt
 
 run: $(TARGET)
-	$(QEMU) -kernel $(TARGET)
+	$(QEMU) -kernel $(TARGET) -m 512M 
 
 
 clean:

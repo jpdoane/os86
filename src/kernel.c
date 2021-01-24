@@ -7,38 +7,12 @@
 #include "gdt.h"
 #include "task.h"
 #include "regs.h"
+#include "test.h"
 
  /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if defined(__linux__)  || !defined(__i386__)
 #error "This kernel requires ix86-elf cross compiler"
 #endif
-
-int32_t test_multitasking2()
-{
-	int nn;
-	for(nn=0;nn<5;nn++)
-	{
-		kprintf("task 2, count %d, [%d active tasks]\n", nn, num_tasks());
-		yield();
-	}
-	return nn;
-}
-
-void test_multitasking1()
-{
-	task_control_block_t* task2 = new_kernel_task( &test_multitasking2 );
-
-	int nn;
-	for(nn=0;nn<10;nn++)
-	{
-		kprintf("task 1, count %d  [%d active tasks]\n", nn, num_tasks());
-		yield();
-	}	
-
-	kprintf("Waiting for task 2...\n");	
-	join(task2);
-	kprintf("Task 2 complete, ran %dx\n", task2->return_val);
-}
 
 void kernel_main(multiboot_info_t* mbd)
 {
@@ -65,7 +39,15 @@ void kernel_main(multiboot_info_t* mbd)
 	// printregs(&regs);
 
 
-	test_multitasking1();
+	if(test_kmalloc())
+		kprintf("Malloc tests FAILED!\n");
+	else
+		kprintf("Malloc tests PASSED!\n");
+
+	if(test_multitasking())
+		kprintf("Multitasking tests FAILED!\n");
+	else
+		kprintf("Multitasking tests PASSED!\n");
 
 	while(1);
 }

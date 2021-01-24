@@ -152,7 +152,7 @@ int kbrk(void* addr)
         }
     }
 
-	kprintf("Setting kernel heap break to 0x%x\n", kheap_brk);
+	// kprintf("Setting kernel heap break to 0x%x\n", kheap_brk);
     
     return 0;
 }

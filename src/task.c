@@ -75,9 +75,11 @@ int32_t join(task_control_block_t* task)
     while(task->state == WAITING || task->state == RUNNING)
         yield();
 
+
     // free task memory: stack, heap and paging structures
     // free tcb? << what should lifetime be?  Want to interrogate after process completes, but dont want it to live forever...
-    // before I can do any of this, I need to actually implement free() :)
+
+//    kfree(task);
 
     return 0;
 }
