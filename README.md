@@ -2,16 +2,18 @@
 baremetal sandbox for rudimentary x86 os development
 
 Implemented:
-- simple paging and virtual memory
-- simple linear heap allocation (but not yet free)
+- multiboot
+- paging and virtual memory, with high-memory kernel
+- simple heap allocation with first-fit kmalloc() and kfree()
 - simple interrupts and exceptions
-- Simple task swicthing
+- simple cooperative multitasking
 
 Todo
-- User space
-- Scheduling
-- Proper memory management
+- Ring 3, User space
+- Scheduling and preemptive multitasking
 - File system
 - lots of other stuff
 
-To compile and run, you will need to set up qemu and a cross-platform 32bit x86 toolchain, per instructions on osdev.org
+To compile and run, you will need:
+- qemu
+- cross-platform 32bit x86 toolchain
