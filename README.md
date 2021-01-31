@@ -1,5 +1,5 @@
 # os86
-baremetal sandbox for rudimentary x86 os development
+This is a pretty rudimentary hobby 32bit x86 Operating System.  My goals are pretty modest, mostly just to learn about OS architecture.
 
 Implemented:
 - multiboot
@@ -13,6 +13,8 @@ Todo
 - Scheduling and preemptive multitasking
 - File system
 - lots of other stuff
+- Port to RISC-V and run on jpu?
+
 
 To compile and run, you will need:
 - qemu
