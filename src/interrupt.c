@@ -7,7 +7,7 @@
 idt_entry_t __aligned idt[NUM_INTERRUPT_HANDLERS] = {0};
 idt_descriptor_t __aligned idtd;
 
-void init_interrupts()
+int init_interrupts()
 {
     /* init the PIC */
 	outb(PIC_INIT, PIC1_CMD);  // init PIC 1
@@ -68,6 +68,8 @@ void init_interrupts()
     idtd.base = (uint32_t) idt;
     idtd.limit = sizeof(idt_entry_t) * NUM_INTERRUPT_HANDLERS - 1;
     load_idt();
+
+    return 0;
 }
 
 void set_interrupt_handler(int int_num, void* handler)

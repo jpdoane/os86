@@ -6,7 +6,7 @@ gdt_description_t __aligned  gdtd;
 
 tss_entry_t tss = {0};
 
-void init_gdt()
+int init_gdt()
 {
     // gdt[0] unused
     populate_gdt_entry(&gdt[1], 0, 0xffffffff, SEG_PRES(1) | SEG_PRIV(0) | SEG_DESCTYPE(1) | SEG_CODE_EXRD, SEG_FLAG_GRAN(1) | SEG_FLAG_SIZE(1)); // priv code, seg 0x008
@@ -23,6 +23,7 @@ void init_gdt()
     gdtd.addr = (uint32_t) gdt;
     gdtd.size = sizeof(gdt);    
     load_gdt(&gdtd);
+    return 0;
 }
 
 void update_kstack(void* kernel_stack_ptr)

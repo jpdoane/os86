@@ -53,7 +53,7 @@ typedef struct __attribute__((__packed__))  idt_descriptor_t
 
 extern idt_entry_t idt[];
 
-void init_interrupts();
+int init_interrupts();
 // void load_idt(idt_descriptor_t* idt);
 void load_idt();
 

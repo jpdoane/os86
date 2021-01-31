@@ -110,8 +110,8 @@ void init_frame_stack(multiboot_info_t* mbd)
         }
 	}
 
-    size_t free_frames = frame_stack_base-frame_stack_top;
-	kprintf("\nFound %d frames of RAM (%f MB)\n", free_frames, free_frames*PAGE_SIZE/1e6);
+    // size_t free_frames = frame_stack_base-frame_stack_top;
+	// kprintf("\nFound %d frames of RAM (%f MB)\n", free_frames, free_frames*PAGE_SIZE/1e6);
 
 }
 
@@ -224,12 +224,36 @@ void init_vga_buffer()
         map_page_at(vga_buf++,vga_buf_phys++, PAGE_FLAG_USER | PAGE_FLAG_WRITE);
 }
 
+
+int map_hardware_buffer(void* buffer_virtual, void* buffer_physical, size_t buffer_size, uint32_t page_flags)
+{
+    //ensure buffers are page-aligned
+    if(((size_t) buffer_virtual & ~PAGE_ADDRMASK) || ((size_t) buffer_physical & ~PAGE_ADDRMASK) )
+        return -1;
+
+    //ensure virtual address is in kernel space
+    if(buffer_virtual < (void*) KERNEL_BASE)
+        return -1;
+
+    page_t* page = (page_t*) buffer_virtual;
+    page_t* frame = (page_t*) buffer_physical;
+
+    size_t Npages = (buffer_size + PAGE_SIZE - 1) >> 12;
+    for(size_t nn = 0; nn < Npages; nn++)
+        if(!map_page_at(page++,frame++, page_flags)) return -1;
+    
+    return 0;
+}
+
+
 page_t* map_page_at(page_t* page, page_t* frame, uint32_t flags)
 {
     page_table_t* pt = get_table(page);
 
     if(!pt)
     {
+        // we are setting up all the page tables for kernel space (>0xc0000000) at boot,
+        // so if a PT missing theres a problem
         panic("Kernel page table missing!");
         // pt = new_page_table(page, flags); // page table is not present, allocate a new one
     }

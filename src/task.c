@@ -9,7 +9,7 @@ task_control_block_t kernel_main_task;
 
 uint32_t pid_counter;
 
-void initialize_multitasking()
+int initialize_multitasking()
 {    
     // initialize current task as initial task
     kernel_main_task.pid = pid_counter = 0;
@@ -21,6 +21,8 @@ void initialize_multitasking()
     //as we add tasks this becomes circular linked list
     kernel_main_task.next_task = &kernel_main_task;
     current_task = &kernel_main_task;
+
+    return 0;
 }
 
 task_control_block_t* new_kernel_task(int32_t (*task_entry) (void))

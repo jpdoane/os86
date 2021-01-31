@@ -8,8 +8,9 @@ int global_memory_init(multiboot_info_t* mbd);
 
 int process_memory_init();
 
+int map_hardware_buffer(void* buffer_virtual, void* buffer_physical, size_t buffer_size, uint32_t page_flags);
+
 int unmap_lowmem();
-void init_vga_buffer();
 void kheap_init();
 void kstack_init();
 

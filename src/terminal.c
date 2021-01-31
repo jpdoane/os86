@@ -1,11 +1,14 @@
 #include "terminal.h"
-#include "paging.h"
+#include "mman.h"
 #include "io.h"
 
 struct terminal stdout;
 
 void terminal_init(struct terminal* term) 
 {
+	//map vga buffer
+	map_hardware_buffer((void*) VGA_BUFFER, (void*) VGA_BUFFER_PHYS, VGA_BUFFER_SIZE, PAGE_FLAG_USER | PAGE_FLAG_WRITE);
+
 	term->row = 0;
 	term->column = 0;
 	term->color = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
@@ -35,6 +38,11 @@ void terminal_init(struct terminal* term)
 void terminal_setcolor(struct terminal* term, uint8_t color) 
 {
 	term->color = color;
+}
+
+uint8_t terminal_getcolor(struct terminal* term) 
+{
+	return term->color;
 }
  
 void terminal_putentryat(struct terminal* term, char c, uint8_t color, size_t x, size_t y) 

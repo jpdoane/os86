@@ -113,7 +113,7 @@ static inline void populate_gdt_entry(gdt_entry_t* sd, uint32_t base, uint32_t l
     sd->flags = flags;
 }
 
-void init_gdt();
+int init_gdt();
 void update_kstack(void* kernel_stack_ptr);
 
 // defined in gdt_asm.S
