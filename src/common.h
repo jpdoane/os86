@@ -27,6 +27,23 @@ static inline void bp()
   __asm__ ("xchg %bx, %bx");
 }
 
+static inline size_t align_int(size_t len, size_t alignment)
+{
+    size_t am = alignment - 1;
+    return (((size_t)len + am) & ~am);
+}
+
+static inline void* align_ptr(void* addr, size_t alignment)
+{
+    // alignment must be increment of 4
+    if(alignment % sizeof(void*) != 0 ) return NULL;
+    return (void*) align_int((size_t) addr, alignment);
+}
+
+static inline int is_pow_of_two(uint32_t x)
+{
+    return (x != 0) && ((x & (x - 1)) == 0);
+}
 
 
 #endif

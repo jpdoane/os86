@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "mman.h"
 
 #define HEAP_BLOCK_MAGIC 0x0123beef  //only 28bits, so 1st nibble must = 0
 #define HEAP_BLOCK_FREE 0
@@ -31,6 +32,11 @@ int kmalloc_init();
 void* kmalloc(size_t sz);
 void* kmalloc_aligned(size_t sz, size_t alignment);
 int kfree(void* p);
+
+// size of allocated and free mem in heap
+// returns 0 on success
+int kheap_size(size_t* allocated, size_t* free);
+
 
 // check magic number
 static inline int kheap_validate_block(heap_block_t* b)

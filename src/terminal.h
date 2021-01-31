@@ -3,7 +3,6 @@
 
 #include "common.h"
 
-#define VGA_BUFFER 0xB8000
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 25
 

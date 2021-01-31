@@ -1,6 +1,3 @@
-// Multiboot example from https://wiki.osdev.org/Bare_Bones
-// JPD: add paging setup with kernel at 0xc0000000
-
 .intel_syntax noprefix
 
 #include "paging.h"
@@ -25,29 +22,27 @@ forced to be within the first 8 KiB of the kernel file.
 .long FLAGS
 .long CHECKSUM
 
+.section .bss
+
  // simple kernel stack, 16 byte aligned
-//.section .bootstrap_stack, "aw", @nobits
-.section .bootstrap_stack
 .align 16
 stack_bottom:
 .skip KERNEL_STACK_SIZE
 stack_top:
 
 # Preallocate pages used for paging
-.section .page_tables, "aw", @nobits
 	.align PAGE_SIZE
-boot_page_directory:
+kernel_page_directory:
 	.skip PAGE_SIZE
-boot_pt_kernel:
-	.skip PAGE_SIZE
+kernel_page_tables:
+	.skip PAGE_SIZE*255 # space for 255 kernel page tables
 
- 
+
 # The kernel entry point, prior to paging
 .section .text.boot
 .global _start
 .type _start, @function
-_start:
-	
+_start:	
     cli  				#disable interrupts
 
 	# test for multiboot magic number in eax
@@ -59,7 +54,7 @@ _start:
 	push ebx	#save address of memory map table
 
     #boot page directory
-	lea edi, KERNEL_VIRT_TO_PHYS(boot_page_directory)
+	lea edi, KERNEL_VIRT_TO_PHYS(kernel_page_directory)
 
     #identity map the entire first 4MiB with first pde
 	#this ensures that the physical kernel addresses are valid after we enable paging but before we've jumped to high mem
@@ -70,17 +65,46 @@ _start:
 	or eax, 0x00000010 	
 	mov cr4, eax
 
-    # setup page table for high mem on boot
-	lea esi, KERNEL_VIRT_TO_PHYS(boot_pt_kernel)		#page table addr
-    or  esi, PAGE_FLAG_PRESENT | PAGE_FLAG_WRITE                # pde = addr | enable | write
-	# compute offset into directory
-    lea eax, _kernel_start           	# kernel virtual address
+
+
+# Initialize page directory with (empty) kernel page tables
+.init_pagedir:
+	# kernel memory spans the top 1GB from 0xc0000000 to 0xffffffff.
+	# So we need to initialize the last 256 (last quarter) of pdes (page tables)
+	# however, the last page table actually maps back to the PD and is used to write to the page tables themselves
+	# so there are are only 255 usable kernel page tables
+
+	# edi <- address of first PDE of kernel space
+    lea eax, [KERNEL_BASE]				# kernel base virtual address
     shr eax, 22                         # pd_index = (addr>>22)
     mov ebx, 4
     mul ebx                             # pd_offset = pd_index*4
-	lea edi, KERNEL_VIRT_TO_PHYS(boot_page_directory)	#page dir addr
+	lea edi, KERNEL_VIRT_TO_PHYS(kernel_page_directory)	#page dir addr
     add edi, eax                        # 
-    mov [edi], esi                      # pd[pd_index] = *(pd + pd_offset) = pde
+
+	# eax <- initial pde for kernel space
+	lea eax, KERNEL_VIRT_TO_PHYS(kernel_page_tables)			#address of first kernel page table
+    or  eax, PAGE_FLAG_PRESENT | PAGE_FLAG_WRITE            # pde = addr | enable | write
+
+	# ecx <- number of kernel pdes
+    mov ecx, 255
+	cld 										#loop increments edi
+
+.nextpde:
+    stosd										# [edi++] = eax
+    add eax,0x1000								# next pde
+    loop .nextpde								# loop while (--ecx) != 0
+
+
+#intialize the first kernel page table with initial (static) kernel memory
+#we are assuming here that the static kernel is <4MB and will fit in single page table
+	# compute offset of into directory for kernel page table
+    lea eax, _kernel_start           		# kernel base virtual address
+    shr eax, 22                         # pd_index = (addr>>22)
+    mov ebx, 4
+    mul ebx                             # pd_offset = pd_index*4
+	lea edi, KERNEL_VIRT_TO_PHYS(kernel_page_directory)	#page dir addr
+    add edi, eax                        # 
 
 	#compute number of kernel pages, store in ecx
 	lea ebx, _kernel_start
@@ -97,31 +121,31 @@ _start:
     shr eax, 12                         		# pt_index = (addr>>12) & 0x3ff
     mov ebx, 4
     mul ebx                             		# pt offset = pt_index*4
-	lea edi, KERNEL_VIRT_TO_PHYS(boot_pt_kernel)	#page table addr
+	lea edi, KERNEL_VIRT_TO_PHYS(kernel_page_tables)	#page table addr
     add edi, eax                         		#
 
     lea eax, KERNEL_VIRT_TO_PHYS(_kernel_start) # kernel physical address
     or  eax, PAGE_FLAG_PRESENT | PAGE_FLAG_WRITE		# pte = page phys addr | enable,write bits
-	cld 										#loop increments edi
+
 .nextpte:
     stosd										# [edi++] = eax
     add eax,0x1000								# next page
     loop .nextpte								# loop while (--ecx) != 0
 
     # self-map last pde
-	lea esi, KERNEL_VIRT_TO_PHYS(boot_page_directory)
+	lea esi, KERNEL_VIRT_TO_PHYS(kernel_page_directory)
 	mov edi, esi
 	add edi, PAGE_SIZE-4           # last pde
     or  esi, PAGE_FLAG_PRESENT | PAGE_FLAG_WRITE # set pde enable bit
     mov [edi], esi                      # copy to last pde
 
+_enable_paging:
 
 	pop ebx 	#get address of memory map table off the stack
 				#do this before we enable paging to start with empty stack to make it easier...
 
-_enable_paging:
     #enable paging
-    lea eax, KERNEL_VIRT_TO_PHYS(boot_page_directory)
+    lea eax, KERNEL_VIRT_TO_PHYS(kernel_page_directory)
     mov cr3, eax						#set page dir addr
     mov eax, cr0
     or  eax, 0x80010000                 #set paging ctrl bits
@@ -142,6 +166,36 @@ _enable_paging:
 	cli
 kpanic:	hlt
 	jmp kpanic
+
+
+
+# args:
+# eax = vaddr_start
+# ebx = paddr_start
+# ecx = number pages
+# edi = base addr of kernel page tables
+map_page_table:
+	
+	and eax, PAGE_PTE_MASK						
+    shr eax, 12                         		# pt_index = (addr>>12) & 0x3ff
+    mov ebx, 4
+    mul ebx                             		# pt offset = pt_index*4
+
+	lea edi, KERNEL_VIRT_TO_PHYS(kernel_page_tables)	#page table addr
+    add edi, eax                         		#
+
+    or  eax, PAGE_FLAG_PRESENT | PAGE_FLAG_WRITE		# pte = page phys addr | enable,write bits
+
+.nextentry:
+    stosd										# [edi++] = eax
+    add eax,0x1000								# next page
+    loop .nextentry								# loop while (--ecx) != 0
+
+
+
+
+
+
 
 
 /*

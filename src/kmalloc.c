@@ -11,7 +11,7 @@ int kmalloc_init()
     if(!kheap_head)
         return -1;
 
-    kheap_head = align_addr(kheap_head,HEAP_BLOCKSIZE_UNITS);
+    kheap_head = align_ptr(kheap_head,HEAP_BLOCKSIZE_UNITS);
 
     kheap_head->magic = HEAP_BLOCK_MAGIC;
     kheap_head->status = HEAP_BLOCK_FREE;
@@ -20,10 +20,10 @@ int kmalloc_init()
 
     kheap_head->size = ((heap_block_t*) ksbrk(0)) - kheap_head;
 
-    if(kheap_head->size == 0 || kheap_head->size < HEAP_INCREMENT/HEAP_BLOCKSIZE_UNITS)
-        return 0;    
+    if(kheap_head->size < HEAP_INCREMENT/HEAP_BLOCKSIZE_UNITS)
+        return -1;    
 
-    return -1;    
+    return 0;    
 }
 
 // insert new_block into LL between b and b->next
@@ -72,6 +72,10 @@ heap_block_t* kheap_free_block(heap_block_t* b)
         panic("kernel heap corrupted");
         return NULL;
     }
+
+    // make sure this block isnt already free allocated
+    if(b->status == HEAP_BLOCK_FREE)
+        return NULL;
 
     b->status = HEAP_BLOCK_FREE;
 
@@ -134,7 +138,7 @@ heap_block_t* grow_kheap(size_t minimum_block_size)
         return NULL; // error in ksbrk, e.g. out of memory
 
     //ksbrk doesnt guarantee properly aligned blocks, so make sure we are aligned
-    new_block = align_addr(new_block,HEAP_BLOCKSIZE_UNITS);
+    new_block = align_ptr(new_block,HEAP_BLOCKSIZE_UNITS);
     
     new_block->magic = HEAP_BLOCK_MAGIC;
     new_block->status = HEAP_BLOCK_FREE;
@@ -158,7 +162,7 @@ void* kmalloc(size_t sz)
     if(!kheap_head)
     {
         //initialize the heap with some space
-        if(!kmalloc_init())
+        if(kmalloc_init())
             panic("Error initializing kernel heap");
     }
 
@@ -185,6 +189,7 @@ void* kmalloc(size_t sz)
     if(kheap_split_block(block, block_size)<0)
         panic("Critical error in malloc()");
 
+    block->status = HEAP_BLOCK_USED;
     return block+1; // return pointer after header
 }
 
@@ -278,4 +283,36 @@ int kfree(void* p)
     if(kheap_free_block(b)) return 0;
 
     return -1;
+}
+
+
+// size of allocated and free mem in heap
+// returns 0 on success
+int kheap_size(size_t* allocated, size_t* free)
+{
+    *allocated = 0;
+    *free = 0;
+
+    // make sure heap is initilialized
+    if(!kheap_head)
+        return -1;
+
+    heap_block_t* block = kheap_head;
+    while(true)
+    {        
+        if(kheap_validate_block(block))
+            return -1;        
+
+        if(block->status == HEAP_BLOCK_FREE)
+            *free += block->size*HEAP_BLOCKSIZE_UNITS;
+        else if(block->status == HEAP_BLOCK_USED)
+            *allocated += block->size*HEAP_BLOCKSIZE_UNITS;
+        else
+            return -1;        
+
+        block = block->next;
+        if(block == kheap_head)
+            return 0;
+    }
+
 }

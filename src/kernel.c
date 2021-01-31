@@ -16,28 +16,18 @@
 
 void kernel_main(multiboot_info_t* mbd)
 {
+	init_vga_buffer(); //do this first so we have a working screen buffer
 	init_gdt();
 	init_interrupts();
 
 	terminal_init(&stdout);
-
     // terminal_setcolor(&stdout, VGA_COLOR_WHITE);
 	kprintf("Let's learn about Operating Systems!\n");
 	kprintf("Jon Doane, 2020\n\n");
-
+	
 	print_memory_table(mbd);
-	memory_init(mbd);	//after this the multiboot structure is unmapped
+	global_memory_init(mbd);	//after this the multiboot structure is unmapped
 	initialize_multitasking();
-
-	// // test page fault
-	// int* bad_ptr = 0xe0000000;
-	// int x = *bad_ptr;
-
-	// print registers
-    // reg_t regs;
-    // getregs(&regs);
-	// printregs(&regs);
-
 
 	if(test_kmalloc())
 		kprintf("Malloc tests FAILED!\n");

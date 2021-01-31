@@ -40,8 +40,14 @@
 #define KERNEL_BASE_PHYS    0x00101000
 #define USER_CODE           0x01000000
 #define USER_STACK_BASE     0xbffffff0
+
 #define KERNEL_BASE         0xc0000000
 #define KERNEL_STACK_BASE   0xffb00000
+
+#define VGA_BUFFER_PHYS     0x000b8000
+#define VGA_BUFFER          0xffb10000
+#define VGA_BUFFER_SIZE     0x00007000
+
 
 #define KERNEL_STACK_SIZE   32768
 
@@ -100,7 +106,7 @@ typedef struct page_directory_virt_t {
 
 
 //global pointer to page directory
-extern page_directory_virt_t* pd;   //initialized in paging_asm.S
+extern page_directory_virt_t* pd;
 
 // return page table index for virtual address
 static inline uint32_t get_ptindex(void* addr)

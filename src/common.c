@@ -4,7 +4,7 @@
 void panic(char* str)
 {
     kprintf(str);
-    while(1);
+    while(true);
 }
 
 size_t strlen(const char* str) 

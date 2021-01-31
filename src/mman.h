@@ -4,9 +4,12 @@
 #include "multiboot.h"
 #include "paging.h"
 
-int memory_init(multiboot_info_t* mbd);
+int global_memory_init(multiboot_info_t* mbd);
+
+int process_memory_init();
+
 int unmap_lowmem();
-char* map_vga();
+void init_vga_buffer();
 void kheap_init();
 void kstack_init();
 
@@ -16,21 +19,10 @@ void* ksbrk(size_t increment);
 int kbrk(void* addr);
 
 
-int unmap_page(page_t* page_virt);
-page_t* map_page(page_t* page_virt, uint32_t flags);
-page_t* map_page_at(page_t* page_virt, page_t* page_phys, uint32_t flags);
+int unmap_page(page_t* page);
+page_t* map_page(page_t* page, uint32_t flags);
+page_t* map_page_at(page_t* page, page_t* frame, uint32_t flags);
 page_table_t* new_page_table(void* addr, uint32_t flags);
-
-static inline void* align_addr(void* addr, uint32_t alignment)
-{
-    uint32_t am = alignment - 1;
-    return (char*) (((uint32_t)addr + am) & ~am);
-}
-
-static inline int is_pow_of_two(uint32_t x)
-{
-    return (x != 0) && ((x & (x - 1)) == 0);
-}
 
 //return new pointer with offset bytes 
 static inline void* ptr_offset(void* p, size_t byte_offset)

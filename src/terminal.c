@@ -1,4 +1,5 @@
 #include "terminal.h"
+#include "paging.h"
 #include "io.h"
 
 struct terminal stdout;
