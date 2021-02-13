@@ -34,8 +34,7 @@ task_control_block_t* new_kernel_task( int32_t (*task_entry) (void) );
 void switch_to_next_task(void);
 void switch_to_task(task_control_block_t* task);
 void yield();
-int32_t join(task_control_block_t* task);
-
+int32_t join(task_control_block_t* task, int* ret_val);
 
 void launch_task(task_control_block_t* task);
 

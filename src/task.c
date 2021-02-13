@@ -71,7 +71,7 @@ void yield(void)
     switch_to_task(current_task->next_task);
 }
 
-int32_t join(task_control_block_t* task)
+int32_t join(task_control_block_t* task, int* ret_val)
 {
     // make sure we are not trying to join the current task or the main kernel task
     if(task == current_task || task == &boot_task)
@@ -80,10 +80,10 @@ int32_t join(task_control_block_t* task)
     while(task->state == WAITING || task->state == RUNNING)
         yield();
 
+    if(ret_val)
+        *ret_val = task->return_val;
 
-    // free tcb? << what should lifetime be?  Want to interrogate after process completes, but dont want it to live forever...
-    // free_tcb(task);
-
+    free_tcb(task);
     return 0;
 }
 
