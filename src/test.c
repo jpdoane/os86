@@ -25,3 +25,22 @@ int print_testresult(int status, char* message)
     
     return status;
 }
+
+// returns zero on all pass, or negative of number failed tests
+int run_unit_tests()
+{
+    kprintf("\nRunning Unit Tests...\n");
+    int passed = 0;
+    int total = 0;
+    passed = print_testresult(test_kmalloc(), "kmalloc") ? 0 : passed+1;
+    total++;
+    passed = print_testresult(test_multitasking(), "Multitasking") ? 0 : passed+1;
+    total++;
+
+    kprintf("%d of %d Unit tests passed", passed, total);
+
+    if(passed != total)
+        return passed-total;
+
+    return 0;
+}

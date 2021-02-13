@@ -1,6 +1,5 @@
 #include "terminal.h"
 #include "kprintf.h"
-#include "paging.h"
 #include "multiboot.h"
 #include "mman.h"
 #include "interrupt.h"
@@ -14,8 +13,13 @@
 #error "This kernel requires ix86-elf cross compiler"
 #endif
 
+#define RUN_UNIT_TESTS
+
 void kernel_main(multiboot_info_t* mbd)
 {
+    //this relocates the stack, so this needs to be one of the first calls
+    init_kernel_memory(mbd);
+
 	terminal_init(&stdout);
     // terminal_setcolor(&stdout, VGA_COLOR_WHITE);
 	kprintf("Let's learn about Operating Systems!\n");
@@ -24,15 +28,19 @@ void kernel_main(multiboot_info_t* mbd)
     int result = 0;
 
     result = result || print_testresult(init_gdt(), "Initialize descriptor tables");
-
     result = result || print_testresult(init_interrupts(), "Initialize interrupts");
-    result = result || print_testresult(global_memory_init(mbd), "Initialize memory");
     result = result || print_testresult(initialize_multitasking(), "Initialize multitasking");
 
-    result = result || print_testresult(test_kmalloc(), "kmalloc() unit tests");
-    result = result || print_testresult(test_multitasking(), "Multitasking unit tests");
+    if(result)
+        print_testresult(result, "Errors during startup");
+    else
+        print_testresult(result, "Startup successful");
 
-    print_testresult(result, "Startup successful");
 
+#ifdef RUN_UNIT_TESTS
+    run_unit_tests();
+#endif
+
+    
 	while(1);
 }

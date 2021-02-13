@@ -24,19 +24,33 @@ forced to be within the first 8 KiB of the kernel file.
 
 .section .bss
 
- // simple kernel stack, 16 byte aligned
-.align 16
-stack_bottom:
-.skip KERNEL_STACK_SIZE
-stack_top:
+ // initial tcb
+# .align PAGE_SIZE
+# .extern _boot_tcb
+# .global _boot_tcb
+# _boot_tcb:
+# .skip PAGE_SIZE
+# _boot_page_directory:
+# .skip PAGE_SIZE
+# _boot_page_directory:
+# .skip PAGE_SIZE
+# .extern _boot_kstack_base
+# .global _boot_kstack_base
+# _boot_kstack_base:
+# .skip 3 * PAGE_SIZE
+# .extern _boot_kstack_top
+# .global _boot_kstack_top
+# _boot_kstack_top:
 
 # Preallocate pages used for paging
-	.align PAGE_SIZE
-kernel_page_directory:
-	.skip PAGE_SIZE
+.align PAGE_SIZE
 kernel_page_tables:
-	.skip PAGE_SIZE*255 # space for 255 kernel page tables
+.skip PAGE_SIZE*255 # space for 255 kernel page tables
 
+
+.extern boot_task
+#define boot_page_directory boot_task+PAGE_SIZE*1
+#define boot_kstack_top boot_task+PAGE_SIZE*4
 
 # The kernel entry point, prior to paging
 .section .text.boot
@@ -50,11 +64,12 @@ _start:
 	jne kpanic
 
     #set stack pointer
-	lea esp, KERNEL_VIRT_TO_PHYS(stack_top)
+	lea esp, KERNEL_VIRT_TO_PHYS(boot_kstack_top); //top of first kstack
+
 	push ebx	#save address of memory map table
 
     #boot page directory
-	lea edi, KERNEL_VIRT_TO_PHYS(kernel_page_directory)
+	lea edi, KERNEL_VIRT_TO_PHYS(boot_page_directory)
 
     #identity map the entire first 4MiB with first pde
 	#this ensures that the physical kernel addresses are valid after we enable paging but before we've jumped to high mem
@@ -79,7 +94,7 @@ _start:
     shr eax, 22                         # pd_index = (addr>>22)
     mov ebx, 4
     mul ebx                             # pd_offset = pd_index*4
-	lea edi, KERNEL_VIRT_TO_PHYS(kernel_page_directory)	#page dir addr
+	lea edi, KERNEL_VIRT_TO_PHYS(boot_page_directory)	#page dir addr
     add edi, eax                        # 
 
 	# eax <- initial pde for kernel space
@@ -96,6 +111,7 @@ _start:
     loop .nextpde								# loop while (--ecx) != 0
 
 
+.init_pagetables:
 #intialize the first kernel page table with initial (static) kernel memory
 #we are assuming here that the static kernel is <4MB and will fit in single page table
 	# compute offset of into directory for kernel page table
@@ -103,7 +119,7 @@ _start:
     shr eax, 22                         # pd_index = (addr>>22)
     mov ebx, 4
     mul ebx                             # pd_offset = pd_index*4
-	lea edi, KERNEL_VIRT_TO_PHYS(kernel_page_directory)	#page dir addr
+	lea edi, KERNEL_VIRT_TO_PHYS(boot_page_directory)	#page dir addr
     add edi, eax                        # 
 
 	#compute number of kernel pages, store in ecx
@@ -133,19 +149,21 @@ _start:
     loop .nextpte								# loop while (--ecx) != 0
 
     # self-map last pde
-	lea esi, KERNEL_VIRT_TO_PHYS(kernel_page_directory)
+	lea esi, KERNEL_VIRT_TO_PHYS(boot_page_directory)
 	mov edi, esi
 	add edi, PAGE_SIZE-4           # last pde
     or  esi, PAGE_FLAG_PRESENT | PAGE_FLAG_WRITE # set pde enable bit
     mov [edi], esi                      # copy to last pde
 
-_enable_paging:
+
 
 	pop ebx 	#get address of memory map table off the stack
 				#do this before we enable paging to start with empty stack to make it easier...
 
+_enable_paging:
+
     #enable paging
-    lea eax, KERNEL_VIRT_TO_PHYS(kernel_page_directory)
+    lea eax, KERNEL_VIRT_TO_PHYS(boot_page_directory)
     mov cr3, eax						#set page dir addr
     mov eax, cr0
     or  eax, 0x80010000                 #set paging ctrl bits
@@ -154,52 +172,15 @@ _enable_paging:
 	# we are now paging, using virtual addresses
 
     #update stack pointer to virtual addr
-	lea esp, stack_top
+	lea esp, boot_kstack_top
 
  	# jump to main kernel code
-	push eax	#extra push to maintain 16b stack alignment
-	push eax	#extra push to maintain 16b stack alignment
-	push eax	#extra push to maintain 16b stack alignment
+	push eax	#extra push to maintain 16B stack alignment
+	push eax	#extra push to maintain 16B stack alignment
+	push eax	#extra push to maintain 16B stack alignment
 	push ebx	#address of memory map table
 	call kernel_main
 
 	cli
 kpanic:	hlt
 	jmp kpanic
-
-
-
-# args:
-# eax = vaddr_start
-# ebx = paddr_start
-# ecx = number pages
-# edi = base addr of kernel page tables
-map_page_table:
-	
-	and eax, PAGE_PTE_MASK						
-    shr eax, 12                         		# pt_index = (addr>>12) & 0x3ff
-    mov ebx, 4
-    mul ebx                             		# pt offset = pt_index*4
-
-	lea edi, KERNEL_VIRT_TO_PHYS(kernel_page_tables)	#page table addr
-    add edi, eax                         		#
-
-    or  eax, PAGE_FLAG_PRESENT | PAGE_FLAG_WRITE		# pte = page phys addr | enable,write bits
-
-.nextentry:
-    stosd										# [edi++] = eax
-    add eax,0x1000								# next page
-    loop .nextentry								# loop while (--ecx) != 0
-
-
-
-
-
-
-
-
-/*
-Set the size of the _start symbol to the current location '.' minus its start.
-This is useful when debugging or when you implement call tracing.
-*/
-.size _start, . - _start

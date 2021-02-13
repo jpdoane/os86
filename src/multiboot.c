@@ -37,17 +37,5 @@ int print_memory_table(multiboot_info_t* mbd)
 		
 	}
 
-    // page_directory_t* pd = getPageDirectory();
-	// kprintf("Page Directory at %p:\n", pd);
-	// for(unsigned int nn=0; nn<64; nn++)
-	// {
-    //     void* addr = pd[nn] & 0xfffff000;
-    //     unsigned int flags = pd[nn] & 0xfff;
-    //     if(flags & 1)   // present
-    //         kprintf("[%3u] %p (%#x)\n", nn, addr, flags);		
-	// }
-
-    // print_crs();
-
     return 0;
 }

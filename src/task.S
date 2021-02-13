@@ -1,7 +1,7 @@
 .intel_syntax noprefix
 
 // global task structs
-.extern kernel_main_task
+.extern boot_task
 .extern current_task
 .extern tss
 
@@ -35,7 +35,7 @@ switch_to_task:
     //load new stack, pd, and kernel stack from new TCB
     mov esp, [esi+0x8]          // stack ptr
     mov ebx, [esi+0xc]          // top of kernel stack
-    mov eax, [esi+0x10]         // page dir
+    mov eax, [esi+0x10]         // cr3
     
     // update tss with new esp0
     mov [tss + 0x4], ebx         // tss.esp0 = 0x4
@@ -63,10 +63,10 @@ ret
 .global terminate_task
 terminate_task:
     // terminate task and return to main kernel thread
-    lea esi, [kernel_main_task]
+    lea esi, [boot_task]
     mov current_task, esi
 
-    //load kernel_main_task stack, pd, and kernel stack from new TCB
+    //load boot_task stack, pd, and kernel stack from new TCB
     mov esp, [esi+0x8]          // stack ptr
     mov ebx, [esi+0xc]          // top of kernel stack
     mov eax, [esi+0x10]         // page dir
