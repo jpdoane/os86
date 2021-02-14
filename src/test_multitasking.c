@@ -15,7 +15,7 @@ int32_t mytask()
 		if(shared_value != nn)
 			return  -1;
 
-		shared_value--;	//increment, check in other task
+		shared_value--;	//decrement, check in other task
 		yield();
 	}
 	return nn;
